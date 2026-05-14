@@ -1,0 +1,17 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(ls \"/mnt/c/Users/Yakir-Uzan/Desktop/\" | head -20)",
+      "Bash(ls /mnt/c/Users/Yakir-Uzan/Desktop/ 2>/dev/null || ls /c/Users/Yakir-Uzan/Desktop/ 2>/dev/null || echo \"Cannot access Windows desktop from WSL Bash\")",
+      "Bash(cp '/c/Users/Yakir-Uzan/Desktop/אדרת אליהו/images/hero/*' '/c/Users/Yakir-Uzan/Desktop/אדרת אליהו/public/images/hero/')",
+      "Bash(cp '/c/Users/Yakir-Uzan/Desktop/אדרת אליהו/images/gallery/*' '/c/Users/Yakir-Uzan/Desktop/אדרת אליהו/public/images/gallery/')",
+      "Bash(npm install *)",
+      "Bash(npm run *)",
+      "Bash(mkdir -p \"/c/Users/Yakir-Uzan/Desktop/אדרת אליהו/.claude\")",
+      "mcp__Claude_Preview__preview_start",
+      "mcp__Claude_in_Chrome__tabs_context_mcp",
+      "Bash(npx vite *)",
+      "Bash(npm ls *)"
+    ]
+  }
+}
