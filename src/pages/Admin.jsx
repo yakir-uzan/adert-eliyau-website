@@ -47,6 +47,9 @@ import CloudUploadIcon from '@mui/icons-material/CloudUpload';
 import CloseIcon from '@mui/icons-material/Close';
 import AccessTimeIcon from '@mui/icons-material/AccessTime';
 
+// אימייל המנהל — רק כתובת זו תקבל גישה לממשק הניהול
+const ADMIN_EMAIL = 'yakiruzangreen@gmail.com';
+
 const fmtMoney = n => new Intl.NumberFormat('he-IL', { style: 'currency', currency: 'ILS', maximumFractionDigits: 0 }).format(n || 0);
 const fmtDate  = ts => { if (!ts) return ''; const d = ts?.toDate ? ts.toDate() : new Date(ts); return d.toLocaleDateString('he-IL'); };
 
@@ -501,28 +504,22 @@ function ChargesTab({ onToast }) {
 export default function Admin() {
   const [authState, setAuthState] = useState('loading');
   const [adminUser, setAdminUser] = useState(null);
-  const [email, setEmail]         = useState('');
-  const [pass, setPass]           = useState('');
   const [loginErr, setLoginErr]   = useState('');
   const [tab, setTab]             = useState(0);
   const [toast, setToast]         = useState({ open: false, msg: '', sev: 'success' });
 
-  useEffect(() => onAuthStateChanged(auth, u => { setAdminUser(u); setAuthState(u ? 'user' : 'guest'); }), []);
+  useEffect(() => onAuthStateChanged(auth, u => {
+    setAdminUser(u);
+    if (!u) setAuthState('guest');
+    else if (u.email === ADMIN_EMAIL) setAuthState('admin');
+    else setAuthState('unauthorized');
+  }), []);
 
-  const login = async e => {
-    e.preventDefault(); setLoginErr('');
-    try { await signInWithEmailAndPassword(auth, email, pass); }
+  const login = async () => {
+    setLoginErr('');
+    try { await signInWithPopup(auth, new GoogleAuthProvider()); }
     catch (err) {
-      const codes = {
-        'auth/invalid-credential':        'אימייל או סיסמה שגויים',
-        'auth/user-not-found':            'משתמש לא קיים',
-        'auth/wrong-password':            'סיסמה שגויה',
-        'auth/invalid-email':             'כתובת אימייל לא תקינה',
-        'auth/operation-not-allowed':     'התחברות באימייל/סיסמה לא מופעלת — יש להפעיל ב-Firebase Console',
-        'auth/too-many-requests':         'יותר מדי ניסיונות — נסו שוב מאוחר יותר',
-        'auth/network-request-failed':    'בעיית רשת — בדקו חיבור לאינטרנט',
-      };
-      setLoginErr(codes[err.code] || `שגיאה: ${err.code}`);
+      if (err.code !== 'auth/popup-closed-by-user') setLoginErr('שגיאת כניסה — נסו שוב');
     }
   };
 
@@ -534,18 +531,36 @@ export default function Admin() {
     </Box>
   );
 
+  if (authState === 'unauthorized') return (
+    <Box sx={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', bgcolor: '#080f18' }}>
+      <Card sx={{ p: 4, width: '100%', maxWidth: 400, textAlign: 'center' }}>
+        <LockIcon sx={{ fontSize: '3rem', color: 'error.main', mb: 1 }} />
+        <Typography variant="h5" gutterBottom color="error">אין הרשאת גישה</Typography>
+        <Typography color="text.secondary" sx={{ mb: 3 }}>
+          החשבון <strong>{adminUser?.email}</strong> אינו מורשה לגשת לממשק הניהול
+        </Typography>
+        <Button variant="outlined" onClick={() => signOut(auth)}>התנתק וחזור</Button>
+      </Card>
+    </Box>
+  );
+
   if (authState === 'guest') return (
     <Box sx={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', bgcolor: '#080f18' }}>
       <Card sx={{ p: 4, width: '100%', maxWidth: 400, textAlign: 'center' }}>
         <LockIcon sx={{ fontSize: '3rem', color: 'primary.main', mb: 1 }} />
         <Typography variant="h4" gutterBottom>כניסה לניהול</Typography>
         <Typography color="text.secondary" sx={{ mb: 3, fontSize: '0.9rem' }}>בית כנסת אדרת אליהו — גבאות</Typography>
-        <Box component="form" onSubmit={login} sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
-          <TextField label="אימייל" type="email" value={email} onChange={e => setEmail(e.target.value)} required fullWidth inputProps={{ dir: 'ltr' }} />
-          <TextField label="סיסמה" type="password" value={pass} onChange={e => setPass(e.target.value)} required fullWidth inputProps={{ dir: 'ltr' }} />
-          {loginErr && <Alert severity="error">{loginErr}</Alert>}
-          <Button type="submit" variant="contained" size="large" fullWidth>כניסה</Button>
-        </Box>
+        {loginErr && <Alert severity="error" sx={{ mb: 2 }}>{loginErr}</Alert>}
+        <Button
+          variant="contained"
+          size="large"
+          fullWidth
+          onClick={login}
+          sx={{ gap: 1.5, py: 1.4, fontSize: '1rem' }}
+        >
+          <Box component="img" src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" alt="Google" sx={{ width: 22, height: 22 }} />
+          כניסה עם Google
+        </Button>
       </Card>
     </Box>
   );

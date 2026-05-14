@@ -1,7 +1,8 @@
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { auth } from '../firebase';
-import { onAuthStateChanged, signOut, GoogleAuthProvider, signInWithPopup } from 'firebase/auth';
+import { signOut, GoogleAuthProvider, signInWithPopup } from 'firebase/auth';
+import { useAuth } from '../contexts/AuthContext';
 import AppBar from '@mui/material/AppBar';
 import Toolbar from '@mui/material/Toolbar';
 import Box from '@mui/material/Box';
@@ -30,11 +31,9 @@ const NAV_LINKS = [
 
 export default function Navbar() {
   const [drawerOpen, setDrawerOpen] = useState(false);
-  const [user, setUser]             = useState(null);
+  const { user } = useAuth();
   const location = useLocation();
   const scrolled = useScrollTrigger({ disableHysteresis: true, threshold: 60 });
-
-  useEffect(() => onAuthStateChanged(auth, setUser), []);
 
   const handleLogin = () =>
     signInWithPopup(auth, new GoogleAuthProvider()).catch(console.error);
@@ -75,7 +74,7 @@ export default function Navbar() {
           </Box>
 
           {/* Desktop links */}
-          <Box sx={{ display: { xs: 'none', md: 'flex' }, gap: 0.5 }}>
+          <Box sx={{ display: { xs: 'none', md: 'flex' }, gap: 0.5, alignItems: 'center' }}>
             {NAV_LINKS.map(l => (
               <Button
                 key={l.to}
@@ -133,7 +132,7 @@ export default function Navbar() {
 
       {/* Mobile Drawer */}
       <Drawer
-        anchor="right"
+        anchor="left"
         open={drawerOpen}
         onClose={() => setDrawerOpen(false)}
         PaperProps={{ sx: { width: 280 } }}

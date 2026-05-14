@@ -1,7 +1,11 @@
 import { useState, useEffect } from 'react';
 import { auth, db } from '../firebase';
-import { onAuthStateChanged, signOut, GoogleAuthProvider, signInWithPopup } from 'firebase/auth';
-import { collection, query, where, orderBy, getDocs, setDoc, doc, serverTimestamp } from 'firebase/firestore';
+import { signOut, GoogleAuthProvider, signInWithPopup } from 'firebase/auth';
+import {
+  collection, query, where, orderBy, getDocs,
+  setDoc, doc, addDoc, updateDoc, serverTimestamp, Timestamp,
+} from 'firebase/firestore';
+import { useAuth } from '../contexts/AuthContext';
 import Box from '@mui/material/Box';
 import Container from '@mui/material/Container';
 import Typography from '@mui/material/Typography';
@@ -14,12 +18,25 @@ import TableBody from '@mui/material/TableBody';
 import TableCell from '@mui/material/TableCell';
 import TableHead from '@mui/material/TableHead';
 import TableRow from '@mui/material/TableRow';
+import Tabs from '@mui/material/Tabs';
+import Tab from '@mui/material/Tab';
+import Grid from '@mui/material/Grid';
 import Chip from '@mui/material/Chip';
+import Select from '@mui/material/Select';
+import MenuItem from '@mui/material/MenuItem';
+import FormControl from '@mui/material/FormControl';
+import InputLabel from '@mui/material/InputLabel';
+import TextField from '@mui/material/TextField';
 import Skeleton from '@mui/material/Skeleton';
+import Snackbar from '@mui/material/Snackbar';
+import Alert from '@mui/material/Alert';
+import Divider from '@mui/material/Divider';
 import CircularProgress from '@mui/material/CircularProgress';
 import WhatsAppIcon from '@mui/icons-material/WhatsApp';
 import LockIcon from '@mui/icons-material/Lock';
 import CheckCircleIcon from '@mui/icons-material/CheckCircle';
+import PersonIcon from '@mui/icons-material/Person';
+import ManageAccountsIcon from '@mui/icons-material/ManageAccounts';
 import PageHero from '../components/PageHero';
 import GoldDivider from '../components/GoldDivider';
 
@@ -29,27 +46,165 @@ const BIT_LINK    = 'https://www.bitpay.co.il/app/transfer?phone=05XXXXXXXX';
 const PAYBOX_LINK = 'https://paybox.me/XXXXX';
 const WA_GABBAI   = 'https://wa.me/9725XXXXXXXX';
 
-export default function Cheshbon() {
-  const [authState, setAuthState] = useState('loading'); // loading | guest | user
-  const [user, setUser]           = useState(null);
-  const [charges, setCharges]     = useState(null);
+// ── Admin: Charges Management Panel ──
+function ChargesPanel({ onToast }) {
+  const [users,   setUsers]   = useState([]);
+  const [charges, setCharges] = useState([]);
+  const [uid,    setUid]    = useState('');
+  const [type,   setType]   = useState('');
+  const [desc,   setDesc]   = useState('');
+  const [amount, setAmount] = useState('');
+  const [date,   setDate]   = useState('');
+  const [saving, setSaving] = useState(false);
 
-  useEffect(() => onAuthStateChanged(auth, async u => {
-    if (u) {
-      setUser(u);
-      setAuthState('user');
+  const loadUsers   = async () => { try { const s = await getDocs(collection(db, 'users')); setUsers(s.docs.map(d => ({ uid: d.id, ...d.data() }))); } catch {} };
+  const loadCharges = async () => {
+    try {
+      const q = query(collection(db, 'cheshbonot'), where('paid','==',false), orderBy('date','desc'));
+      const s = await getDocs(q);
+      setCharges(s.docs.map(d => ({ id: d.id, ...d.data() })));
+    } catch {}
+  };
+
+  useEffect(() => { loadUsers(); loadCharges(); }, []);
+
+  const byUid = {};
+  charges.forEach(c => {
+    if (!byUid[c.uid]) byUid[c.uid] = { charges: [], total: 0 };
+    byUid[c.uid].charges.push(c);
+    byUid[c.uid].total += c.amount || 0;
+  });
+
+  const addCharge = async () => {
+    if (!uid || !type || !amount || isNaN(parseFloat(amount))) { onToast('נא למלא את כל השדות', 'error'); return; }
+    setSaving(true);
+    try {
+      const d = date ? Timestamp.fromDate(new Date(date)) : serverTimestamp();
+      await addDoc(collection(db, 'cheshbonot'), { uid, type, description: desc, amount: parseFloat(amount), date: d, paid: false });
+      setUid(''); setType(''); setDesc(''); setAmount(''); setDate('');
+      onToast('החיוב נוסף בהצלחה');
+      loadCharges();
+    } catch { onToast('שגיאה בהוספה', 'error'); }
+    setSaving(false);
+  };
+
+  const markPaid = async id => {
+    if (!window.confirm('לסמן חיוב זה כשולם?')) return;
+    try {
+      await updateDoc(doc(db, 'cheshbonot', id), { paid: true, paidAt: serverTimestamp() });
+      onToast('סומן כשולם');
+      loadCharges();
+    } catch { onToast('שגיאה', 'error'); }
+  };
+
+  return (
+    <Box>
+      {/* Add charge form */}
+      <Card sx={{ p: 3, mb: 3 }}>
+        <Typography variant="h6" sx={{ color: 'primary.main', mb: 2 }}>הוסף חיוב חדש</Typography>
+        <Grid container spacing={2}>
+          <Grid item xs={12} sm={6}>
+            <FormControl fullWidth>
+              <InputLabel>מתפלל *</InputLabel>
+              <Select value={uid} onChange={e => setUid(e.target.value)} label="מתפלל *">
+                <MenuItem value="">-- בחר --</MenuItem>
+                {users.map(u => <MenuItem key={u.uid} value={u.uid}>{u.displayName || u.email}</MenuItem>)}
+              </Select>
+            </FormControl>
+          </Grid>
+          <Grid item xs={12} sm={6}>
+            <FormControl fullWidth>
+              <InputLabel>סוג *</InputLabel>
+              <Select value={type} onChange={e => setType(e.target.value)} label="סוג *">
+                <MenuItem value="">-- בחר --</MenuItem>
+                <MenuItem value="aliya">עלייה לתורה</MenuItem>
+                <MenuItem value="neder">נדר / תרומה</MenuItem>
+              </Select>
+            </FormControl>
+          </Grid>
+          <Grid item xs={12} sm={6}>
+            <TextField label="תיאור" value={desc} onChange={e => setDesc(e.target.value)} fullWidth placeholder='לדוגמה: "ראשון, שבת פרשת בהר"' />
+          </Grid>
+          <Grid item xs={6} sm={3}>
+            <TextField label="סכום (₪) *" value={amount} onChange={e => setAmount(e.target.value)} type="number" fullWidth inputProps={{ dir:'ltr', min:1 }} />
+          </Grid>
+          <Grid item xs={6} sm={3}>
+            <TextField label="תאריך" value={date} onChange={e => setDate(e.target.value)} type="date" fullWidth InputLabelProps={{ shrink:true }} inputProps={{ dir:'ltr' }} />
+          </Grid>
+        </Grid>
+        <Box mt={2.5}>
+          <Button variant="contained" onClick={addCharge} disabled={saving} sx={{ px: 3 }}>
+            {saving ? <CircularProgress size={20} sx={{ color:'inherit' }} /> : '+ הוסף חיוב'}
+          </Button>
+        </Box>
+      </Card>
+
+      {/* Charges per user */}
+      <Typography variant="h6" sx={{ color: 'primary.main', mb: 2 }}>חיובים פתוחים לפי מתפלל</Typography>
+      {Object.entries(byUid).length === 0 && (
+        <Typography color="text.secondary">אין חיובים פתוחים</Typography>
+      )}
+      {Object.entries(byUid).map(([u, info]) => {
+        const usr = users.find(x => x.uid === u);
+        return (
+          <Card key={u} sx={{ mb: 2 }}>
+            <CardContent>
+              <Box sx={{ display:'flex', justifyContent:'space-between', alignItems:'center', mb:1.5, pb:1.5, borderBottom:'1px solid rgba(201,168,76,0.15)' }}>
+                <Typography fontWeight={700} color="secondary.main">{usr?.displayName || usr?.email || u}</Typography>
+                <Chip label={`סה״כ: ${fmtMoney(info.total)}`} sx={{ bgcolor:'rgba(248,113,113,0.15)', color:'#f87171', fontWeight:700 }} />
+              </Box>
+              {info.charges.map(c => (
+                <Box key={c.id} sx={{ display:'flex', alignItems:'center', gap:1.5, py:0.75, borderBottom:'1px solid rgba(201,168,76,0.05)', flexWrap:'wrap', '&:last-child':{ borderBottom:'none' } }}>
+                  <Chip size="small" label={c.type==='aliya'?'עלייה':'נדר'} sx={{ bgcolor: c.type==='aliya'?'rgba(201,168,76,0.15)':'rgba(139,26,26,0.2)', color: c.type==='aliya'?'primary.main':'#f87171' }} />
+                  <Typography variant="body2" sx={{ flex:1 }}>{c.description}</Typography>
+                  <Typography variant="body2" sx={{ color:'primary.main', fontWeight:700 }}>{fmtMoney(c.amount)}</Typography>
+                  <Button size="small" startIcon={<CheckCircleIcon />} onClick={() => markPaid(c.id)}
+                    sx={{ color:'success.main', borderColor:'success.main', border:'1px solid', fontSize:'0.78rem' }}>
+                    שולם
+                  </Button>
+                </Box>
+              ))}
+            </CardContent>
+          </Card>
+        );
+      })}
+    </Box>
+  );
+}
+
+// ── Main ──
+export default function Cheshbon() {
+  const { user, isAdmin } = useAuth();
+  const [authReady, setAuthReady] = useState(false);
+  const [charges,   setCharges]   = useState(null);
+  const [tab, setTab]             = useState(0);
+  const [toast, setToast]         = useState({ open: false, msg: '', sev: 'success' });
+
+  // Register user in Firestore and load their charges when they log in
+  useEffect(() => {
+    if (user === undefined) return; // still loading from AuthContext
+    setAuthReady(true);
+    if (!user) { setCharges(null); return; }
+
+    (async () => {
       try {
-        await setDoc(doc(db, 'users', u.uid), { displayName: u.displayName, email: u.email, photoURL: u.photoURL, lastLogin: serverTimestamp() }, { merge: true });
-        const q = query(collection(db, 'cheshbonot'), where('uid','==',u.uid), where('paid','==',false), orderBy('date','desc'));
+        await setDoc(doc(db, 'users', user.uid), {
+          displayName: user.displayName,
+          email: user.email,
+          photoURL: user.photoURL,
+          lastLogin: serverTimestamp(),
+        }, { merge: true });
+        const q = query(collection(db, 'cheshbonot'), where('uid','==',user.uid), where('paid','==',false), orderBy('date','desc'));
         const snap = await getDocs(q);
         setCharges(snap.docs.map(d => ({ id: d.id, ...d.data() })));
       } catch { setCharges([]); }
-    } else { setUser(null); setAuthState('guest'); }
-  }), []);
+    })();
+  }, [user]);
 
   const login  = () => signInWithPopup(auth, new GoogleAuthProvider()).catch(console.error);
   const logout = () => signOut(auth);
-  const total  = (charges || []).reduce((s,c) => s + (c.amount||0), 0);
+  const total  = (charges || []).reduce((s, c) => s + (c.amount || 0), 0);
+  const onToast = (msg, sev = 'success') => setToast({ open: true, msg, sev });
 
   return (
     <Box>
@@ -59,12 +214,14 @@ export default function Cheshbon() {
           <GoldDivider />
 
           {/* Loading */}
-          {authState === 'loading' && (
-            <Box display="flex" justifyContent="center" mt={6}><CircularProgress sx={{ color: 'primary.main' }} /></Box>
+          {!authReady && (
+            <Box display="flex" justifyContent="center" mt={6}>
+              <CircularProgress sx={{ color: 'primary.main' }} />
+            </Box>
           )}
 
-          {/* Guest — login */}
-          {authState === 'guest' && (
+          {/* Guest */}
+          {authReady && !user && (
             <Card sx={{ mt: 4, p: { xs: 3, sm: 5 }, textAlign: 'center', mx: 'auto', maxWidth: 420 }}>
               <LockIcon sx={{ fontSize: '3rem', mb: 1, color: 'primary.main' }} />
               <Typography variant="h4" gutterBottom>כניסה לחשבון האישי</Typography>
@@ -93,77 +250,109 @@ export default function Cheshbon() {
             </Card>
           )}
 
-          {/* User — account */}
-          {authState === 'user' && user && (
+          {/* Logged in */}
+          {authReady && user && (
             <>
-              {/* Profile */}
+              {/* Profile bar */}
               <Card sx={{ mt: 4, p: 2 }}>
-                <CardContent sx={{ display: 'flex', alignItems: 'center', gap: 2, py: '12px !important' }}>
-                  <Avatar src={user.photoURL} sx={{ width: 56, height: 56, border: '2px solid #C9A84C' }} />
+                <CardContent sx={{ display:'flex', alignItems:'center', gap:2, py:'12px !important' }}>
+                  <Avatar src={user.photoURL} sx={{ width:56, height:56, border:'2px solid #C9A84C' }} />
                   <Box sx={{ flex: 1 }}>
-                    <Typography fontWeight={700} sx={{ color: 'secondary.main' }}>{user.displayName}</Typography>
+                    <Typography fontWeight={700} sx={{ color:'secondary.main' }}>{user.displayName}</Typography>
                     <Typography variant="caption" color="text.secondary">{user.email}</Typography>
                   </Box>
                   <Button size="small" variant="outlined" onClick={logout}>התנתק</Button>
                 </CardContent>
               </Card>
 
-              {/* Total */}
-              <Card sx={{ mt: 2, p: 3, textAlign: 'center', bgcolor: total > 0 ? 'rgba(248,113,113,0.05)' : 'rgba(74,222,128,0.05)', borderColor: total > 0 ? '#f87171' : '#4ade80' }}>
-                <Typography variant="caption" color="text.secondary">סה״כ לתשלום</Typography>
-                <Typography sx={{ fontSize: '3rem', fontWeight: 700, color: total > 0 ? '#f87171' : '#4ade80', fontFamily: '"Secular One", serif' }}>
-                  {charges === null ? <CircularProgress size={36} /> : fmtMoney(total)}
-                </Typography>
-                <Typography sx={{ color: total > 0 ? '#fca5a5' : '#86efac' }}>
-                  {total > 0 ? 'יש סכום לתשלום' : <Box component="span" sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 0.5 }}><CheckCircleIcon fontSize="small" />החשבון מאוזן — תודה!</Box>}
-                </Typography>
-                {total > 0 && (
-                  <Box sx={{ display: 'flex', gap: 1.5, justifyContent: 'center', flexWrap: 'wrap', mt: 2 }}>
-                    <Button href={BIT_LINK} target="_blank" sx={{ bgcolor: '#0091FF', color: '#fff', '&:hover': { bgcolor: '#007fd9' } }}>שלם בביט</Button>
-                    <Button href={PAYBOX_LINK} target="_blank" sx={{ bgcolor: '#6c3cbf', color: '#fff', '&:hover': { bgcolor: '#5a30a8' } }}>שלם בפייבוקס</Button>
-                    <Button href={`${WA_GABBAI}?text=שלום, ברצוני לשלם את חשבוני`} target="_blank" startIcon={<WhatsAppIcon />} sx={{ bgcolor: '#25D366', color: '#fff', '&:hover': { bgcolor: '#1ebe5d' } }}>וואטסאפ לגבאי</Button>
-                  </Box>
-                )}
-              </Card>
+              {/* Admin tabs */}
+              {isAdmin && (
+                <Tabs
+                  value={tab}
+                  onChange={(_, v) => setTab(v)}
+                  textColor="primary"
+                  indicatorColor="primary"
+                  sx={{ mt: 2, borderBottom: '1px solid rgba(201,168,76,0.2)' }}
+                >
+                  <Tab icon={<PersonIcon />} iconPosition="start" label="החשבון שלי" />
+                  <Tab icon={<ManageAccountsIcon />} iconPosition="start" label="ניהול חיובים" />
+                </Tabs>
+              )}
 
-              {/* Charges table */}
-              <Card sx={{ mt: 2 }}>
-                <CardContent>
-                  <Typography variant="h6" sx={{ color: 'primary.main', mb: 2 }}>פירוט חיובים פתוחים</Typography>
-                  {charges === null ? <Skeleton variant="rectangular" height={100} sx={{ borderRadius: 1 }} /> :
-                   charges.length === 0 ? <Typography color="text.secondary" textAlign="center" py={2}>אין חיובים פתוחים</Typography> : (
-                    <Table size="small">
-                      <TableHead>
-                        <TableRow>
-                          <TableCell>תאריך</TableCell>
-                          <TableCell>סוג</TableCell>
-                          <TableCell>תיאור</TableCell>
-                          <TableCell align="left">סכום</TableCell>
-                        </TableRow>
-                      </TableHead>
-                      <TableBody>
-                        {charges.map(c => (
-                          <TableRow key={c.id}>
-                            <TableCell>{fmtDate(c.date)}</TableCell>
-                            <TableCell>
-                              <Chip size="small" label={c.type==='aliya'?'עלייה':'נדר'} sx={{ bgcolor: c.type==='aliya'?'rgba(201,168,76,0.15)':'rgba(139,26,26,0.2)', color: c.type==='aliya'?'primary.main':'#f87171' }} />
-                            </TableCell>
-                            <TableCell>{c.description||''}</TableCell>
-                            <TableCell align="left" sx={{ color: 'primary.main', fontWeight: 700 }}>{fmtMoney(c.amount)}</TableCell>
-                          </TableRow>
-                        ))}
-                      </TableBody>
-                    </Table>
-                  )}
-                </CardContent>
-              </Card>
-              <Typography variant="caption" color="text.secondary" display="block" textAlign="center" mt={1.5}>
-                לאחר ביצוע תשלום, עדכנו את הגבאות לאישור ✓
-              </Typography>
+              {/* Personal account tab */}
+              {tab === 0 && (
+                <>
+                  <Card sx={{ mt: 2, p: 3, textAlign:'center', bgcolor: total > 0 ? 'rgba(248,113,113,0.05)' : 'rgba(74,222,128,0.05)', borderColor: total > 0 ? '#f87171' : '#4ade80' }}>
+                    <Typography variant="caption" color="text.secondary">סה״כ לתשלום</Typography>
+                    <Typography sx={{ fontSize:'3rem', fontWeight:700, color: total > 0 ? '#f87171' : '#4ade80', fontFamily:'"Secular One", serif' }}>
+                      {charges === null ? <CircularProgress size={36} /> : fmtMoney(total)}
+                    </Typography>
+                    <Typography sx={{ color: total > 0 ? '#fca5a5' : '#86efac' }}>
+                      {total > 0 ? 'יש סכום לתשלום' : (
+                        <Box component="span" sx={{ display:'flex', alignItems:'center', justifyContent:'center', gap:0.5 }}>
+                          <CheckCircleIcon fontSize="small" />החשבון מאוזן — תודה!
+                        </Box>
+                      )}
+                    </Typography>
+                    {total > 0 && (
+                      <Box sx={{ display:'flex', gap:1.5, justifyContent:'center', flexWrap:'wrap', mt:2 }}>
+                        <Button href={BIT_LINK} target="_blank" sx={{ bgcolor:'#0091FF', color:'#fff', '&:hover':{ bgcolor:'#007fd9' } }}>שלם בביט</Button>
+                        <Button href={PAYBOX_LINK} target="_blank" sx={{ bgcolor:'#6c3cbf', color:'#fff', '&:hover':{ bgcolor:'#5a30a8' } }}>שלם בפייבוקס</Button>
+                        <Button href={`${WA_GABBAI}?text=שלום, ברצוני לשלם את חשבוני`} target="_blank" startIcon={<WhatsAppIcon />} sx={{ bgcolor:'#25D366', color:'#fff', '&:hover':{ bgcolor:'#1ebe5d' } }}>וואטסאפ לגבאי</Button>
+                      </Box>
+                    )}
+                  </Card>
+
+                  <Card sx={{ mt: 2 }}>
+                    <CardContent>
+                      <Typography variant="h6" sx={{ color:'primary.main', mb:2 }}>פירוט חיובים פתוחים</Typography>
+                      {charges === null ? <Skeleton variant="rectangular" height={100} sx={{ borderRadius:1 }} /> :
+                       charges.length === 0 ? <Typography color="text.secondary" textAlign="center" py={2}>אין חיובים פתוחים</Typography> : (
+                        <Table size="small">
+                          <TableHead>
+                            <TableRow>
+                              <TableCell>תאריך</TableCell>
+                              <TableCell>סוג</TableCell>
+                              <TableCell>תיאור</TableCell>
+                              <TableCell align="left">סכום</TableCell>
+                            </TableRow>
+                          </TableHead>
+                          <TableBody>
+                            {charges.map(c => (
+                              <TableRow key={c.id}>
+                                <TableCell>{fmtDate(c.date)}</TableCell>
+                                <TableCell>
+                                  <Chip size="small" label={c.type==='aliya'?'עלייה':'נדר'} sx={{ bgcolor: c.type==='aliya'?'rgba(201,168,76,0.15)':'rgba(139,26,26,0.2)', color: c.type==='aliya'?'primary.main':'#f87171' }} />
+                                </TableCell>
+                                <TableCell>{c.description||''}</TableCell>
+                                <TableCell align="left" sx={{ color:'primary.main', fontWeight:700 }}>{fmtMoney(c.amount)}</TableCell>
+                              </TableRow>
+                            ))}
+                          </TableBody>
+                        </Table>
+                      )}
+                    </CardContent>
+                  </Card>
+                  <Typography variant="caption" color="text.secondary" display="block" textAlign="center" mt={1.5}>
+                    לאחר ביצוע תשלום, עדכנו את הגבאות לאישור ✓
+                  </Typography>
+                </>
+              )}
+
+              {/* Admin charges management tab */}
+              {tab === 1 && isAdmin && (
+                <Box mt={3}>
+                  <ChargesPanel onToast={onToast} />
+                </Box>
+              )}
             </>
           )}
         </Container>
       </Box>
+
+      <Snackbar open={toast.open} autoHideDuration={3500} onClose={() => setToast(t => ({ ...t, open: false }))} anchorOrigin={{ vertical:'bottom', horizontal:'center' }}>
+        <Alert severity={toast.sev} variant="filled" sx={{ fontWeight:700 }}>{toast.msg}</Alert>
+      </Snackbar>
     </Box>
   );
 }
