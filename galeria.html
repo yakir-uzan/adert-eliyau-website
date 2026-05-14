@@ -1,0 +1,252 @@
+﻿<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>גלריה — אדרת אליהו</title>
+  <link rel="stylesheet" href="css/base.css">
+  <link rel="stylesheet" href="css/components.css">
+  <style>
+    body { padding-top: 80px; }
+    .gallery-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 1rem;
+      margin-top: 3rem;
+    }
+    .gallery-item {
+      position: relative;
+      overflow: hidden;
+      border-radius: var(--radius-lg);
+      aspect-ratio: 1;
+      cursor: pointer;
+      border: 1px solid var(--gold-dim);
+    }
+    .gallery-item img {
+      width: 100%; height: 100%;
+      object-fit: cover;
+      transition: transform 0.4s ease;
+      display: block;
+    }
+    .gallery-item:hover img { transform: scale(1.07); }
+    .gallery-item-overlay {
+      position: absolute; inset: 0;
+      background: linear-gradient(to top, rgba(13,27,42,0.8) 0%, transparent 60%);
+      opacity: 0;
+      transition: opacity 0.3s;
+      display: flex;
+      align-items: flex-end;
+      padding: 1rem;
+    }
+    .gallery-item:hover .gallery-item-overlay { opacity: 1; }
+    .gallery-item-overlay span { color: var(--gold-light); font-size: 0.9rem; font-weight: 600; }
+
+    /* Lightbox */
+    .lightbox {
+      display: none;
+      position: fixed; inset: 0;
+      background: rgba(0,0,0,0.93);
+      z-index: 9000;
+      align-items: center;
+      justify-content: center;
+    }
+    .lightbox.open { display: flex; }
+    .lightbox-img {
+      max-width: 90vw;
+      max-height: 88vh;
+      object-fit: contain;
+      border-radius: var(--radius);
+      box-shadow: 0 0 60px rgba(201,168,76,0.2);
+    }
+    .lightbox-close {
+      position: absolute;
+      top: 1.5rem; left: 1.5rem;
+      background: none; border: none;
+      color: var(--gold-light);
+      font-size: 2.5rem;
+      line-height: 1;
+      cursor: pointer;
+      transition: var(--transition);
+    }
+    .lightbox-close:hover { color: var(--gold); }
+    .lightbox-nav {
+      position: absolute;
+      top: 50%; transform: translateY(-50%);
+      background: rgba(201,168,76,0.15);
+      border: 1px solid var(--gold-dim);
+      color: var(--gold);
+      font-size: 2rem;
+      width: 52px; height: 52px;
+      border-radius: 50%;
+      cursor: pointer;
+      display: flex; align-items: center; justify-content: center;
+      transition: var(--transition);
+    }
+    .lightbox-nav:hover { background: var(--gold-dim); }
+    .lightbox-prev { right: 1.5rem; }
+    .lightbox-next { left: 1.5rem; }
+    .lightbox-counter {
+      position: absolute;
+      bottom: 1.5rem; left: 50%; transform: translateX(-50%);
+      color: var(--muted); font-size: 0.9rem;
+    }
+    .lightbox-caption {
+      position: absolute;
+      bottom: 3.5rem; left: 50%; transform: translateX(-50%);
+      color: var(--gold-light); font-size: 1rem; font-weight: 600;
+      white-space: nowrap;
+    }
+
+    @media (max-width: 768px) { .gallery-grid { grid-template-columns: repeat(2, 1fr); } }
+    @media (max-width: 480px) { .gallery-grid { grid-template-columns: 1fr; } }
+  </style>
+</head>
+<body>
+
+<nav class="navbar scrolled" id="navbar">
+  <a href="index.html" class="navbar-brand">
+    <img src="images/logo.jpg" alt="לוגו" class="navbar-logo">
+    <span class="navbar-name">אדרת אליהו</span>
+  </a>
+  <div class="navbar-links">
+    <a href="index.html">ראשי</a>
+    <a href="zmanim.html">זמני תפילות</a>
+    <a href="hodaot.html">הודעות</a>
+    <a href="tashlumim.html">תשלומים</a>
+    <a href="galeria.html" class="active">גלריה</a>
+    <a href="yetzirat-kesher.html">יצירת קשר</a>
+  </div>
+  <div class="navbar-actions" id="navUserSection">
+    <button class="btn-login" id="navLoginBtn" onclick="location.href='cheshbon.html'">כניסה</button>
+    <button class="btn-login" id="navLogoutBtn" style="display:none">יציאה</button>
+  </div>
+  <button class="hamburger" id="hamburger"><span></span><span></span><span></span></button>
+</nav>
+<div class="nav-overlay" id="navOverlay"></div>
+<nav class="mobile-nav" id="mobileNav">
+  <a href="index.html">🏛 ראשי</a>
+  <a href="zmanim.html">🕍 זמני תפילות</a>
+  <a href="hodaot.html">📢 הודעות</a>
+  <a href="tashlumim.html">💳 תשלומים</a>
+  <a href="cheshbon.html">👤 החשבון שלי</a>
+  <a href="galeria.html">🖼 גלריה</a>
+  <a href="yetzirat-kesher.html">📞 יצירת קשר</a>
+</nav>
+
+<div class="page-hero">
+  <h1>גלריה</h1>
+  <p>תמונות מבית כנסת אדרת אליהו</p>
+</div>
+
+<main class="section">
+  <div class="container">
+    <div class="divider">
+      <svg viewBox="0 0 24 24" width="22" height="22"><polygon points="12,2 15,9 22,9 16,14 18,21 12,17 6,21 8,14 2,9 9,9" fill="currentColor"/></svg>
+    </div>
+
+    <div class="gallery-grid" id="galleryGrid">
+      <div class="gallery-item" data-index="0">
+        <img src="images/gallery/building-render.jpg" alt="חזית בית הכנסת — אדרת אליהו" loading="lazy">
+        <div class="gallery-item-overlay"><span>חזית בית הכנסת</span></div>
+      </div>
+      <div class="gallery-item" data-index="1">
+        <img src="images/gallery/interior-01.png" alt="ארון הקודש — אדרת אליהו" loading="lazy">
+        <div class="gallery-item-overlay"><span>ארון הקודש</span></div>
+      </div>
+      <div class="gallery-item" data-index="2">
+        <img src="images/gallery/interior-02.png" alt="אולם התפילה" loading="lazy">
+        <div class="gallery-item-overlay"><span>אולם התפילה</span></div>
+      </div>
+      <div class="gallery-item" data-index="3">
+        <img src="images/gallery/interior-03.png" alt="ארון הקודש — תקריב" loading="lazy">
+        <div class="gallery-item-overlay"><span>ארון הקודש — תקריב</span></div>
+      </div>
+      <div class="gallery-item" data-index="4">
+        <img src="images/gallery/interior-04.png" alt="פנים בית הכנסת" loading="lazy">
+        <div class="gallery-item-overlay"><span>פנים בית הכנסת</span></div>
+      </div>
+      <div class="gallery-item" data-index="5">
+        <img src="images/gallery/interior-05.png" alt="העיצוב הפנימי" loading="lazy">
+        <div class="gallery-item-overlay"><span>העיצוב הפנימי</span></div>
+      </div>
+      <div class="gallery-item" data-index="6">
+        <img src="images/gallery/interior-06.png" alt="מנורת הזהב" loading="lazy">
+        <div class="gallery-item-overlay"><span>מנורת הזהב</span></div>
+      </div>
+      <div class="gallery-item" data-index="7">
+        <img src="images/gallery/building-construction.jpg" alt="שלב הבניה" loading="lazy">
+        <div class="gallery-item-overlay"><span>שלב הבניה</span></div>
+      </div>
+    </div>
+  </div>
+</main>
+
+<!-- Lightbox -->
+<div class="lightbox" id="lightbox" role="dialog" aria-label="תצוגת תמונה">
+  <button class="lightbox-close" id="lightboxClose" aria-label="סגור">×</button>
+  <button class="lightbox-nav lightbox-prev" id="lightboxPrev" aria-label="הקודם">‹</button>
+  <img src="" alt="" class="lightbox-img" id="lightboxImg">
+  <button class="lightbox-nav lightbox-next" id="lightboxNext" aria-label="הבא">›</button>
+  <div class="lightbox-caption" id="lightboxCaption"></div>
+  <div class="lightbox-counter" id="lightboxCounter"></div>
+</div>
+
+<footer class="footer">
+  <div class="container">
+    <div class="footer-bottom"><p>© 2025 בית כנסת אדרת אליהו</p></div>
+  </div>
+</footer>
+
+<script type="module">
+  import './js/nav.js';
+
+  const items = [...document.querySelectorAll('.gallery-item')];
+  const lb      = document.getElementById('lightbox');
+  const lbImg   = document.getElementById('lightboxImg');
+  const lbCap   = document.getElementById('lightboxCaption');
+  const lbCount = document.getElementById('lightboxCounter');
+  let current   = 0;
+
+  const images = items.map(el => ({
+    src: el.querySelector('img').src,
+    alt: el.querySelector('img').alt
+  }));
+
+  function open(idx) {
+    current = ((idx % images.length) + images.length) % images.length;
+    lbImg.src = images[current].src;
+    lbImg.alt = images[current].alt;
+    lbCap.textContent = images[current].alt;
+    lbCount.textContent = `${current + 1} / ${images.length}`;
+    lb.classList.add('open');
+    document.body.style.overflow = 'hidden';
+  }
+  function close() {
+    lb.classList.remove('open');
+    document.body.style.overflow = '';
+  }
+
+  items.forEach((el, i) => el.addEventListener('click', () => open(i)));
+  document.getElementById('lightboxClose').addEventListener('click', close);
+  document.getElementById('lightboxPrev').addEventListener('click', () => open(current - 1));
+  document.getElementById('lightboxNext').addEventListener('click', () => open(current + 1));
+  lb.addEventListener('click', e => { if (e.target === lb) close(); });
+
+  document.addEventListener('keydown', e => {
+    if (!lb.classList.contains('open')) return;
+    if (e.key === 'Escape')      close();
+    if (e.key === 'ArrowRight')  open(current - 1);
+    if (e.key === 'ArrowLeft')   open(current + 1);
+  });
+
+  // Touch swipe
+  let touchX = 0;
+  lb.addEventListener('touchstart', e => { touchX = e.touches[0].clientX; }, { passive: true });
+  lb.addEventListener('touchend', e => {
+    const dx = e.changedTouches[0].clientX - touchX;
+    if (Math.abs(dx) > 50) open(dx > 0 ? current - 1 : current + 1);
+  });
+</script>
+</body>
+</html>
+

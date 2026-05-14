@@ -1,0 +1,267 @@
+﻿<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>יצירת קשר — אדרת אליהו</title>
+  <link rel="stylesheet" href="css/base.css">
+  <link rel="stylesheet" href="css/components.css">
+  <style>
+    body { padding-top: 80px; }
+    .contact-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 3rem;
+      margin-top: 3rem;
+      align-items: start;
+    }
+    .contact-form-card { background: var(--navy-mid); border: 1px solid var(--gold-dim); border-radius: var(--radius-lg); padding: 2.5rem; }
+    .form-group { display: flex; flex-direction: column; gap: 0.4rem; margin-bottom: 1.25rem; }
+    .form-group label { font-size: 0.9rem; color: var(--gold-light); font-weight: 600; }
+    .form-group input,
+    .form-group select,
+    .form-group textarea {
+      background: var(--navy);
+      border: 1px solid var(--gold-dim);
+      border-radius: var(--radius);
+      padding: 0.75rem 1rem;
+      color: var(--cream);
+      font-family: var(--font-body);
+      font-size: 1rem;
+      direction: rtl;
+      transition: var(--transition);
+      width: 100%;
+    }
+    .form-group input:focus,
+    .form-group select:focus,
+    .form-group textarea:focus {
+      outline: none;
+      border-color: var(--gold);
+      box-shadow: 0 0 0 3px var(--gold-dim);
+    }
+    .form-group select option { background: var(--navy-mid); }
+    .form-group textarea { resize: vertical; min-height: 130px; }
+    .contact-info-card { display: flex; flex-direction: column; gap: 1.5rem; }
+    .info-item {
+      background: var(--navy-mid);
+      border: 1px solid var(--gold-dim);
+      border-radius: var(--radius-lg);
+      padding: 1.5rem;
+      display: flex;
+      align-items: flex-start;
+      gap: 1rem;
+    }
+    .info-icon { font-size: 1.8rem; flex-shrink: 0; }
+    .info-label { font-size: 0.8rem; color: var(--muted); margin-bottom: 0.2rem; }
+    .info-value { color: var(--gold-light); font-weight: 600; font-size: 1rem; }
+    .info-value a { color: var(--gold-light); transition: var(--transition); }
+    .info-value a:hover { color: var(--gold); }
+    .map-frame { width: 100%; height: 200px; border-radius: var(--radius); border: 1px solid var(--gold-dim); margin-top: 0.5rem; }
+    .whatsapp-cta {
+      background: linear-gradient(135deg, #0a1f0e, #0d2a12);
+      border: 1px solid rgba(37,211,102,0.3);
+      border-radius: var(--radius-lg);
+      padding: 2rem;
+      text-align: center;
+      margin-top: 3rem;
+    }
+    .whatsapp-cta h3 { color: #25D366; margin-bottom: 0.5rem; }
+    .whatsapp-cta p { color: var(--muted); margin-bottom: 1.25rem; font-size: 0.95rem; }
+    @media (max-width: 768px) { .contact-grid { grid-template-columns: 1fr; } }
+  </style>
+</head>
+<body>
+
+<nav class="navbar scrolled" id="navbar">
+  <a href="index.html" class="navbar-brand">
+    <img src="images/logo.jpg" alt="לוגו" class="navbar-logo">
+    <span class="navbar-name">אדרת אליהו</span>
+  </a>
+  <div class="navbar-links">
+    <a href="index.html">ראשי</a>
+    <a href="zmanim.html">זמני תפילות</a>
+    <a href="hodaot.html">הודעות</a>
+    <a href="tashlumim.html">תשלומים</a>
+    <a href="galeria.html">גלריה</a>
+    <a href="yetzirat-kesher.html" class="active">יצירת קשר</a>
+  </div>
+  <div class="navbar-actions" id="navUserSection">
+    <button class="btn-login" id="navLoginBtn" onclick="location.href='cheshbon.html'">כניסה</button>
+    <button class="btn-login" id="navLogoutBtn" style="display:none">יציאה</button>
+  </div>
+  <button class="hamburger" id="hamburger"><span></span><span></span><span></span></button>
+</nav>
+<div class="nav-overlay" id="navOverlay"></div>
+<nav class="mobile-nav" id="mobileNav">
+  <a href="index.html">🏛 ראשי</a>
+  <a href="zmanim.html">🕍 זמני תפילות</a>
+  <a href="hodaot.html">📢 הודעות</a>
+  <a href="tashlumim.html">💳 תשלומים</a>
+  <a href="cheshbon.html">👤 החשבון שלי</a>
+  <a href="galeria.html">🖼 גלריה</a>
+  <a href="yetzirat-kesher.html">📞 יצירת קשר</a>
+</nav>
+
+<div class="page-hero">
+  <h1>יצירת קשר</h1>
+  <p>אנחנו כאן לכל שאלה ובקשה</p>
+</div>
+
+<main class="section">
+  <div class="container">
+    <div class="divider">
+      <svg viewBox="0 0 24 24" width="22" height="22"><polygon points="12,2 15,9 22,9 16,14 18,21 12,17 6,21 8,14 2,9 9,9" fill="currentColor"/></svg>
+    </div>
+
+    <div class="contact-grid">
+
+      <!-- Contact Form -->
+      <!-- To activate: sign up at formspree.io, create a form, replace YOUR_FORM_ID below -->
+      <div class="contact-form-card">
+        <h2 style="margin-bottom:1.5rem;font-size:1.5rem">שלחו הודעה</h2>
+        <form action="https://formspree.io/f/YOUR_FORM_ID" method="POST" id="contactForm">
+          <input type="hidden" name="_language" value="he">
+          <div class="form-group">
+            <label for="name">שם מלא *</label>
+            <input type="text" id="name" name="name" required placeholder="הכנס שמך">
+          </div>
+          <div class="form-group">
+            <label for="phone">טלפון</label>
+            <input type="tel" id="phone" name="phone" placeholder="05X-XXXXXXX" dir="ltr">
+          </div>
+          <div class="form-group">
+            <label for="email">אימייל</label>
+            <input type="email" id="email" name="email" placeholder="name@email.com" dir="ltr">
+          </div>
+          <div class="form-group">
+            <label for="subject">נושא</label>
+            <select id="subject" name="subject">
+              <option value="כללי">שאלה כללית</option>
+              <option value="תשלום">תשלום / חשבון</option>
+              <option value="עלייה">עלייה לתורה</option>
+              <option value="שיעורים">שיעורי תורה</option>
+              <option value="אירוע">אירוע / שמחה</option>
+              <option value="אחר">אחר</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label for="message">הודעה *</label>
+            <textarea id="message" name="message" required placeholder="כתבו את הודעתכם כאן..."></textarea>
+          </div>
+          <button type="submit" class="btn btn-gold" style="width:100%">שלח הודעה</button>
+          <p id="formMsg" style="text-align:center;margin-top:1rem;display:none"></p>
+        </form>
+      </div>
+
+      <!-- Contact Info -->
+      <div class="contact-info-card">
+        <div class="info-item">
+          <span class="info-icon">📍</span>
+          <div>
+            <div class="info-label">כתובת</div>
+            <!-- Replace with actual address -->
+            <div class="info-value">[רחוב ומספר בית], [עיר]</div>
+          </div>
+        </div>
+
+        <div class="info-item">
+          <span class="info-icon">📞</span>
+          <div>
+            <div class="info-label">טלפון</div>
+            <!-- Replace with actual phone -->
+            <div class="info-value"><a href="tel:05XXXXXXXX">05X-XXXXXXX</a></div>
+          </div>
+        </div>
+
+        <div class="info-item">
+          <span class="info-icon">✉️</span>
+          <div>
+            <div class="info-label">אימייל</div>
+            <div class="info-value"><a href="mailto:info@aderet-eliyahu.co.il">info@aderet-eliyahu.co.il</a></div>
+          </div>
+        </div>
+
+        <div class="info-item">
+          <span class="info-icon">🕐</span>
+          <div>
+            <div class="info-label">שעות פתיחת המשרד</div>
+            <div class="info-value" style="font-size:0.9rem;line-height:1.8">
+              א׳–ה׳: 09:00–13:00<br>
+              ימי שישי: 09:00–11:30<br>
+              שבת וחגים: סגור
+            </div>
+          </div>
+        </div>
+
+        <!-- Google Maps embed - replace with actual address -->
+        <div>
+          <div class="info-label" style="margin-bottom:0.5rem">מפה</div>
+          <iframe
+            class="map-frame"
+            src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3000!2d34.78!3d32.07!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x0%3A0x0!2zMzLCsDA0JzEyLjAiTiAzNMKwNDYnNDguMCJF!5e0!3m2!1siw!2sil!4v1000000000000"
+            loading="lazy"
+            title="מפת בית הכנסת"
+            allowfullscreen>
+          </iframe>
+          <p style="font-size:0.75rem;color:var(--muted);margin-top:0.4rem">* יש לעדכן כתובת מדויקת</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- WhatsApp CTA -->
+    <div class="whatsapp-cta">
+      <h3>📱 הצטרפו לקבוצת הוואטסאפ שלנו</h3>
+      <p>קבלו עדכונים, הודעות חשובות ושיעורי תורה ישירות לנייד</p>
+      <!-- Replace WHATSAPP_INVITE_CODE with your actual group invite code -->
+      <a href="https://chat.whatsapp.com/WHATSAPP_INVITE_CODE" target="_blank" rel="noopener" class="btn btn-whatsapp" style="font-size:1rem;padding:0.85rem 2rem">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
+        הצטרפו לקבוצה
+      </a>
+    </div>
+
+  </div>
+</main>
+
+<footer class="footer">
+  <div class="container">
+    <div class="footer-bottom"><p>© 2025 בית כנסת אדרת אליהו</p></div>
+  </div>
+</footer>
+
+<script type="module">
+  import './js/nav.js';
+
+  const form = document.getElementById('contactForm');
+  const msg  = document.getElementById('formMsg');
+  if (form) {
+    form.addEventListener('submit', async e => {
+      e.preventDefault();
+      const btn = form.querySelector('button[type=submit]');
+      btn.textContent = 'שולח...';
+      btn.disabled = true;
+      try {
+        const res = await fetch(form.action, {
+          method: 'POST',
+          body: new FormData(form),
+          headers: { Accept: 'application/json' }
+        });
+        if (res.ok) {
+          msg.textContent = '✅ ההודעה נשלחה בהצלחה! נחזור אליכם בקרוב.';
+          msg.style.color = '#4ade80';
+          form.reset();
+        } else {
+          throw new Error();
+        }
+      } catch {
+        msg.textContent = '❌ שגיאה בשליחה. אנא נסו שנית או צרו קשר בטלפון.';
+        msg.style.color = '#f87171';
+      }
+      msg.style.display = 'block';
+      btn.textContent = 'שלח הודעה';
+      btn.disabled = false;
+    });
+  }
+</script>
+</body>
+</html>
+
