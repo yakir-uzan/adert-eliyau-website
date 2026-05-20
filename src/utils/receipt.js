@@ -1,23 +1,20 @@
 import emailjs from '@emailjs/browser';
 
-// ─── EmailJS configuration ───────────────────────────────────────────────────
-// Sign up at emailjs.com → create a service → create a template → paste IDs here
-const EMAILJS_SERVICE_ID  = import.meta.env.VITE_EMAILJS_SERVICE_ID  || 'YOUR_SERVICE_ID';
-const EMAILJS_TEMPLATE_ID = import.meta.env.VITE_EMAILJS_TEMPLATE_ID || 'YOUR_TEMPLATE_ID';
-const EMAILJS_PUBLIC_KEY  = import.meta.env.VITE_EMAILJS_PUBLIC_KEY  || 'YOUR_PUBLIC_KEY';
-// ─────────────────────────────────────────────────────────────────────────────
-
 function generateReceiptId() {
-  return 'AE-' + Date.now().toString(36).toUpperCase();
+  return 'RC-' + Date.now().toString(36).toUpperCase();
 }
 
-function buildReceiptHtml({ name, description, amount, receiptId, date }) {
-  const gold    = '#C9A84C';
-  const navy    = '#0D1B2A';
-  const card    = '#1A2940';
+function buildReceiptHtml({ name, description, amount, receiptId, date, tenantConfig }) {
+  const theme   = tenantConfig?.theme || {};
+  const gold    = theme.primaryColor || '#C9A84C';
+  const navy    = theme.bgDefault    || '#0D1B2A';
+  const card    = theme.bgPaper      || '#1A2940';
   const textMain = '#F5F0E8';
   const textSub  = '#A89F94';
   const border   = 'rgba(201,168,76,0.25)';
+
+  const synagogueName = tenantConfig?.name     || 'בית כנסת';
+  const subtitle      = tenantConfig?.subtitle || '';
 
   return `
 <!DOCTYPE html>
@@ -30,8 +27,8 @@ function buildReceiptHtml({ name, description, amount, receiptId, date }) {
 
         <!-- Header -->
         <tr><td style="padding:0 24px 32px;border-bottom:2px solid ${gold};text-align:center;">
-          <h1 style="margin:0 0 6px;color:${gold};font-size:28px;letter-spacing:1px;">בית כנסת אדרת אליהו</h1>
-          <p style="margin:0;color:${textSub};font-size:14px;">ע"ש אליהו אוזן ז"ל</p>
+          <h1 style="margin:0 0 6px;color:${gold};font-size:28px;letter-spacing:1px;">${synagogueName}</h1>
+          ${subtitle ? `<p style="margin:0;color:${textSub};font-size:14px;">${subtitle}</p>` : ''}
           <p style="margin:12px 0 0;color:${textSub};font-size:13px;">קבלה על תשלום</p>
         </td></tr>
 
@@ -88,7 +85,7 @@ function buildReceiptHtml({ name, description, amount, receiptId, date }) {
 
         <!-- Footer -->
         <tr><td style="padding:24px;border-top:1px solid ${border};text-align:center;">
-          <p style="margin:0 0 4px;color:${textSub};font-size:12px;">בית כנסת אדרת אליהו</p>
+          <p style="margin:0 0 4px;color:${textSub};font-size:12px;">${synagogueName}</p>
           <p style="margin:0;color:${textSub};font-size:12px;">נשמח לראותך שוב!</p>
         </td></tr>
 
@@ -99,26 +96,31 @@ function buildReceiptHtml({ name, description, amount, receiptId, date }) {
 </html>`;
 }
 
-export async function sendReceiptEmail({ name, email, description, amount, receiptId }) {
+export async function sendReceiptEmail({ name, email, description, amount, receiptId, tenantConfig }) {
+  const emailConfig = tenantConfig?.email || {};
+  const serviceId   = emailConfig.serviceId  || import.meta.env.VITE_EMAILJS_SERVICE_ID  || 'YOUR_SERVICE_ID';
+  const templateId  = emailConfig.templateId || import.meta.env.VITE_EMAILJS_TEMPLATE_ID || 'YOUR_TEMPLATE_ID';
+  const publicKey   = emailConfig.publicKey  || import.meta.env.VITE_EMAILJS_PUBLIC_KEY  || 'YOUR_PUBLIC_KEY';
+
+  const synagogueName = tenantConfig?.name || 'בית כנסת';
   const date = new Date().toLocaleDateString('he-IL', { day: 'numeric', month: 'long', year: 'numeric' });
   const rid  = receiptId || generateReceiptId();
-  const html = buildReceiptHtml({ name, description, amount, receiptId: rid, date });
+  const html = buildReceiptHtml({ name, description, amount, receiptId: rid, date, tenantConfig });
 
-  // EmailJS sends the receipt email client-side (no backend needed)
   await emailjs.send(
-    EMAILJS_SERVICE_ID,
-    EMAILJS_TEMPLATE_ID,
+    serviceId,
+    templateId,
     {
       to_name:     name,
       to_email:    email,
-      subject:     `קבלה על תשלום — בית כנסת אדרת אליהו (${rid})`,
+      subject:     `קבלה על תשלום — ${synagogueName} (${rid})`,
       html_body:   html,
       amount,
       description,
       receipt_id:  rid,
       date,
     },
-    EMAILJS_PUBLIC_KEY
+    publicKey
   );
 
   return rid;

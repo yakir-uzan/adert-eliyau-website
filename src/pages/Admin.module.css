@@ -1,0 +1,51 @@
+.root {
+  background-color: #080f18;
+  min-height: 100vh;
+}
+
+.topBar {
+  background-color: #060d15;
+  border-bottom: 1px solid rgba(201,168,76,0.2);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  position: sticky;
+  top: 0;
+  z-index: 100;
+}
+
+.topBarTitle {
+  display: flex;
+  align-items: center;
+}
+
+.topBarActions {
+  display: flex;
+  align-items: center;
+}
+
+.loginScreen {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: #080f18;
+}
+
+.loginCard {
+  width: 100%;
+  max-width: 400px;
+  text-align: center;
+}
+
+.tabBorder {
+  border-bottom: 1px solid rgba(201,168,76,0.2);
+}
+
+.trialChip {
+  background-color: rgba(201,168,76,0.12);
+}
+
+.platformChip {
+  background-color: rgba(201,168,76,0.16);
+}

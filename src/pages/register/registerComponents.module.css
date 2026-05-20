@@ -1,0 +1,94 @@
+.sectionTitleWrap {
+  margin-bottom: 17.6px;
+  width: 100%;
+  direction: rtl;
+  display: flex;
+  justify-content: flex-start;
+}
+
+.sectionTitleInner {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  text-align: right;
+  direction: rtl;
+  max-width: 100%;
+}
+
+.sectionTitleHeadingRow {
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 8px;
+  direction: rtl;
+}
+
+.sectionTitleText {
+  color: #C9A84C;
+  font-family: "Secular One", serif;
+  margin-bottom: 4.8px;
+  text-align: right;
+  direction: rtl;
+  width: auto;
+}
+
+.sectionDescription {
+  color: #B7ADA0;
+  font-size: 0.95rem;
+  text-align: right;
+  direction: rtl;
+  width: auto;
+  max-width: 100%;
+}
+
+.bankOptionRow {
+  width: 100%;
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  gap: 8px;
+  direction: rtl;
+}
+
+.bankOptionName {
+  direction: rtl;
+  text-align: right;
+}
+
+.bankOptionCode {
+  direction: ltr;
+  unicode-bidi: isolate;
+}
+
+.branchOptionRow {
+  width: 100%;
+  display: flex;
+  justify-content: flex-end;
+  direction: rtl;
+  text-align: right;
+}
+
+.branchOptionRowFull {
+  width: 100%;
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  gap: 8px;
+  direction: rtl;
+}
+
+.branchName {
+  direction: rtl;
+  text-align: right;
+}
+
+.branchCode {
+  direction: ltr;
+  unicode-bidi: isolate;
+}
+
+.branchCity {
+  color: #B7ADA0;
+  direction: rtl;
+  text-align: right;
+}

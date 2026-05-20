@@ -1,0 +1,9 @@
+.dot {
+  border-radius: 50%;
+  cursor: pointer;
+  transition: all 0.35s ease;
+}
+
+.dot:hover {
+  transform: scale(1.25);
+}

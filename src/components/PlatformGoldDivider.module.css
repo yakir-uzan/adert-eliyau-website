@@ -1,0 +1,15 @@
+.divider {
+  max-width: 45vw;
+  height: 1px;
+  position: relative;
+}
+
+.divider::before,
+.divider::after {
+  content: "";
+  position: absolute;
+  top: 50%;
+  height: 1px;
+  background-color: rgba(201, 168, 76, 0.45);
+  transform: translateY(-50%);
+}

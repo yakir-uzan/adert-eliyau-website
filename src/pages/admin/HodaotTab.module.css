@@ -1,0 +1,26 @@
+.editDialog {
+  background-color: #1A2940;
+  border: 1px solid rgba(201,168,76,0.25);
+  border-radius: 12px;
+}
+
+.pinnedChip {
+  margin-bottom: 6px;
+  background-color: rgba(201,168,76,0.15);
+}
+
+.cardActions {
+  display: flex;
+  gap: 4px;
+  flex-shrink: 0;
+}
+
+.cardRow {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+}
+
+.cardBody {
+  flex: 1;
+}

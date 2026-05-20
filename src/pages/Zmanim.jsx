@@ -1,6 +1,9 @@
 import { useState, useEffect } from 'react';
 import { db } from '../firebase';
 import { doc, getDoc } from 'firebase/firestore';
+import { useTenant } from '../config/TenantContext';
+import { escapeHtml } from '../utils/sanitize';
+import { LOCAL_TENANT_UPDATED_EVENT, isLocalDevHost, readLocalZmanim } from '../utils/localTenantAccess';
 import Box from '@mui/material/Box';
 import Container from '@mui/material/Container';
 import Typography from '@mui/material/Typography';
@@ -15,37 +18,75 @@ import WbSunnyIcon from '@mui/icons-material/WbSunny';
 import DarkModeIcon from '@mui/icons-material/DarkMode';
 import PageHero from '../components/PageHero';
 import GoldDivider from '../components/GoldDivider';
+import css from './Zmanim.module.css';
 
-const WEEKDAY = [
-  ['shacharit_weekday', 'שחרית'],
-  ['mincha_summer',     'מנחה (קיץ)'],
-  ['mincha_winter',     'מנחה (חורף)'],
-  ['arvit',             'ערבית'],
-];
-const SHABBAT = [
-  ['kabbalat_shabbat', 'קבלת שבת'],
-  ['shacharit_shabbat','שחרית'],
-  ['mincha_summer',    'מנחה גדולה'],
-  ['arvit',            'ערבית מוצ"ש'],
+const LEGACY_SECTIONS = [
+  {
+    title: 'ימי חול',
+    rows: [
+      ['shacharit_weekday', 'שחרית'],
+      ['mincha_summer', 'מנחה (קיץ)'],
+      ['mincha_winter', 'מנחה (חורף)'],
+      ['arvit', 'ערבית'],
+    ],
+  },
+  {
+    title: 'שבת קודש',
+    rows: [
+      ['kabbalat_shabbat', 'קבלת שבת'],
+      ['shacharit_shabbat', 'שחרית'],
+      ['mincha_summer', 'מנחה גדולה'],
+      ['arvit', 'ערבית מוצ"ש'],
+    ],
+  },
 ];
 
-function buildPrintHtml(data, isDark) {
-  const bg      = isDark ? '#0D1B2A' : '#ffffff';
+function normalizeSections(data = {}) {
+  if (Array.isArray(data.sections)) {
+    return data.sections
+      .map(section => ({
+        title: section.title || '',
+        rows: Array.isArray(section.rows) ? section.rows.filter(row => row.label || row.time) : [],
+      }))
+      .filter(section => section.title || section.rows.length > 0);
+  }
+
+  const hasLegacyTimes = LEGACY_SECTIONS.some(section => section.rows.some(([key]) => data?.[key]));
+  if (!hasLegacyTimes) return [];
+  return LEGACY_SECTIONS.map(section => ({
+    title: section.title,
+    rows: section.rows.map(([key, label]) => ({ label, time: data?.[key] || '' })).filter(row => row.time),
+  })).filter(section => section.rows.length > 0);
+}
+
+function buildPrintHtml(data, isDark, tenantConfig) {
+  const primary = tenantConfig?.theme?.primaryColor || '#C9A84C';
+  const bgDef   = tenantConfig?.theme?.bgDefault    || '#0D1B2A';
+  const bgPap   = tenantConfig?.theme?.bgPaper      || '#1A2940';
+
+  const bg      = isDark ? bgDef : '#ffffff';
   const text    = isDark ? '#F5F0E8' : '#1a1a1a';
   const subText = isDark ? '#A89F94' : '#666666';
-  const gold    = '#C9A84C';
-  const cardBg  = isDark ? '#1A2940' : '#f8f6ef';
+  const gold    = primary;
+  const cardBg  = isDark ? bgPap : '#f8f6ef';
   const border  = 'rgba(201,168,76,0.3)';
 
-  const rows = (arr) => arr.map(([k, l]) =>
-    `<div class="row"><span class="label">${l}</span><span class="time">${data?.[k] || '--:--'}</span></div>`
+  const name     = escapeHtml(tenantConfig?.name || 'בית כנסת');
+  const subtitle = escapeHtml(tenantConfig?.subtitle || '');
+
+  const sections = normalizeSections(data);
+  const sectionHtml = sections.map(section =>
+    `<div class="card">
+      <div class="card-title">${escapeHtml(section.title || 'זמנים')}</div>
+      ${section.rows.map(row => `<div class="row"><span class="label">${escapeHtml(row.label || '')}</span><span class="time">${escapeHtml(row.time || '')}</span></div>`).join('')}
+    </div>`
   ).join('');
 
   return `<!DOCTYPE html>
 <html dir="rtl" lang="he">
 <head>
 <meta charset="UTF-8">
-<title>זמני תפילות — בית כנסת אדרת אליהו</title>
+<title>זמני תפילות — ${name}</title>
 <link href="https://fonts.googleapis.com/css2?family=Secular+One&family=Assistant:wght@400;600;700&display=swap" rel="stylesheet">
 <style>
   *{margin:0;padding:0;box-sizing:border-box}
@@ -55,7 +96,7 @@ function buildPrintHtml(data, isDark) {
   .sub{color:${subText};font-size:1rem;margin-bottom:4px}
   .syn{color:${gold};font-size:1.1rem;font-weight:700}
   .divider{height:2px;background:linear-gradient(90deg,transparent,${gold},transparent);margin:24px auto;width:55%;border:none}
-  .grid{display:grid;grid-template-columns:1fr 1fr;gap:24px;max-width:700px;margin:0 auto}
+  .grid{display:grid;grid-template-columns:1fr 1fr;gap:24px;max-width:760px;margin:0 auto}
   .card{background:${cardBg};border:1px solid ${border};border-radius:14px;padding:24px}
   .card-title{font-family:'Secular One',serif;color:${gold};font-size:1.35rem;text-align:center;padding-bottom:14px;border-bottom:1px solid ${border};margin-bottom:16px}
   .row{display:flex;justify-content:space-between;align-items:center;padding:10px 0;border-bottom:1px solid rgba(201,168,76,0.06)}
@@ -69,54 +110,31 @@ function buildPrintHtml(data, isDark) {
 <body>
   <div class="header">
     <h1>זמני תפילות ושיעורים</h1>
-    <div class="sub">ע"ש אליהו אוזן ז"ל</div>
-    <div class="syn">בית כנסת אדרת אליהו</div>
+    ${subtitle ? `<div class="sub">${subtitle}</div>` : ''}
+    <div class="syn">${name}</div>
   </div>
   <hr class="divider"/>
   <div class="grid">
-    <div class="card">
-      <div class="card-title">ימי חול</div>
-      ${rows(WEEKDAY)}
-    </div>
-    <div class="card">
-      <div class="card-title">שבת קודש</div>
-      ${rows(SHABBAT)}
-    </div>
+    ${sectionHtml || '<div class="footer">לא הוזנו זמני תפילות עדיין</div>'}
   </div>
-  <div class="footer">הודפס מאתר בית כנסת אדרת אליהו</div>
+  <div class="footer">הודפס מאתר ${name}</div>
   <script>window.onload=()=>{window.print()}</script>
 </body>
 </html>`;
 }
 
-const SAMPLE_DATA = {
-  shacharit_weekday: '06:15',
-  mincha_summer:     '19:45',
-  mincha_winter:     '17:00',
-  arvit:             '20:30',
-  kabbalat_shabbat:  '18:45',
-  shacharit_shabbat: '08:30',
-};
-
-function openPdf(data, mode) {
-  const win = window.open('', '_blank');
-  if (!win) return;
-  win.document.write(buildPrintHtml(data || SAMPLE_DATA, mode === 'dark'));
-  win.document.close();
-}
-
-function TimeBlock({ title, rows, data }) {
+function TimeBlock({ section }) {
   return (
     <Card sx={{ height: '100%' }}>
       <CardContent sx={{ p: 3 }}>
-        <Typography variant="h5" sx={{ color: 'primary.main', textAlign: 'center', mb: 2, pb: 1.5, borderBottom: '1px solid rgba(201,168,76,0.2)' }}>
-          {title}
+        <Typography variant="h5" className={css.titleBorder} sx={{ color: 'primary.main', mb: 2, pb: 1.5 }}>
+          {section.title || 'זמנים'}
         </Typography>
-        {rows.map(([key, label]) => (
-          <Box key={key} sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', py: 1.25, borderBottom: '1px solid rgba(201,168,76,0.06)', '&:last-child': { borderBottom: 'none' } }}>
-            <Typography sx={{ color: 'text.primary', fontSize: '1.02rem' }}>{label}</Typography>
-            <Typography sx={{ color: 'primary.main', fontWeight: 700, fontSize: '1.5rem', direction: 'ltr' }}>
-              {data?.[key] || '--:--'}
+        {section.rows.map((row, index) => (
+          <Box key={`${row.label}-${row.time}-${index}`} className={css.timeRow} sx={{ py: 1.25 }}>
+            <Typography sx={{ color: 'text.primary', fontSize: '1.02rem' }}>{row.label}</Typography>
+            <Typography className={css.timeValue} sx={{ color: 'primary.main' }}>
+              {row.time}
             </Typography>
           </Box>
         ))}
@@ -126,14 +144,39 @@ function TimeBlock({ title, rows, data }) {
 }
 
 export default function Zmanim() {
-  const [data, setData]     = useState(SAMPLE_DATA); // show sample immediately
+  const { config, slug } = useTenant();
+  const [data, setData]     = useState({});
   const [anchor, setAnchor] = useState(null);
+  const sections = normalizeSections(data);
 
   useEffect(() => {
-    getDoc(doc(db, 'zmanim', 'current'))
+    if (isLocalDevHost()) {
+      const localData = readLocalZmanim(slug);
+      if (Object.keys(localData || {}).length > 0) setData(localData);
+    }
+
+    getDoc(doc(db, 'zmanim', slug))
       .then(s => { if (s.exists()) setData(s.data()); })
-      .catch(() => {}); // keep sample data on error
-  }, []);
+      .catch(() => {});
+  }, [slug]);
+
+  useEffect(() => {
+    const handleLocalUpdate = (event) => {
+      if (event.detail?.slug !== slug || event.detail?.type !== 'zmanim') return;
+      const localData = readLocalZmanim(slug);
+      if (Object.keys(localData || {}).length > 0) setData(localData);
+    };
+
+    window.addEventListener(LOCAL_TENANT_UPDATED_EVENT, handleLocalUpdate);
+    return () => window.removeEventListener(LOCAL_TENANT_UPDATED_EVENT, handleLocalUpdate);
+  }, [slug]);
+
+  const openPdf = (mode) => {
+    const win = window.open('', '_blank');
+    if (!win) return;
+    win.document.write(buildPrintHtml(data || {}, mode === 'dark', config));
+    win.document.close();
+  };
 
   return (
     <Box>
@@ -141,14 +184,20 @@ export default function Zmanim() {
       <Box sx={{ py: 7 }}>
         <Container maxWidth="md">
           <GoldDivider />
-
-          <Grid container spacing={3} mt={1}>
-            <Grid item xs={12} sm={6}><TimeBlock title="ימי חול" rows={WEEKDAY} data={data} /></Grid>
-            <Grid item xs={12} sm={6}><TimeBlock title="שבת קודש" rows={SHABBAT} data={data} /></Grid>
-          </Grid>
+          {sections.length > 0 ? (
+            <Grid container spacing={3} mt={1}>
+              {sections.map((section, index) => (
+                <Grid item xs={12} sm={sections.length === 1 ? 12 : 6} key={`${section.title}-${index}`}>
+                  <TimeBlock section={section} />
+                </Grid>
+              ))}
+            </Grid>
+          ) : (
+            <Typography color="text.secondary" textAlign="center" sx={{ mt: 4 }}>לא הוזנו זמני תפילות עדיין</Typography>
+          )}
 
           {data.note && (
-            <Card sx={{ mt: 3, p: 2.5, textAlign: 'center', bgcolor: 'rgba(201,168,76,0.06)', borderColor: 'primary.main' }}>
+            <Card className={css.noteCard} sx={{ mt: 3, p: 2.5, borderColor: 'primary.main' }}>
               <Typography color="text.secondary">{data.note}</Typography>
             </Card>
           )}
@@ -159,46 +208,37 @@ export default function Zmanim() {
             </Typography>
           )}
 
-          {/* PDF Download — always visible */}
-          <Box sx={{ display: 'flex', justifyContent: 'center', mt: 4 }}>
+          <div className={css.printBtn} style={{ marginTop: 32 }}>
             <Button
-              variant="contained"
-              size="large"
-              startIcon={<PictureAsPdfIcon />}
+              variant="contained" size="large" startIcon={<PictureAsPdfIcon />}
               onClick={e => setAnchor(e.currentTarget)}
               sx={{
                 px: 5, py: 1.4, fontSize: '1rem',
-                background: 'linear-gradient(135deg, #C9A84C 0%, #E8D5A3 50%, #C9A84C 100%)',
-                color: '#0D1B2A',
-                fontWeight: 700,
+                background: (theme) => `linear-gradient(135deg, ${theme.palette.primary.main} 0%, ${theme.palette.primary.light} 50%, ${theme.palette.primary.main} 100%)`,
+                color: 'primary.contrastText', fontWeight: 700,
                 boxShadow: '0 4px 20px rgba(201,168,76,0.35)',
-                '&:hover': { boxShadow: '0 6px 28px rgba(201,168,76,0.5)', background: 'linear-gradient(135deg, #b8943e 0%, #d4c090 50%, #b8943e 100%)' },
               }}
             >
               הורדה / הדפסה כ-PDF
             </Button>
-            <Menu
-              anchorEl={anchor}
-              open={Boolean(anchor)}
-              onClose={() => setAnchor(null)}
-              PaperProps={{ sx: { mt: 1, minWidth: 200, border: '1px solid rgba(201,168,76,0.3)' } }}
-            >
-              <MenuItem onClick={() => { setAnchor(null); openPdf(data ?? SAMPLE_DATA, 'light'); }} sx={{ gap: 1.5, py: 1.5 }}>
-                <WbSunnyIcon sx={{ color: '#C9A84C' }} />
+            <Menu anchorEl={anchor} open={Boolean(anchor)} onClose={() => setAnchor(null)}
+              PaperProps={{ sx: { mt: 1, minWidth: 200, border: '1px solid rgba(201,168,76,0.3)' } }}>
+              <MenuItem onClick={() => { setAnchor(null); openPdf('light'); }} sx={{ gap: 1.5, py: 1.5 }}>
+                <WbSunnyIcon sx={{ color: 'primary.main' }} />
                 <Box>
                   <Typography fontWeight={700}>מצב בהיר</Typography>
                   <Typography variant="caption" color="text.secondary">רקע לבן — אידיאלי להדפסה</Typography>
                 </Box>
               </MenuItem>
-              <MenuItem onClick={() => { setAnchor(null); openPdf(data ?? SAMPLE_DATA, 'dark'); }} sx={{ gap: 1.5, py: 1.5 }}>
-                <DarkModeIcon sx={{ color: '#C9A84C' }} />
+              <MenuItem onClick={() => { setAnchor(null); openPdf('dark'); }} sx={{ gap: 1.5, py: 1.5 }}>
+                <DarkModeIcon sx={{ color: 'primary.main' }} />
                 <Box>
                   <Typography fontWeight={700}>מצב כהה</Typography>
                   <Typography variant="caption" color="text.secondary">רקע כהה — לשמירה דיגיטלית</Typography>
                 </Box>
               </MenuItem>
             </Menu>
-          </Box>
+          </div>
         </Container>
       </Box>
     </Box>

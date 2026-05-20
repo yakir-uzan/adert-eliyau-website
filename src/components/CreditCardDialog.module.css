@@ -1,0 +1,103 @@
+.dialogPaper {
+  background-color: #1A2940;
+  border: 1px solid rgba(201, 168, 76, 0.25);
+  border-radius: 12px;
+  background-image: none;
+}
+
+.dialogTitleRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding-bottom: 4px; /* pb: 0.5 ≈ we use MUI pb:1 = 8px, keep original */
+}
+
+.dialogTitleInner {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.titleText {
+  font-family: "Secular One", serif;
+}
+
+.form {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.amountBox {
+  text-align: center;
+  background-color: rgba(201, 168, 76, 0.07);
+  border: 1px solid rgba(201, 168, 76, 0.2);
+  border-radius: 8px;
+  padding-top: 12px;
+  padding-bottom: 12px;
+}
+
+.amountValue {
+  font-weight: 700;
+  font-size: 1.9rem;
+  font-family: "Secular One", serif;
+  line-height: 1.1;
+}
+
+.fieldBox {
+  border: 1px solid rgba(201, 168, 76, 0.25);
+  border-radius: 6px; /* borderRadius: 1.5 = 6px */
+  padding-left: 14px;
+  padding-right: 14px;
+  padding-top: 11.2px;
+  padding-bottom: 11.2px;
+  background-color: rgba(0, 0, 0, 0.25);
+  transition: border-color 0.2s;
+}
+
+.fieldBox:focus-within {
+  border-color: var(--mui-palette-primary-main, #C9A84C);
+}
+
+.cardFieldsRow {
+  display: flex;
+  gap: 12px;
+}
+
+.cardFieldsRow > div {
+  flex: 1;
+}
+
+.securityNote {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  justify-content: center;
+}
+
+.successContainer {
+  text-align: center;
+  padding-top: 16px;
+  padding-bottom: 16px;
+}
+
+.receiptRow {
+  margin-top: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+}
+
+.submitButton {
+  background: linear-gradient(135deg, #C9A84C 0%, #E8D5A3 50%, #C9A84C 100%);
+  color: #0D1B2A;
+  font-weight: 700;
+  font-size: 1rem;
+  padding-top: 11.2px;
+  padding-bottom: 11.2px;
+}
+
+.submitButton:hover {
+  box-shadow: 0 6px 24px rgba(201, 168, 76, 0.4);
+}

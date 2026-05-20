@@ -1,0 +1,40 @@
+.cardHover {
+  transition: box-shadow 0.2s;
+}
+
+.cardHover:hover {
+  box-shadow: 0 4px 24px rgba(201,168,76,0.12);
+}
+
+.cardHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+}
+
+.dateRow {
+  display: flex;
+  align-items: center;
+}
+
+.pinnedChip {
+  background-color: rgba(201,168,76,0.12);
+  border: 1px solid rgba(201,168,76,0.25);
+}
+
+.divider {
+  border-color: rgba(201,168,76,0.1);
+}
+
+.bodyText {
+  line-height: 1.9;
+  white-space: pre-line;
+  font-family: "Assistant", sans-serif;
+  font-size: 0.97rem;
+}
+
+.list {
+  display: flex;
+  flex-direction: column;
+}

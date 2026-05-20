@@ -1,44 +1,25 @@
 import Box from '@mui/material/Box';
 import Typography from '@mui/material/Typography';
+import { useTenant } from '../config/TenantContext';
+import css from './PageHero.module.css';
 
 export default function PageHero({ title, subtitle }) {
+  const { config } = useTenant();
+  const heroBg = config.images?.pageHeroBg?.trim();
+
   return (
-    <Box
-      sx={{
-        height: 260,
-        position: 'relative',
-        display: 'flex',
-        flexDirection: 'column',
-        alignItems: 'center',
-        justifyContent: 'flex-end',
-        pb: 5,
-        overflow: 'hidden',
-        textAlign: 'center',
-        '&::before': {
-          content: '""',
-          position: 'absolute',
-          inset: 0,
-          backgroundImage: 'url(/images/hero/interior-01.png)',
-          backgroundSize: 'cover',
-          backgroundPosition: 'center',
-          opacity: 0.1,
-        },
-        '&::after': {
-          content: '""',
-          position: 'absolute',
-          inset: 0,
-          background: 'linear-gradient(to top, #0D1B2A 0%, transparent 100%)',
-        },
-      }}
+    <div
+      className={css.hero}
+      style={heroBg ? { '--hero-bg': `url(${heroBg})` } : undefined}
     >
-      <Typography variant="h2" sx={{ position: 'relative', zIndex: 1, color: 'primary.light' }}>
+      <Typography variant="h2" className={css.title} sx={{ color: 'primary.light' }}>
         {title}
       </Typography>
       {subtitle && (
-        <Typography sx={{ position: 'relative', zIndex: 1, color: 'text.secondary', mt: 0.5 }}>
+        <Typography className={css.subtitle} sx={{ color: 'text.secondary', mt: 0.5 }}>
           {subtitle}
         </Typography>
       )}
-    </Box>
+    </div>
   );
 }

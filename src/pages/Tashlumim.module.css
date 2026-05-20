@@ -1,0 +1,80 @@
+.cardContent {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+}
+
+.spacer {
+  height: 32px;
+}
+
+.logo {
+  height: 52px;
+  max-width: 120px;
+  object-fit: contain;
+  border-radius: 16px;
+  align-self: flex-start;
+}
+
+.infoBox {
+  background-color: rgba(0,0,0,0.2);
+  border-radius: 8px;
+  padding: 12px;
+}
+
+.infoRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.bitBtn {
+  border-color: #0091FF;
+  color: #0091FF;
+  font-weight: 700;
+}
+
+.bitBtn:hover {
+  border-color: #0091FF;
+  background-color: rgba(0,145,255,0.08);
+}
+
+.payboxBtn {
+  border-color: #6c3cbf;
+  color: #6c3cbf;
+  font-weight: 700;
+}
+
+.payboxBtn:hover {
+  border-color: #6c3cbf;
+  background-color: rgba(108,60,191,0.08);
+}
+
+.nedarimBtn {
+  border-color: #1a56b0;
+  color: #4a90d9;
+  font-weight: 700;
+}
+
+.nedarimBtn:hover {
+  border-color: #1a56b0;
+  background-color: rgba(26,86,176,0.08);
+}
+
+.ctaCard {
+  text-align: center;
+  background-color: rgba(201,168,76,0.07);
+}
+
+.bankCell {
+  border: none;
+}
+
+.copyCell {
+  border: none;
+  width: 32px;
+}
+
+.ltr {
+  direction: ltr;
+}

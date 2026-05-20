@@ -1,0 +1,33 @@
+.root {
+  height: 100vh;
+  background-color: #111d2d;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+}
+
+.galleryItem {
+  display: block;
+  overflow: hidden;
+  aspect-ratio: 1;
+  border: 1px solid rgba(201,168,76,0.18);
+  transition: border-color 0.3s, transform 0.3s;
+}
+
+.galleryItem:hover {
+  transform: scale(1.02);
+}
+
+.galleryItem:hover img {
+  transform: scale(1.1);
+}
+
+.galleryImg {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+  transition: transform 0.5s ease;
+}

@@ -1,0 +1,13 @@
+.base {
+  min-width: 182px;
+  padding: 11.6px 36px;
+  border-radius: 14px;
+  font-size: 1rem;
+  font-weight: 700;
+  backdrop-filter: blur(10px);
+  transition: transform 220ms ease, box-shadow 220ms ease, background-color 220ms ease, border-color 220ms ease;
+}
+
+.base:hover {
+  transform: translateY(-2px);
+}

@@ -1,0 +1,72 @@
+@keyframes trialPulse {
+  0% {
+    transform: scale(1);
+    opacity: 0.7;
+  }
+  100% {
+    transform: scale(1.18);
+    opacity: 0;
+  }
+}
+
+.fabButton {
+  width: 54px;
+  height: 54px;
+  border: 1px solid rgba(201, 168, 76, 0.28);
+  backdrop-filter: blur(12px);
+  transition: transform 0.25s ease, box-shadow 0.25s ease;
+}
+
+.fabButton:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 14px 32px rgba(0, 0, 0, 0.36);
+}
+
+.fabPulse::after {
+  content: "";
+  position: absolute;
+  inset: -4px;
+  border-radius: 50%;
+  border: 1px solid rgba(201, 168, 76, 0.2);
+  animation: trialPulse 1.9s ease-out infinite;
+}
+
+.popoverPaper {
+  width: 320px;
+  max-width: calc(100vw - 24px);
+  padding: 16px;
+  border-radius: 12px;
+  backdrop-filter: blur(16px);
+}
+
+.infoBox {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 9.6px; /* p: 1.2 = 9.6px */
+  border-radius: 8px; /* borderRadius: 2 = 8px */
+}
+
+.infoBoxPrimary {
+  background-color: rgba(201, 168, 76, 0.08);
+  border: 1px solid rgba(201, 168, 76, 0.14);
+}
+
+.infoBoxSecondary {
+  background-color: rgba(201, 168, 76, 0.05);
+  border: 1px solid rgba(201, 168, 76, 0.1);
+}
+
+.statusHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.infoGrid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 8px;
+  padding-top: 4px; /* pt: 0.5 */
+}

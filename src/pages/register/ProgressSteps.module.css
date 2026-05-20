@@ -1,0 +1,132 @@
+.stepsContainer {
+  display: flex;
+  flex-direction: row-reverse;
+  justify-content: center;
+  align-items: flex-start;
+  gap: 0.55rem;
+  margin-bottom: 2.2rem;
+  width: fit-content;
+  max-width: 100%;
+  margin-inline: auto;
+  overflow: hidden;
+  padding-bottom: 1.2rem;
+  padding-top: 0.6rem;
+  padding-inline: 0.5rem;
+  scrollbar-width: none;
+}
+
+.stepsContainer::-webkit-scrollbar {
+  display: none;
+}
+
+.stepItem {
+  width: 82px;
+  flex-shrink: 0;
+  direction: rtl;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.55rem;
+}
+
+.stepCircleWrap {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.stepCircle {
+  width: 34px;
+  height: 34px;
+  flex-shrink: 0;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.25s ease;
+}
+
+.stepIconWrap {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.stepIconWrap svg {
+  font-size: 19px;
+}
+
+.stepLabel {
+  font-weight: 700;
+  font-size: 0.72rem;
+  white-space: nowrap;
+  text-align: center;
+  direction: rtl;
+  width: 100%;
+  line-height: 1.35;
+}
+
+.connector {
+  width: 46px;
+  height: 34px;
+  flex-shrink: 0;
+  position: relative;
+  margin-top: 0;
+}
+
+.connector::before {
+  content: "";
+  position: absolute;
+  top: 15px;
+  left: 3px;
+  right: 3px;
+  height: 2px;
+  border-radius: 999px;
+}
+
+.connector::after {
+  content: "";
+  position: absolute;
+  top: 14px;
+  left: 50%;
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  transform: translateX(-50%);
+}
+
+.connectorCompleted::before {
+  background: linear-gradient(90deg, rgba(201,168,76,0.22), rgba(232,213,163,0.98), rgba(201,168,76,0.22));
+  box-shadow: 0 0 12px rgba(201,168,76,0.26);
+}
+
+.connectorCompleted::after {
+  background-color: rgba(232,213,163,0.85);
+  box-shadow: 0 0 10px rgba(201,168,76,0.35);
+}
+
+.connectorIncomplete::before {
+  background: linear-gradient(90deg, rgba(201,168,76,0.08), rgba(201,168,76,0.58), rgba(201,168,76,0.08));
+  box-shadow: 0 0 8px rgba(201,168,76,0.12);
+}
+
+.connectorIncomplete::after {
+  background-color: rgba(201,168,76,0.36);
+  box-shadow: none;
+}
+
+@media (min-width: 900px) {
+  .stepsContainer {
+    gap: 0.9rem;
+    padding-inline: 1.6rem;
+  }
+  .stepItem {
+    width: 94px;
+  }
+  .stepLabel {
+    font-size: 0.82rem;
+  }
+  .connector {
+    width: 60px;
+  }
+}

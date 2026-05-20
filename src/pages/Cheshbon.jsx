@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { auth, db } from '../firebase';
 import { onAuthStateChanged, signOut, GoogleAuthProvider, signInWithPopup } from 'firebase/auth';
 import { collection, query, where, orderBy, getDocs, setDoc, doc, serverTimestamp } from 'firebase/firestore';
+import { useTenant } from '../config/TenantContext';
 import Box from '@mui/material/Box';
 import Container from '@mui/material/Container';
 import Typography from '@mui/material/Typography';
@@ -22,15 +23,20 @@ import LockIcon from '@mui/icons-material/Lock';
 import CheckCircleIcon from '@mui/icons-material/CheckCircle';
 import PageHero from '../components/PageHero';
 import GoldDivider from '../components/GoldDivider';
+import css from './Cheshbon.module.css';
 
 const fmtDate  = ts => { if (!ts) return ''; const d = ts?.toDate ? ts.toDate() : new Date(ts); return d.toLocaleDateString('he-IL', { day:'numeric', month:'long', year:'numeric' }); };
 const fmtMoney = n  => new Intl.NumberFormat('he-IL', { style:'currency', currency:'ILS', maximumFractionDigits:0 }).format(n||0);
-const BIT_LINK    = 'https://www.bitpay.co.il/app/transfer?phone=05XXXXXXXX';
-const PAYBOX_LINK = 'https://paybox.me/XXXXX';
-const WA_GABBAI   = 'https://wa.me/9725XXXXXXXX';
 
 export default function Cheshbon() {
-  const [authState, setAuthState] = useState('loading'); // loading | guest | user
+  const { config, slug } = useTenant();
+  const pay = config.payments || {};
+  const wa  = config.whatsapp || {};
+  const bitLink    = pay.bitPhone ? `https://www.bitpay.co.il/app/transfer?phone=${pay.bitPhone}` : '';
+  const payboxLink = pay.payboxLink || '';
+  const waGabbai   = wa.gabaiLink || '';
+
+  const [authState, setAuthState] = useState('loading');
   const [user, setUser]           = useState(null);
   const [charges, setCharges]     = useState(null);
 
@@ -39,17 +45,19 @@ export default function Cheshbon() {
       setUser(u);
       setAuthState('user');
       try {
-        await setDoc(doc(db, 'users', u.uid), { displayName: u.displayName, email: u.email, photoURL: u.photoURL, lastLogin: serverTimestamp() }, { merge: true });
-        const q = query(collection(db, 'cheshbonot'), where('uid','==',u.uid), where('paid','==',false), orderBy('date','desc'));
+        await setDoc(doc(db, 'users', u.uid), { displayName: u.displayName, email: u.email, photoURL: u.photoURL, lastLogin: serverTimestamp(), tenantId: slug }, { merge: true });
+        const q = query(collection(db, 'cheshbonot'), where('uid','==',u.uid), where('tenantId','==',slug), where('paid','==',false), orderBy('date','desc'));
         const snap = await getDocs(q);
         setCharges(snap.docs.map(d => ({ id: d.id, ...d.data() })));
       } catch { setCharges([]); }
     } else { setUser(null); setAuthState('guest'); }
-  }), []);
+  }), [slug]);
 
   const login  = () => signInWithPopup(auth, new GoogleAuthProvider()).catch(console.error);
   const logout = () => signOut(auth);
   const total  = (charges || []).reduce((s,c) => s + (c.amount||0), 0);
+  const openCharges = (charges || []).filter(c => (c.amount || 0) > 0);
+  const hasOpenChargeAmount = openCharges.length > 0;
 
   return (
     <Box>
@@ -58,12 +66,10 @@ export default function Cheshbon() {
         <Container maxWidth="sm">
           <GoldDivider />
 
-          {/* Loading */}
           {authState === 'loading' && (
             <Box display="flex" justifyContent="center" mt={6}><CircularProgress sx={{ color: 'primary.main' }} /></Box>
           )}
 
-          {/* Guest — login */}
           {authState === 'guest' && (
             <Card sx={{ mt: 4, p: { xs: 3, sm: 5 }, textAlign: 'center', mx: 'auto', maxWidth: 420 }}>
               <LockIcon sx={{ fontSize: '3rem', mb: 1, color: 'primary.main' }} />
@@ -71,10 +77,7 @@ export default function Cheshbon() {
               <Typography color="text.secondary" sx={{ mb: 3 }}>
                 התחברו עם חשבון Google שלכם כדי לראות את החיובים שלכם בבית הכנסת
               </Typography>
-              <Button
-                onClick={login}
-                fullWidth
-                size="large"
+              <Button onClick={login} fullWidth size="large"
                 sx={{ bgcolor: '#fff', color: '#1a1a1a', fontWeight: 700, gap: 1.5, '&:hover': { bgcolor: '#f0f0f0' } }}
                 startIcon={
                   <svg width="20" height="20" viewBox="0 0 24 24">
@@ -93,13 +96,11 @@ export default function Cheshbon() {
             </Card>
           )}
 
-          {/* User — account */}
           {authState === 'user' && user && (
             <>
-              {/* Profile */}
               <Card sx={{ mt: 4, p: 2 }}>
                 <CardContent sx={{ display: 'flex', alignItems: 'center', gap: 2, py: '12px !important' }}>
-                  <Avatar src={user.photoURL} sx={{ width: 56, height: 56, border: '2px solid #C9A84C' }} />
+                  <Avatar src={user.photoURL} sx={{ width: 56, height: 56, border: '2px solid', borderColor: 'primary.main' }} />
                   <Box sx={{ flex: 1 }}>
                     <Typography fontWeight={700} sx={{ color: 'secondary.main' }}>{user.displayName}</Typography>
                     <Typography variant="caption" color="text.secondary">{user.email}</Typography>
@@ -108,30 +109,27 @@ export default function Cheshbon() {
                 </CardContent>
               </Card>
 
-              {/* Total */}
               <Card sx={{ mt: 2, p: 3, textAlign: 'center', bgcolor: total > 0 ? 'rgba(248,113,113,0.05)' : 'rgba(74,222,128,0.05)', borderColor: total > 0 ? '#f87171' : '#4ade80' }}>
                 <Typography variant="caption" color="text.secondary">סה״כ לתשלום</Typography>
                 <Typography sx={{ fontSize: '3rem', fontWeight: 700, color: total > 0 ? '#f87171' : '#4ade80', fontFamily: '"Secular One", serif' }}>
                   {charges === null ? <CircularProgress size={36} /> : fmtMoney(total)}
                 </Typography>
                 <Typography sx={{ color: total > 0 ? '#fca5a5' : '#86efac' }}>
-                  {total > 0 ? 'יש סכום לתשלום' : <Box component="span" sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 0.5 }}><CheckCircleIcon fontSize="small" />החשבון מאוזן — תודה!</Box>}
+                  {charges === null ? 'בודקים חיובים פתוחים...' : total > 0 ? 'יש סכום לתשלום' : <Box component="span" sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 0.5 }}><CheckCircleIcon fontSize="small" />החשבון מאוזן — תודה!</Box>}
                 </Typography>
                 {total > 0 && (
                   <Box sx={{ display: 'flex', gap: 1.5, justifyContent: 'center', flexWrap: 'wrap', mt: 2 }}>
-                    <Button href={BIT_LINK} target="_blank" sx={{ bgcolor: '#0091FF', color: '#fff', '&:hover': { bgcolor: '#007fd9' } }}>שלם בביט</Button>
-                    <Button href={PAYBOX_LINK} target="_blank" sx={{ bgcolor: '#6c3cbf', color: '#fff', '&:hover': { bgcolor: '#5a30a8' } }}>שלם בפייבוקס</Button>
-                    <Button href={`${WA_GABBAI}?text=שלום, ברצוני לשלם את חשבוני`} target="_blank" startIcon={<WhatsAppIcon />} sx={{ bgcolor: '#25D366', color: '#fff', '&:hover': { bgcolor: '#1ebe5d' } }}>וואטסאפ לגבאי</Button>
+                    {bitLink && <Button href={bitLink} target="_blank" sx={{ bgcolor: '#0091FF', color: '#fff', '&:hover': { bgcolor: '#007fd9' } }}>שלם בביט</Button>}
+                    {payboxLink && <Button href={payboxLink} target="_blank" sx={{ bgcolor: '#6c3cbf', color: '#fff', '&:hover': { bgcolor: '#5a30a8' } }}>שלם בפייבוקס</Button>}
+                    {waGabbai && <Button href={`${waGabbai}?text=שלום, ברצוני לשלם את חשבוני`} target="_blank" startIcon={<WhatsAppIcon />} sx={{ bgcolor: '#25D366', color: '#fff', '&:hover': { bgcolor: '#1ebe5d' } }}>וואטסאפ לגבאי</Button>}
                   </Box>
                 )}
               </Card>
 
-              {/* Charges table */}
-              <Card sx={{ mt: 2 }}>
-                <CardContent>
-                  <Typography variant="h6" sx={{ color: 'primary.main', mb: 2 }}>פירוט חיובים פתוחים</Typography>
-                  {charges === null ? <Skeleton variant="rectangular" height={100} sx={{ borderRadius: 1 }} /> :
-                   charges.length === 0 ? <Typography color="text.secondary" textAlign="center" py={2}>אין חיובים פתוחים</Typography> : (
+              {hasOpenChargeAmount && (
+                <Card sx={{ mt: 2 }}>
+                  <CardContent>
+                    <Typography variant="h6" sx={{ color: 'primary.main', mb: 2 }}>פירוט חיובים פתוחים</Typography>
                     <Table size="small">
                       <TableHead>
                         <TableRow>
@@ -142,7 +140,7 @@ export default function Cheshbon() {
                         </TableRow>
                       </TableHead>
                       <TableBody>
-                        {charges.map(c => (
+                        {openCharges.map(c => (
                           <TableRow key={c.id}>
                             <TableCell>{fmtDate(c.date)}</TableCell>
                             <TableCell>
@@ -154,12 +152,14 @@ export default function Cheshbon() {
                         ))}
                       </TableBody>
                     </Table>
-                  )}
-                </CardContent>
-              </Card>
-              <Typography variant="caption" color="text.secondary" display="block" textAlign="center" mt={1.5}>
-                לאחר ביצוע תשלום, עדכנו את הגבאות לאישור ✓
-              </Typography>
+                  </CardContent>
+                </Card>
+              )}
+              {hasOpenChargeAmount && (
+                <Typography variant="caption" color="text.secondary" display="block" textAlign="center" mt={1.5}>
+                  לאחר ביצוע תשלום, עדכנו את הגבאות לאישור ✓
+                </Typography>
+              )}
             </>
           )}
         </Container>

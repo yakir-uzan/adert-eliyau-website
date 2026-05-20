@@ -1,0 +1,15 @@
+.cat {
+  color: var(--ticker-cat);
+  font-weight: 700;
+  font-size: 0.87rem;
+}
+
+.text {
+  font-size: 0.87rem;
+  opacity: 0.85;
+}
+
+.separator {
+  opacity: 0.35;
+  padding: 0 22px;
+}

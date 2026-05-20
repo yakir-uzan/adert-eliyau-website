@@ -1,0 +1,15 @@
+.statusBox {
+  padding: 16px;
+  border-radius: 12px;
+  background-color: rgba(201,168,76,0.08);
+  border: 1px solid rgba(201,168,76,0.16);
+  height: 100%;
+}
+
+.actionsRow {
+  margin-top: 20px;
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+  align-items: center;
+}

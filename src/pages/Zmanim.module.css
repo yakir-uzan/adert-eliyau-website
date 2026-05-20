@@ -1,0 +1,31 @@
+.timeRow {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-bottom: 1px solid rgba(201,168,76,0.06);
+}
+
+.timeRow:last-child {
+  border-bottom: none;
+}
+
+.timeValue {
+  font-weight: 700;
+  font-size: 1.5rem;
+  direction: ltr;
+}
+
+.titleBorder {
+  text-align: center;
+  border-bottom: 1px solid rgba(201,168,76,0.2);
+}
+
+.printBtn {
+  display: flex;
+  justify-content: center;
+}
+
+.noteCard {
+  text-align: center;
+  background-color: rgba(201,168,76,0.06);
+}

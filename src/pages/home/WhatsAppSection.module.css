@@ -1,0 +1,14 @@
+.root {
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+.content {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(135deg, #071a0e 0%, #0D1B2A 60%, #0a1520 100%);
+  text-align: center;
+}

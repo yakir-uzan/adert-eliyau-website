@@ -1,0 +1,81 @@
+.googleBtn {
+  background-color: #fff;
+  color: #1a1a1a;
+  font-weight: 700;
+}
+
+.googleBtn:hover {
+  background-color: #f0f0f0;
+}
+
+.bitPayBtn {
+  background-color: #0091FF;
+  color: #fff;
+}
+
+.bitPayBtn:hover {
+  background-color: #007fd9;
+}
+
+.payboxPayBtn {
+  background-color: #6c3cbf;
+  color: #fff;
+}
+
+.payboxPayBtn:hover {
+  background-color: #5a30a8;
+}
+
+.waPayBtn {
+  background-color: #25D366;
+  color: #fff;
+}
+
+.waPayBtn:hover {
+  background-color: #1ebe5d;
+}
+
+.payButtons {
+  display: flex;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+
+.userCard {
+  display: flex;
+  align-items: center;
+}
+
+.totalPositive {
+  font-size: 3rem;
+  font-weight: 700;
+  color: #f87171;
+  font-family: "Secular One", serif;
+}
+
+.totalZero {
+  font-size: 3rem;
+  font-weight: 700;
+  color: #4ade80;
+  font-family: "Secular One", serif;
+}
+
+.owedLabel {
+  color: #fca5a5;
+}
+
+.paidLabel {
+  color: #86efac;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.aliyaChip {
+  background-color: rgba(201,168,76,0.15);
+}
+
+.nederChip {
+  background-color: rgba(139,26,26,0.2);
+  color: #f87171;
+}

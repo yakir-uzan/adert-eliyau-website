@@ -1,0 +1,36 @@
+.userHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 12px;
+  padding-bottom: 12px;
+  border-bottom: 1px solid rgba(201,168,76,0.15);
+}
+
+.chargeRow {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding-block: 6px;
+  border-bottom: 1px solid rgba(201,168,76,0.05);
+  flex-wrap: wrap;
+}
+
+.chargeRow:last-child {
+  border-bottom: none;
+}
+
+.totalChip {
+  background-color: rgba(248,113,113,0.15);
+  color: #f87171;
+  font-weight: 700;
+}
+
+.aliyaChip {
+  background-color: rgba(201,168,76,0.15);
+}
+
+.nederChip {
+  background-color: rgba(139,26,26,0.2);
+  color: #f87171;
+}

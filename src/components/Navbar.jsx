@@ -2,12 +2,15 @@ import { useState, useEffect } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { auth } from '../firebase';
 import { onAuthStateChanged, signOut, GoogleAuthProvider, signInWithPopup } from 'firebase/auth';
+import { useTenant } from '../config/TenantContext';
 import AppBar from '@mui/material/AppBar';
 import Toolbar from '@mui/material/Toolbar';
 import Box from '@mui/material/Box';
 import Button from '@mui/material/Button';
 import IconButton from '@mui/material/IconButton';
 import Drawer from '@mui/material/Drawer';
+import Menu from '@mui/material/Menu';
+import MenuItem from '@mui/material/MenuItem';
 import List from '@mui/material/List';
 import ListItem from '@mui/material/ListItem';
 import ListItemButton from '@mui/material/ListItemButton';
@@ -17,20 +20,26 @@ import Typography from '@mui/material/Typography';
 import MenuIcon from '@mui/icons-material/Menu';
 import CloseIcon from '@mui/icons-material/Close';
 import useScrollTrigger from '@mui/material/useScrollTrigger';
-
-const NAV_LINKS = [
-  { label: 'ראשי',        to: '/' },
-  { label: 'זמני תפילות', to: '/zmanim' },
-  { label: 'הודעות',      to: '/hodaot' },
-  { label: 'תשלומים',    to: '/tashlumim' },
-  { label: 'ברכות',      to: '/brachot' },
-  { label: 'גלריה',      to: '/galeria' },
-  { label: 'יצירת קשר',  to: '/contact' },
-];
+import css from './Navbar.module.css';
 
 export default function Navbar() {
+  const { config, slug } = useTenant();
+  const base = `/${slug}`;
+
+  const NAV_LINKS = [
+    { label: 'ראשי',        to: base },
+    { label: 'זמני תפילות', to: `${base}/zmanim` },
+    { label: 'הודעות',      to: `${base}/hodaot` },
+    { label: 'תשלומים',    to: `${base}/tashlumim` },
+    { label: 'ברכות',      to: `${base}/brachot` },
+    { label: 'גלריה',      to: `${base}/galeria` },
+    { label: 'יצירת קשר',  to: `${base}/contact` },
+    { label: 'ניהול',      to: `${base}/admin`, adminLink: true },
+  ];
+
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [user, setUser]             = useState(null);
+  const [accountMenuAnchor, setAccountMenuAnchor] = useState(null);
   const location = useLocation();
   const scrolled = useScrollTrigger({ disableHysteresis: true, threshold: 60 });
 
@@ -38,55 +47,56 @@ export default function Navbar() {
 
   const handleLogin = () =>
     signInWithPopup(auth, new GoogleAuthProvider()).catch(console.error);
+  const closeAccountMenu = () => setAccountMenuAnchor(null);
+  const handleLogout = () => {
+    closeAccountMenu();
+    signOut(auth);
+  };
 
   return (
     <>
       <AppBar
         position="fixed"
+        className={css.appBarTransition}
         sx={{
           background: scrolled ? 'rgba(13,27,42,0.97)' : 'transparent',
           backdropFilter: scrolled ? 'blur(10px)' : 'none',
           boxShadow: scrolled ? '0 2px 20px rgba(0,0,0,0.5)' : 'none',
-          transition: 'background 0.35s, box-shadow 0.35s',
         }}
       >
-        <Toolbar sx={{ justifyContent: 'space-between', px: { xs: 2, md: 3 } }}>
-
-          {/* Brand — hamburger first so it sits at far-right in RTL mobile */}
-          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+        <Toolbar sx={{ justifyContent: 'space-between', px: { xs: 2, md: 3 }, minHeight: { xs: 58, md: 62 } }}>
+          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, flex: '0 0 260px', minWidth: 0 }}>
             <IconButton
               onClick={() => setDrawerOpen(true)}
               sx={{ display: { md: 'none' }, color: 'primary.main' }}
             >
               <MenuIcon />
             </IconButton>
-            <Box component={Link} to="/" sx={{ display: 'flex', alignItems: 'center', textDecoration: 'none' }}>
+            <Box component={Link} to={base} className={css.logoLink}>
               <Typography
+                className={css.logoText}
                 sx={{
-                  fontFamily: '"Secular One", serif',
-                  fontSize: '1.2rem',
-                  color: 'primary.light',
-                  lineHeight: 1.2,
+                  color: 'primary.main',
+                  fontSize: { xs: '1.18rem !important', md: '1.38rem !important' },
                 }}
               >
-                אדרת אליהו
+                {config.name}
               </Typography>
             </Box>
           </Box>
 
-          {/* Desktop links */}
-          <Box sx={{ display: { xs: 'none', md: 'flex' }, gap: 0.5 }}>
+          <Box sx={{ display: { xs: 'none', md: 'flex' }, gap: 0.5, flex: '1 1 auto', justifyContent: 'center' }}>
             {NAV_LINKS.map(l => (
               <Button
                 key={l.to}
                 component={Link}
                 to={l.to}
+                className={css.navLinkHover}
                 sx={{
-                  color: location.pathname === l.to ? 'primary.main' : 'text.primary',
-                  bgcolor: location.pathname === l.to ? 'rgba(201,168,76,0.1)' : 'transparent',
+                  bgcolor: location.pathname === l.to && !l.adminLink ? 'rgba(201,168,76,0.1)' : 'transparent',
                   fontWeight: 600,
                   fontSize: '0.9rem',
-                  '&:hover': { color: 'primary.main', bgcolor: 'rgba(201,168,76,0.1)' },
+                  color: l.adminLink ? 'primary.main' : (location.pathname === l.to ? 'primary.main' : 'text.primary'),
                 }}
               >
                 {l.label}
@@ -94,28 +104,38 @@ export default function Navbar() {
             ))}
           </Box>
 
-          {/* Auth */}
-          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, flex: '0 0 260px', justifyContent: 'flex-end' }}>
             {user ? (
               <>
-                <Box
-                  component={Link}
-                  to="/cheshbon"
-                  sx={{ display: 'flex', alignItems: 'center', gap: 0.75, textDecoration: 'none' }}
+                <IconButton
+                  onClick={(event) => setAccountMenuAnchor(event.currentTarget)}
+                  sx={{ p: 0.35 }}
                 >
-                  <Avatar src={user.photoURL} sx={{ width: 32, height: 32, border: '2px solid #C9A84C' }} />
-                  <Typography sx={{ color: 'primary.light', fontSize: '0.88rem', display: { xs: 'none', sm: 'block' } }}>
-                    {user.displayName?.split(' ')[0]}
-                  </Typography>
-                </Box>
-                <Button
-                  size="small"
-                  variant="outlined"
-                  onClick={() => signOut(auth)}
-                  sx={{ fontSize: '0.78rem', py: 0.4, px: 1.2 }}
+                  <Avatar src={user.photoURL} sx={{ width: 32, height: 32, border: '2px solid', borderColor: 'primary.main' }} />
+                </IconButton>
+                <Menu
+                  anchorEl={accountMenuAnchor}
+                  open={!!accountMenuAnchor}
+                  onClose={closeAccountMenu}
+                  anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}
+                  transformOrigin={{ vertical: 'top', horizontal: 'right' }}
+                  PaperProps={{
+                    sx: {
+                      mt: 1,
+                      minWidth: 170,
+                      bgcolor: 'background.paper',
+                      border: '1px solid rgba(201,168,76,0.2)',
+                      direction: 'rtl',
+                    },
+                  }}
                 >
-                  יציאה
-                </Button>
+                  <MenuItem component={Link} to={`${base}/cheshbon`} onClick={closeAccountMenu}>
+                    החשבון שלי
+                  </MenuItem>
+                  <MenuItem onClick={handleLogout} sx={{ color: 'primary.main', fontWeight: 700 }}>
+                    יציאה
+                  </MenuItem>
+                </Menu>
               </>
             ) : (
               <Button
@@ -124,39 +144,39 @@ export default function Navbar() {
                 onClick={handleLogin}
                 sx={{ fontSize: '0.82rem', py: 0.5, px: 1.4 }}
               >
-                כניסה
+                התחבר
               </Button>
             )}
           </Box>
         </Toolbar>
       </AppBar>
 
-      {/* Mobile Drawer */}
       <Drawer
-        anchor="right"
+        anchor="left"
         open={drawerOpen}
         onClose={() => setDrawerOpen(false)}
         PaperProps={{ sx: { width: 280 } }}
       >
-        <Box sx={{ p: 2, display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: '1px solid rgba(201,168,76,0.2)' }}>
-          <Typography sx={{ fontFamily: '"Secular One", serif', color: 'primary.main', fontSize: '1.1rem' }}>
-            אדרת אליהו
+        <div className={css.drawerHeader}>
+          <Typography className={css.drawerTitle} sx={{ color: 'primary.main' }}>
+            {config.name}
           </Typography>
           <IconButton onClick={() => setDrawerOpen(false)} sx={{ color: 'text.secondary' }}>
             <CloseIcon />
           </IconButton>
-        </Box>
+        </div>
         <List>
-          {[...NAV_LINKS, { label: 'החשבון שלי', to: '/cheshbon' }].map(l => (
+          {[...NAV_LINKS, { label: 'החשבון שלי', to: `${base}/cheshbon` }].map(l => (
             <ListItem key={l.to} disablePadding>
               <ListItemButton
                 component={Link}
                 to={l.to}
                 onClick={() => setDrawerOpen(false)}
                 selected={location.pathname === l.to}
+                className={css.drawerItemBorder}
                 sx={{
-                  borderBottom: '1px solid rgba(201,168,76,0.08)',
                   '&.Mui-selected': { bgcolor: 'rgba(201,168,76,0.1)', color: 'primary.main' },
+                  ...(l.adminLink ? { color: 'primary.main' } : {}),
                 }}
               >
                 <ListItemText primary={l.label} primaryTypographyProps={{ fontWeight: 600 }} />

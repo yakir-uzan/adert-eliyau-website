@@ -1,0 +1,19 @@
+.sectionBox {
+  border: 1px solid rgba(201,168,76,0.22);
+  border-radius: 8px;
+  padding: 16px;
+}
+
+.sectionHeader {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 16px;
+}
+
+.timeMenuPaper {
+  margin-top: 8px;
+  max-height: 260px;
+  border: 1px solid rgba(201,168,76,0.35);
+  background-image: none;
+}

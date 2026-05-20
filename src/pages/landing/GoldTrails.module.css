@@ -1,0 +1,44 @@
+.root {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  overflow: hidden;
+}
+
+.trail {
+  position: absolute;
+  border-radius: 0 0 70% 40%;
+  transform: rotate(-8deg);
+}
+
+.trailOuter {
+  left: -10%;
+  bottom: 9%;
+  width: 62%;
+  height: 260px;
+  border-bottom: 2px solid rgba(201,168,76,0.6);
+  filter: drop-shadow(0 0 10px rgba(201,168,76,0.3));
+  opacity: 0.9;
+}
+
+.trailMiddle {
+  left: -4%;
+  bottom: 6%;
+  width: 52%;
+  height: 200px;
+  border-bottom: 1px solid rgba(201,168,76,0.45);
+  border-radius: 0 0 76% 38%;
+  transform: rotate(-9deg);
+  opacity: 0.72;
+}
+
+.trailInner {
+  left: 6%;
+  bottom: 2%;
+  width: 46%;
+  height: 155px;
+  border-bottom: 1px solid rgba(201,168,76,0.3);
+  border-radius: 0 0 74% 42%;
+  transform: rotate(-7deg);
+  opacity: 0.55;
+}
