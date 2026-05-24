@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { db } from '../firebase';
 import { doc, getDoc } from 'firebase/firestore';
 import { useTenant } from '../config/TenantContext';
+import { getSiteTypeConfig } from '../config/siteTypes';
 import { escapeHtml } from '../utils/sanitize';
 import { LOCAL_TENANT_UPDATED_EVENT, isLocalDevHost, readLocalZmanim } from '../utils/localTenantAccess';
 import Box from '@mui/material/Box';
@@ -59,7 +60,7 @@ function normalizeSections(data = {}) {
   })).filter(section => section.rows.length > 0);
 }
 
-function buildPrintHtml(data, isDark, tenantConfig) {
+function buildPrintHtml(data, isDark, tenantConfig, pageCopy) {
   const primary = tenantConfig?.theme?.primaryColor || '#C9A84C';
   const bgDef   = tenantConfig?.theme?.bgDefault    || '#0D1B2A';
   const bgPap   = tenantConfig?.theme?.bgPaper      || '#1A2940';
@@ -73,9 +74,11 @@ function buildPrintHtml(data, isDark, tenantConfig) {
 
   const name     = escapeHtml(tenantConfig?.name || 'בית כנסת');
   const subtitle = escapeHtml(tenantConfig?.subtitle || '');
+  const pdfTitle = escapeHtml(pageCopy.pdfTitle || pageCopy.title || 'זמנים');
 
   const sections = normalizeSections(data);
-  const sectionHtml = sections.map(section =>
+  const printableSections = sections.length > 0 ? sections : (pageCopy.defaultSections || []);
+  const sectionHtml = printableSections.map(section =>
     `<div class="card">
       <div class="card-title">${escapeHtml(section.title || 'זמנים')}</div>
       ${section.rows.map(row => `<div class="row"><span class="label">${escapeHtml(row.label || '')}</span><span class="time">${escapeHtml(row.time || '')}</span></div>`).join('')}
@@ -86,7 +89,7 @@ function buildPrintHtml(data, isDark, tenantConfig) {
 <html dir="rtl" lang="he">
 <head>
 <meta charset="UTF-8">
-<title>זמני תפילות — ${name}</title>
+<title>${pdfTitle} — ${name}</title>
 <link href="https://fonts.googleapis.com/css2?family=Secular+One&family=Assistant:wght@400;600;700&display=swap" rel="stylesheet">
 <style>
   *{margin:0;padding:0;box-sizing:border-box}
@@ -109,13 +112,13 @@ function buildPrintHtml(data, isDark, tenantConfig) {
 </head>
 <body>
   <div class="header">
-    <h1>זמני תפילות ושיעורים</h1>
+    <h1>${pdfTitle}</h1>
     ${subtitle ? `<div class="sub">${subtitle}</div>` : ''}
     <div class="syn">${name}</div>
   </div>
   <hr class="divider"/>
   <div class="grid">
-    ${sectionHtml || '<div class="footer">לא הוזנו זמני תפילות עדיין</div>'}
+    ${sectionHtml || `<div class="footer">${escapeHtml(pageCopy.emptyText || 'לא הוזנו זמנים עדיין')}</div>`}
   </div>
   <div class="footer">הודפס מאתר ${name}</div>
   <script>window.onload=()=>{window.print()}</script>
@@ -145,9 +148,12 @@ function TimeBlock({ section }) {
 
 export default function Zmanim() {
   const { config, slug } = useTenant();
+  const siteTypeConfig = getSiteTypeConfig(config.siteType);
+  const pageCopy = siteTypeConfig.pages.schedule;
   const [data, setData]     = useState({});
   const [anchor, setAnchor] = useState(null);
   const sections = normalizeSections(data);
+  const visibleSections = sections.length > 0 ? sections : (pageCopy.defaultSections || []);
 
   useEffect(() => {
     if (isLocalDevHost()) {
@@ -174,26 +180,26 @@ export default function Zmanim() {
   const openPdf = (mode) => {
     const win = window.open('', '_blank');
     if (!win) return;
-    win.document.write(buildPrintHtml(data || {}, mode === 'dark', config));
+    win.document.write(buildPrintHtml(data || {}, mode === 'dark', config, pageCopy));
     win.document.close();
   };
 
   return (
     <Box>
-      <PageHero title="זמני תפילות ושיעורים" subtitle="" />
+      <PageHero title={pageCopy.title} subtitle="" />
       <Box sx={{ py: 7 }}>
         <Container maxWidth="md">
           <GoldDivider />
-          {sections.length > 0 ? (
+          {visibleSections.length > 0 ? (
             <Grid container spacing={3} mt={1}>
-              {sections.map((section, index) => (
-                <Grid item xs={12} sm={sections.length === 1 ? 12 : 6} key={`${section.title}-${index}`}>
+              {visibleSections.map((section, index) => (
+                <Grid item xs={12} sm={visibleSections.length === 1 ? 12 : 6} key={`${section.title}-${index}`}>
                   <TimeBlock section={section} />
                 </Grid>
               ))}
             </Grid>
           ) : (
-            <Typography color="text.secondary" textAlign="center" sx={{ mt: 4 }}>לא הוזנו זמני תפילות עדיין</Typography>
+              <Typography color="text.secondary" textAlign="center" sx={{ mt: 4 }}>{pageCopy.emptyText}</Typography>
           )}
 
           {data.note && (

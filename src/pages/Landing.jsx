@@ -81,10 +81,10 @@ export default function Landing() {
                 }}
               >
                 <Box component="span" className={css.heroLine}>
-                  צור אתר לבית
+                  צור אתר לעמותה,
                 </Box>
                 <Box component="span" className={css.heroLine}>
-                  הכנסת שלך
+                  ישיבה, בית כנסת
                 </Box>
                 <Box
                   component="span"
@@ -97,7 +97,7 @@ export default function Landing() {
                     backgroundSize: '200% auto',
                   }}
                 >
-                  בתוך דקות!
+                  או ארגון
                 </Box>
               </Typography>
 
@@ -114,7 +114,7 @@ export default function Landing() {
                   textAlign: 'center',
                 }}
               >
-                תשלומים, זמני תפילה, הודעות, גלריה ועוד — הכל באתר משלכם.
+                אתר מוכן, תשלומים, הודעות, גלריה, יצירת קשר, ניהול תוכן ותרומות — הכל באותו סגנון יוקרתי.
               </Typography>
 
               <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', width: '100%' }}>
@@ -142,7 +142,7 @@ export default function Landing() {
                   }}
                 >
                   <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.2 }}>
-                    לחץ כאן ליצירת אתר
+                    יצירת אתר
                     <ArrowBackIcon sx={{ fontSize: 20 }} />
                   </Box>
                 </Button>

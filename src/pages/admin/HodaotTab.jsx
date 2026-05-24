@@ -26,9 +26,11 @@ import SaveIcon from '@mui/icons-material/Save';
 import CloseIcon from '@mui/icons-material/Close';
 import { fmtDate } from '../../utils/formatters';
 import { readLocalHodaot, saveLocalHodaot } from '../../utils/localTenantAccess';
+import { getSiteTypeConfig } from '../../config/siteTypes';
 import css from './HodaotTab.module.css';
 
-export default function HodaotTab({ onToast, slug, localMode }) {
+export default function HodaotTab({ config, onToast, slug, localMode }) {
+  const pageCopy = getSiteTypeConfig(config.siteType).pages.announcements;
   const [list, setList]       = useState([]);
   const [title, setTitle]     = useState('');
   const [body, setBody]       = useState('');
@@ -75,7 +77,7 @@ export default function HodaotTab({ onToast, slug, localMode }) {
         ];
         saveLocalHodaot(slug, next);
         setTitle(''); setBody(''); setPinned(false);
-        onToast('ההודעה נוספה');
+        onToast(`${pageCopy.title} עודכנו`);
         load();
         setSaving(false);
         return;
@@ -83,7 +85,7 @@ export default function HodaotTab({ onToast, slug, localMode }) {
 
       await addDoc(collection(db, 'hodaot'), { title, body, pinned, active: true, date: serverTimestamp(), tenantId: slug });
       setTitle(''); setBody(''); setPinned(false);
-      onToast('ההודעה נוספה');
+      onToast(`${pageCopy.title} עודכנו`);
       load();
     } catch { onToast('שגיאה', 'error'); }
     setSaving(false);
@@ -120,13 +122,13 @@ export default function HodaotTab({ onToast, slug, localMode }) {
     try {
       if (localMode) {
         saveLocalHodaot(slug, readLocalHodaot(slug).map(item => item.id === editItem.id ? { ...item, title: editItem.title, body: editItem.body, pinned: editItem.pinned } : item));
-        onToast('ההודעה עודכנה');
+        onToast(`${pageCopy.title} עודכנו`);
         setEditItem(null);
         load();
         return;
       }
       await updateDoc(doc(db, 'hodaot', editItem.id), { title: editItem.title, body: editItem.body, pinned: editItem.pinned });
-      onToast('ההודעה עודכנה');
+      onToast(`${pageCopy.title} עודכנו`);
       setEditItem(null);
       load();
     } catch { onToast('שגיאה', 'error'); }
@@ -135,22 +137,22 @@ export default function HodaotTab({ onToast, slug, localMode }) {
   return (
     <Box>
       <Card sx={{ p: 3, mb: 3 }}>
-        <Typography variant="h6" sx={{ color: 'primary.main', mb: 2 }}>הוסף הודעה חדשה</Typography>
+        <Typography variant="h6" sx={{ color: 'primary.main', mb: 2 }}>{pageCopy.addTitle}</Typography>
         <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
           <TextField label="כותרת *" value={title} onChange={e => setTitle(e.target.value)} fullWidth />
           <TextField label="תוכן ההודעה *" value={body} onChange={e => setBody(e.target.value)} multiline rows={4} fullWidth />
           <FormControlLabel
             control={<Checkbox checked={pinned} onChange={e => setPinned(e.target.checked)} sx={{ color: 'primary.main', '&.Mui-checked': { color: 'primary.main' } }} />}
-            label={<Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}><PushPinIcon sx={{ fontSize: '1rem', color: 'primary.main' }} /><span>הצמד הודעה לראש הרשימה</span></Box>}
+            label={<Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}><PushPinIcon sx={{ fontSize: '1rem', color: 'primary.main' }} /><span>{pageCopy.pinnedLabel}</span></Box>}
           />
           <Button variant="contained" onClick={add} disabled={saving} sx={{ alignSelf: 'flex-start', px: 3 }}>
-            {saving ? <CircularProgress size={20} sx={{ color: 'inherit' }} /> : '+ פרסם הודעה'}
+            {saving ? <CircularProgress size={20} sx={{ color: 'inherit' }} /> : `+ ${pageCopy.publishLabel}`}
           </Button>
         </Box>
       </Card>
 
-      <Typography variant="h6" sx={{ color: 'primary.main', mb: 2 }}>הודעות פעילות</Typography>
-      {list.length === 0 && <Typography color="text.secondary">אין הודעות</Typography>}
+      <Typography variant="h6" sx={{ color: 'primary.main', mb: 2 }}>{pageCopy.activeTitle}</Typography>
+      {list.length === 0 && <Typography color="text.secondary">{pageCopy.emptyText}</Typography>}
       {list.map(h => (
         <Card key={h.id} sx={{ mb: 1.5, borderColor: h.pinned ? 'primary.main' : undefined }}>
           <CardContent sx={{ py: '12px !important' }}>

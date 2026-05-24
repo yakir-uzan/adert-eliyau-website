@@ -20,22 +20,17 @@ import Typography from '@mui/material/Typography';
 import MenuIcon from '@mui/icons-material/Menu';
 import CloseIcon from '@mui/icons-material/Close';
 import useScrollTrigger from '@mui/material/useScrollTrigger';
+import { getSiteTypeConfig } from '../config/siteTypes';
 import css from './Navbar.module.css';
 
 export default function Navbar() {
-  const { config, slug } = useTenant();
-  const base = `/${slug}`;
-
-  const NAV_LINKS = [
-    { label: 'ראשי',        to: base },
-    { label: 'זמני תפילות', to: `${base}/zmanim` },
-    { label: 'הודעות',      to: `${base}/hodaot` },
-    { label: 'תשלומים',    to: `${base}/tashlumim` },
-    { label: 'ברכות',      to: `${base}/brachot` },
-    { label: 'גלריה',      to: `${base}/galeria` },
-    { label: 'יצירת קשר',  to: `${base}/contact` },
-    { label: 'ניהול',      to: `${base}/admin`, adminLink: true },
-  ];
+  const { config, basePath } = useTenant();
+  const base = basePath;
+  const siteTypeConfig = getSiteTypeConfig(config.siteType);
+  const NAV_LINKS = siteTypeConfig.nav.map(item => ({
+    ...item,
+    to: item.path ? `${base}/${item.path}` : base,
+  }));
 
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [user, setUser]             = useState(null);

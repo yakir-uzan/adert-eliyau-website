@@ -15,19 +15,29 @@ import SaveIcon from '@mui/icons-material/Save';
 import AddIcon from '@mui/icons-material/Add';
 import DeleteIcon from '@mui/icons-material/Delete';
 import { readLocalZmanim, saveLocalZmanim } from '../../utils/localTenantAccess';
+import { getSiteTypeConfig } from '../../config/siteTypes';
 import css from './ZmanimTab.module.css';
 
 const createId = () => `${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
 const emptySection = () => ({ id: createId(), title: '', rows: [{ id: createId(), label: '', time: '' }] });
+const withIds = sections => sections.map(section => ({
+  id: section.id || createId(),
+  title: section.title || '',
+  rows: (section.rows?.length ? section.rows : [{ label: '', time: '' }]).map(row => ({
+    id: row.id || createId(),
+    label: row.label || '',
+    time: row.time || '',
+  })),
+}));
 const timeOptions = Array.from({ length: 24 * 4 }, (_, index) => {
   const hour = Math.floor(index / 4);
   const minute = (index % 4) * 15;
   return `${String(hour).padStart(2, '0')}:${String(minute).padStart(2, '0')}`;
 });
 
-function legacyToSections(data = {}) {
-  if (Array.isArray(data.sections)) return data.sections.length ? data.sections : [emptySection()];
-  return [emptySection()];
+function legacyToSections(data = {}, defaults = []) {
+  if (Array.isArray(data.sections)) return data.sections.length ? withIds(data.sections) : withIds(defaults.length ? defaults : [emptySection()]);
+  return withIds(defaults.length ? defaults : [emptySection()]);
 }
 
 function TimeField({ value, onChange }) {
@@ -73,7 +83,8 @@ function TimeField({ value, onChange }) {
   );
 }
 
-export default function ZmanimTab({ onToast, slug, localMode }) {
+export default function ZmanimTab({ config, onToast, slug, localMode }) {
+  const pageCopy = getSiteTypeConfig(config.siteType).pages.schedule;
   const [sections, setSections] = useState(() => [emptySection()]);
   const [note, setNote]     = useState('');
   const [saving, setSaving] = useState(false);
@@ -81,7 +92,7 @@ export default function ZmanimTab({ onToast, slug, localMode }) {
   useEffect(() => {
     if (localMode) {
       const localData = readLocalZmanim(slug);
-      setSections(legacyToSections(localData || {}));
+      setSections(legacyToSections(localData || {}, pageCopy.defaultSections));
       setNote(localData?.note || '');
       return;
     }
@@ -89,14 +100,14 @@ export default function ZmanimTab({ onToast, slug, localMode }) {
     getDoc(doc(db, 'zmanim', slug)).then(s => {
       if (s.exists()) {
         const d = s.data();
-        setSections(legacyToSections(d));
+        setSections(legacyToSections(d, pageCopy.defaultSections));
         setNote(d.note || '');
       } else {
-        setSections([emptySection()]);
+        setSections(legacyToSections({}, pageCopy.defaultSections));
         setNote('');
       }
     }).catch(() => {});
-  }, [slug, localMode]);
+  }, [slug, localMode, config.siteType]);
 
   const updateSection = (sectionId, patch) => {
     setSections(prev => prev.map(section => section.id === sectionId ? { ...section, ...patch } : section));
@@ -143,13 +154,13 @@ export default function ZmanimTab({ onToast, slug, localMode }) {
       const payload = { sections: cleanSections, note, last_updated: localMode ? new Date().toISOString() : serverTimestamp() };
       if (localMode) {
         saveLocalZmanim(slug, payload);
-        onToast('זמני התפילות עודכנו בהצלחה');
+        onToast(pageCopy.savedMessage);
         setSaving(false);
         return;
       }
 
       await setDoc(doc(db, 'zmanim', slug), payload, { merge: true });
-      onToast('זמני התפילות עודכנו בהצלחה');
+      onToast(pageCopy.savedMessage);
     } catch { onToast('שגיאה בשמירה', 'error'); }
     setSaving(false);
   };
@@ -157,7 +168,7 @@ export default function ZmanimTab({ onToast, slug, localMode }) {
   return (
     <Box>
       <Card sx={{ p: 3, mb: 3 }}>
-        <Typography variant="h6" sx={{ color: 'primary.main', mb: 2 }}>זמני תפילות</Typography>
+        <Typography variant="h6" sx={{ color: 'primary.main', mb: 2 }}>{pageCopy.adminTitle}</Typography>
         <Box sx={{ display: 'flex', flexDirection: 'column', gap: 3 }}>
           {sections.map((section, sectionIndex) => (
             <Box key={section.id} className={css.sectionBox}>
@@ -167,7 +178,7 @@ export default function ZmanimTab({ onToast, slug, localMode }) {
                   value={section.title}
                   onChange={e => updateSection(section.id, { title: e.target.value })}
                   fullWidth
-                  placeholder="לדוגמה: ימי חול / שבת קודש / שיעורים"
+                  placeholder={pageCopy.sectionPlaceholder}
                 />
                 <IconButton onClick={() => removeSection(section.id)} disabled={sections.length === 1} sx={{ color: 'error.main' }}>
                   <DeleteIcon />
@@ -179,11 +190,11 @@ export default function ZmanimTab({ onToast, slug, localMode }) {
                     <Grid container spacing={1.5} alignItems="center">
                       <Grid item xs={12} sm={6}>
                         <TextField
-                          label="שם התפילה או השיעור"
+                          label={pageCopy.rowLabel}
                           value={row.label}
                           onChange={e => updateRow(section.id, row.id, { label: e.target.value })}
                           fullWidth
-                          placeholder="לדוגמה: שחרית"
+                          placeholder={pageCopy.rowPlaceholder}
                         />
                       </Grid>
                       <Grid item xs={10} sm={5}>
@@ -214,7 +225,7 @@ export default function ZmanimTab({ onToast, slug, localMode }) {
         </Grid>
         <Box mt={2.5}>
           <Button variant="contained" size="large" onClick={save} disabled={saving} startIcon={saving ? null : <SaveIcon />} sx={{ px: 5 }}>
-            {saving ? <CircularProgress size={22} sx={{ color: 'inherit' }} /> : 'שמור זמנים'}
+            {saving ? <CircularProgress size={22} sx={{ color: 'inherit' }} /> : pageCopy.saveLabel}
           </Button>
         </Box>
       </Card>

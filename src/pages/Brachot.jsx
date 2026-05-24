@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { useTenant } from '../config/TenantContext';
+import { getSiteTypeConfig, DEFAULT_SITE_TYPE } from '../config/siteTypes';
 import Box from '@mui/material/Box';
 import Container from '@mui/material/Container';
 import Typography from '@mui/material/Typography';
@@ -54,6 +55,29 @@ export const DEFAULT_BRACHOT = [
   { id: 'shiur', title: 'ברכה אחרי השיעור', description: 'זכות לברך בסיום שיעור תורה שבועי', price: 100, tag: null, icon: 'school' },
 ];
 
+export const DEFAULT_CONTENT_ITEMS = {
+  [DEFAULT_SITE_TYPE]: DEFAULT_BRACHOT,
+  amuta: [
+    { id: 'food-packages', title: 'סלי מזון למשפחות', description: 'שותפות בחלוקת סלי מזון למשפחות הזקוקות לסיוע', price: 180, tag: 'חשוב', icon: 'stars' },
+    { id: 'monthly-support', title: 'תמיכה חודשית בפעילות', description: 'תרומה קבועה שמאפשרת לעמותה להמשיך לפעול לאורך השנה', price: 360, tag: 'קבוע', icon: 'emojievents' },
+    { id: 'volunteer-project', title: 'פרויקט מתנדבים', description: 'סיוע בהפעלת מערך מתנדבים ופעילות קהילתית', price: 120, tag: null, icon: 'school' },
+  ],
+  yeshiva: [
+    { id: 'torah-support', title: 'החזקת תורה חודשית', description: 'שותפות בלימוד התורה ובפעילות בית המדרש', price: 360, tag: 'פופולרי', icon: 'menubook' },
+    { id: 'shiur-sponsor', title: 'הקדשת שיעור', description: 'הקדשת שיעור לזכות, לרפואה או לעילוי נשמה', price: 180, tag: null, icon: 'school' },
+    { id: 'student-support', title: 'סיוע לבחורים', description: 'תמיכה בתלמידי הישיבה ובצרכי הלימוד', price: 250, tag: 'מיוחד', icon: 'stars' },
+  ],
+  organization: [
+    { id: 'community-service', title: 'שירות קהילתי', description: 'רכישה או תמיכה בשירות קהילתי של הארגון', price: 150, tag: null, icon: 'stars' },
+    { id: 'activity-ticket', title: 'השתתפות בפעילות', description: 'תשלום עבור פעילות, מפגש או אירוע של הארגון', price: 90, tag: 'חדש', icon: 'school' },
+    { id: 'annual-member', title: 'דמי חבר שנתיים', description: 'הצטרפות שנתית ותמיכה בפעילות הארגון', price: 500, tag: 'שנתי', icon: 'emojievents' },
+  ],
+};
+
+export function getDefaultContentItems(siteType) {
+  return DEFAULT_CONTENT_ITEMS[siteType] || DEFAULT_CONTENT_ITEMS[DEFAULT_SITE_TYPE];
+}
+
 function CopyButton({ value }) {
   const [copied, setCopied] = useState(false);
   const copy = async () => {
@@ -84,6 +108,7 @@ function PaymentRow({ label, color, href, children }) {
 function PurchaseDialog({ bracha, onClose, config }) {
   const [creditOpen, setCreditOpen] = useState(false);
   if (!bracha) return null;
+  const adminName = getSiteTypeConfig(config.siteType).pages.admin.loginSubtitle;
 
   const pay = config.payments || {};
   const wa  = config.whatsapp || {};
@@ -183,11 +208,11 @@ function PurchaseDialog({ bracha, onClose, config }) {
           {waGabbai && (
             <>
               <Typography variant="caption" color="text.secondary" display="block" textAlign="center" sx={{ mb: 1.5 }}>
-                לאחר תשלום בביט / פייבוקס / בנק — אשרו לגבאות
+                לאחר תשלום בביט / פייבוקס / בנק — אשרו מול {adminName}
               </Typography>
               <Button fullWidth href={`${waGabbai}?text=${waText}`} target="_blank" rel="noopener" startIcon={<WhatsAppIcon />}
                 sx={{ bgcolor: '#25D366', color: '#fff', fontWeight: 700, py: 1.2, fontSize: '0.95rem', '&:hover': { bgcolor: '#1ebe5d', boxShadow: '0 4px 16px rgba(37,211,102,0.35)' } }}>
-                אישור תשלום לגבאות
+                אישור תשלום
               </Button>
             </>
           )}
@@ -201,7 +226,9 @@ function PurchaseDialog({ bracha, onClose, config }) {
 
 export default function Brachot() {
   const { config } = useTenant();
-  const brachot = config.brachot || DEFAULT_BRACHOT;
+  const siteTypeConfig = getSiteTypeConfig(config.siteType);
+  const pageCopy = siteTypeConfig.pages.content;
+  const brachot = config.brachot?.length ? config.brachot : getDefaultContentItems(config.siteType);
   const wa = config.whatsapp || {};
   const waGabbai = wa.gabaiLink || '';
 
@@ -209,12 +236,12 @@ export default function Brachot() {
 
   return (
     <Box>
-      <PageHero title="קניית ברכות" subtitle="זכו בברכה בציבור לעצמכם ולאהוביכם" />
+      <PageHero title={pageCopy.title} subtitle={pageCopy.subtitle} />
       <Box sx={{ py: 7 }}>
         <Container maxWidth="lg">
           <GoldDivider />
           <Typography textAlign="center" color="text.secondary" sx={{ mb: 5, maxWidth: 600, mx: 'auto', lineHeight: 1.9 }}>
-            לרכישת ברכה — בחרו ברכה מהרשימה, שלמו בכל אמצעי התשלום הנוח לכם ואשרו לגבאות
+            {pageCopy.description}
           </Typography>
 
           <Grid container spacing={3}>
@@ -252,11 +279,11 @@ export default function Brachot() {
 
           {waGabbai && (
             <Card sx={{ mt: 6, p: { xs: 3, md: 4 }, textAlign: 'center', background: 'linear-gradient(135deg, rgba(201,168,76,0.08) 0%, rgba(201,168,76,0.03) 100%)', borderColor: 'primary.main' }}>
-              <Typography variant="h5" sx={{ color: 'primary.main', mb: 1 }}>רוצים ברכה מיוחדת שלא ברשימה?</Typography>
-              <Typography color="text.secondary" sx={{ mb: 3 }}>פנו ישירות לגבאות ונשמח להתאים ברכה לכל אירוע ומועד</Typography>
-              <Button href={`${waGabbai}?text=שלום, ברצוני לברר אודות רכישת ברכה`} target="_blank" rel="noopener" size="large" startIcon={<WhatsAppIcon />}
+              <Typography variant="h5" sx={{ color: 'primary.main', mb: 1 }}>{pageCopy.specialCtaTitle}</Typography>
+              <Typography color="text.secondary" sx={{ mb: 3 }}>{pageCopy.specialCtaText}</Typography>
+              <Button href={`${waGabbai}?text=${encodeURIComponent(`שלום, ברצוני לברר אודות ${pageCopy.title}`)}`} target="_blank" rel="noopener" size="large" startIcon={<WhatsAppIcon />}
                 sx={{ bgcolor: '#25D366', color: '#fff', px: 5, py: 1.4, fontSize: '1rem', '&:hover': { bgcolor: '#1ebe5d', boxShadow: '0 6px 24px rgba(37,211,102,0.4)' } }}>
-                וואטסאפ לגבאות
+                וואטסאפ לבירור
               </Button>
             </Card>
           )}

@@ -20,15 +20,18 @@ import { buildTenantDocFromForm } from '../utils/tenantFormUtils';
 import { primaryButtonSx, secondaryButtonSx } from '../utils/buttonStyles';
 import { createTrialEndDate, TRIAL_DAYS } from '../utils/tenantPlan';
 import { markLocalTenantOwnerAccess, saveLocalTenantDraft } from '../utils/localTenantAccess';
+import { DEFAULT_SITE_TYPE, getSiteTypeConfig } from '../config/siteTypes';
 import PlatformGoldDivider from '../components/PlatformGoldDivider';
 import { STEPS, LIVE_PREVIEW_SLUG, LIVE_PREVIEW_MESSAGE_TYPE } from './register/registerConstants';
 import ProgressSteps from './register/ProgressSteps';
 import LiveSitePreview from './register/LiveSitePreview';
+import StepSiteType from './register/StepSiteType';
 import StepBasicInfo from './register/StepBasicInfo';
 import StepContact from './register/StepContact';
 import css from './register/RegisterTenant.module.css';
 
 const INITIAL_DATA = {
+  siteType: DEFAULT_SITE_TYPE,
   name: '', subtitle: '', slug: '', slugManual: false, aboutText: '',
   address: '', city: '', phone: '', email: '', mapEmbedUrl: '',
   formspreeId: '', waGroupLink: '', gabaiPhone: '',
@@ -56,7 +59,11 @@ export default function RegisterTenant() {
   useEffect(() => onAuthStateChanged(auth, u => { setUser(u); setAuthLoading(false); }), []);
 
   const update = (key, value) => setData(prev => ({ ...prev, [key]: value }));
-  const canNext = () => (step === 0 ? data.name.trim() && data.slug.trim() : true);
+  const canNext = () => {
+    if (step === 0) return !!data.siteType;
+    if (step === 1) return data.name.trim() && data.slug.trim();
+    return true;
+  };
   const handleNext = () => { if (step < STEPS.length - 1) setStep(c => c + 1); };
   const handleBack = () => { if (step > 0) setStep(c => c - 1); };
 
@@ -82,8 +89,9 @@ export default function RegisterTenant() {
   };
 
   const previewSlug = cleanSlug(data.slug || buildSlugFromName(data.name) || 'your-synagogue');
-  const previewUrl = `${previewBaseUrl}/${LIVE_PREVIEW_SLUG}`;
-  const publicPreviewUrl = `${baseUrl}/${previewSlug || 'your-synagogue'}`;
+  const siteTypeConfig = getSiteTypeConfig(data.siteType);
+  const previewUrl = `${previewBaseUrl}/${data.siteType}/${LIVE_PREVIEW_SLUG}`;
+  const publicPreviewUrl = `${baseUrl}/${data.siteType}/${previewSlug || (data.siteType === DEFAULT_SITE_TYPE ? 'your-synagogue' : 'your-site')}`;
 
   const pushPreviewUpdate = () => {
     if (typeof window === 'undefined') return;
@@ -108,9 +116,9 @@ export default function RegisterTenant() {
         localDoc.trialEndsAt = createTrialEndDate().toISOString();
         markLocalTenantOwnerAccess(slugClean);
         saveLocalTenantDraft(slugClean, localDoc);
-        setToast('בית הכנסת נשמר במצב תצוגה מקומית');
+        setToast('האתר נשמר במצב תצוגה מקומית');
         setSaving(false);
-        navigate(`/${slugClean}/admin`);
+        navigate(`/${data.siteType}/${slugClean}/admin`);
         return;
       }
       try {
@@ -123,12 +131,12 @@ export default function RegisterTenant() {
       try {
         await withTimeout(setDoc(doc(db, 'tenants', slugClean), tenantDoc));
         if (isLocalhost) saveLocalTenantDraft(slugClean, tenantDoc);
-        setToast(`בית הכנסת נוצר בהצלחה. הופעל ניסיון ל-${TRIAL_DAYS} ימים`);
+        setToast(`האתר נוצר בהצלחה. הופעל ניסיון ל-${TRIAL_DAYS} ימים`);
       } catch (writeError) {
-        if (isLocalhost) { saveLocalTenantDraft(slugClean, tenantDoc); setToast('בית הכנסת נשמר במצב תצוגה מקומית'); }
+        if (isLocalhost) { saveLocalTenantDraft(slugClean, tenantDoc); setToast('האתר נשמר במצב תצוגה מקומית'); }
         else throw writeError;
       }
-      setTimeout(() => navigate(`/${slugClean}/admin`), 1500);
+      setTimeout(() => navigate(`/${data.siteType}/${slugClean}/admin`), 1500);
     } catch (err) {
       if (isLocalhost) {
         const slugClean = cleanSlug(data.slug);
@@ -136,9 +144,9 @@ export default function RegisterTenant() {
         fallbackDoc.trialEndsAt = createTrialEndDate().toISOString();
         markLocalTenantOwnerAccess(slugClean);
         saveLocalTenantDraft(slugClean, fallbackDoc);
-        setToast('בית הכנסת נשמר במצב תצוגה מקומית');
-        setTimeout(() => navigate(`/${slugClean}/admin`), 1200);
-      } else { setError(`שגיאה ביצירת בית הכנסת. ${err.message || ''}`); }
+        setToast('האתר נשמר במצב תצוגה מקומית');
+        setTimeout(() => navigate(`/${data.siteType}/${slugClean}/admin`), 1200);
+      } else { setError(`שגיאה ביצירת האתר. ${err.message || ''}`); }
     }
     setSaving(false);
   };
@@ -152,6 +160,7 @@ export default function RegisterTenant() {
   }
 
   const stepContent = [
+    <StepSiteType key="site-type" value={data.siteType} update={update} />,
     <StepBasicInfo key="basic" data={data} update={update} baseUrl={baseUrl} uploads={uploads} onUpload={uploadImage} />,
     <StepContact key="contact" data={data} update={update} />,
   ];
@@ -170,7 +179,7 @@ export default function RegisterTenant() {
             פתיחת אתר
           </Typography>
           <Typography variant="h3" sx={{ fontFamily: '"Secular One", serif', color: COLORS.gold, mb: 0.5, fontSize: { xs: '1.6rem', sm: '2rem', md: '2.6rem' } }}>
-            צור אתר בקלות לבית הכנסת שלך
+            {siteTypeConfig.registerTitle}
           </Typography>
           <PlatformGoldDivider width={140} sideWidth={26} sideOffset={36} sx={{ mx: 'auto', my: 1.75 }} />
         </Box>

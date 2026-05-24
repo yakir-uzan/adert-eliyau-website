@@ -14,7 +14,7 @@ import { formatPlanDate } from '../utils/tenantPlan';
 import { hasLocalTenantOwnerAccess } from '../utils/localTenantAccess';
 import css from './TrialBanner.module.css';
 
-export default function TrialBanner({ slug, plan }) {
+export default function TrialBanner({ slug, basePath, plan }) {
   const [anchorEl, setAnchorEl] = useState(null);
 
   if (!plan?.isTrial) return null;
@@ -111,7 +111,7 @@ export default function TrialBanner({ slug, plan }) {
             {canManageSite && (
               <Button
                 component={Link}
-                to={`/${slug}/admin`}
+                to={`${basePath}/admin`}
                 variant="outlined"
                 onClick={() => setAnchorEl(null)}
                 sx={{ flex: 1 }}
@@ -121,7 +121,7 @@ export default function TrialBanner({ slug, plan }) {
             )}
             <Button
               component={Link}
-              to={`/${slug}/activate`}
+              to={`${basePath}/activate`}
               variant="contained"
               onClick={() => setAnchorEl(null)}
               sx={{ flex: 1, mt: 0.5 }}

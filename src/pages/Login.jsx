@@ -4,35 +4,38 @@ import Box from '@mui/material/Box';
 import Button from '@mui/material/Button';
 import Container from '@mui/material/Container';
 import TextField from '@mui/material/TextField';
+import MenuItem from '@mui/material/MenuItem';
 import Typography from '@mui/material/Typography';
 import LoginIcon from '@mui/icons-material/Login';
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import { PLATFORM_COLORS as COLORS } from '../utils/constants';
 import { platformInputSx as inputSx } from '../utils/inputStyles';
 import { cleanSlug } from '../utils/slugUtils';
+import { DEFAULT_SITE_TYPE, SITE_TYPE_OPTIONS } from '../config/siteTypes';
 import PlatformLayout, { PlatformPageHeader } from '../components/PlatformLayout';
 
 export default function Login() {
   const navigate = useNavigate();
   const [slug, setSlug] = useState('');
+  const [siteType, setSiteType] = useState(DEFAULT_SITE_TYPE);
   const [error, setError] = useState('');
 
   const handleSubmit = (event) => {
     event.preventDefault();
     const clean = cleanSlug(slug);
     if (!clean) {
-      setError('יש להזין את כתובת האתר של בית הכנסת');
+      setError('יש להזין את כתובת האתר');
       return;
     }
-    navigate(`/${clean}/admin`);
+    navigate(`/${siteType}/${clean}/admin`);
   };
 
   return (
     <PlatformLayout>
       <Container maxWidth="sm" sx={{ pb: { xs: 2, md: 4 } }}>
         <PlatformPageHeader
-          title="התחברות לגבאים"
-          subtitle="הזינו את כתובת האתר שבחרתם, ונעביר אתכם לממשק הניהול של בית הכנסת."
+          title="התחברות למנהלים"
+          subtitle="בחרו את סוג האתר והזינו את הכתובת שבחרתם, ונעביר אתכם לממשק הניהול."
         />
         <Box
           sx={{
@@ -63,6 +66,19 @@ export default function Login() {
 
           <Box component="form" onSubmit={handleSubmit}>
             <TextField
+              select
+              label="סוג האתר"
+              value={siteType}
+              onChange={(event) => setSiteType(event.target.value)}
+              fullWidth
+              sx={{ ...inputSx, mb: 2 }}
+            >
+              {SITE_TYPE_OPTIONS.map(option => (
+                <MenuItem key={option.id} value={option.id}>{option.label}</MenuItem>
+              ))}
+            </TextField>
+
+            <TextField
               label="כתובת האתר"
               placeholder="לדוגמה: beit-yaakov"
               value={slug}
@@ -73,7 +89,7 @@ export default function Login() {
               fullWidth
               sx={inputSx}
               error={!!error}
-              helperText={error || 'הכתובת שמופיעה אחרי beit-knesset.com/'}
+              helperText={error || 'הכתובת שמופיעה אחרי סוג האתר, לדוגמה: amuta/hasde-david'}
               inputProps={{ dir: 'ltr' }}
             />
 

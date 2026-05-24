@@ -3,6 +3,7 @@ import { auth, db } from '../firebase';
 import { onAuthStateChanged, signOut, GoogleAuthProvider, signInWithPopup } from 'firebase/auth';
 import { collection, query, where, orderBy, getDocs, setDoc, doc, serverTimestamp } from 'firebase/firestore';
 import { useTenant } from '../config/TenantContext';
+import { DEFAULT_SITE_TYPE } from '../config/siteTypes';
 import Box from '@mui/material/Box';
 import Container from '@mui/material/Container';
 import Typography from '@mui/material/Typography';
@@ -27,9 +28,52 @@ import css from './Cheshbon.module.css';
 
 const fmtDate  = ts => { if (!ts) return ''; const d = ts?.toDate ? ts.toDate() : new Date(ts); return d.toLocaleDateString('he-IL', { day:'numeric', month:'long', year:'numeric' }); };
 const fmtMoney = n  => new Intl.NumberFormat('he-IL', { style:'currency', currency:'ILS', maximumFractionDigits:0 }).format(n||0);
+const ACCOUNT_COPY = {
+  [DEFAULT_SITE_TYPE]: {
+    title: 'החשבון שלי',
+    subtitle: 'צפייה בחיובים ותשלום מקוון',
+    loginText: 'התחברו עם חשבון Google שלכם כדי לראות את החיובים שלכם בבית הכנסת',
+    guestNote: 'אם אינכם רשומים, פנו לגבאות לרישום חשבונכם',
+    paidText: 'החשבון מאוזן — תודה!',
+    whatsappLabel: 'וואטסאפ לגבאי',
+    confirmationNote: 'לאחר ביצוע תשלום, עדכנו את הגבאות לאישור ✓',
+    typeLabels: { aliya: 'עלייה', neder: 'נדר' },
+  },
+  amuta: {
+    title: 'האזור האישי שלי',
+    subtitle: 'צפייה בתרומות, חיובים ותשלומים',
+    loginText: 'התחברו עם חשבון Google שלכם כדי לראות תרומות וחיובים המשויכים אליכם',
+    guestNote: 'אם אינכם רשומים, פנו לצוות העמותה',
+    paidText: 'אין חיובים פתוחים — תודה!',
+    whatsappLabel: 'וואטסאפ לעמותה',
+    confirmationNote: 'לאחר ביצוע תשלום, עדכנו את צוות העמותה לאישור ✓',
+    typeLabels: { donation: 'תרומה', membership: 'דמי חבר', project: 'פרויקט' },
+  },
+  yeshiva: {
+    title: 'האזור האישי שלי',
+    subtitle: 'צפייה בתשלומים ותרומות',
+    loginText: 'התחברו עם חשבון Google שלכם כדי לראות חיובים ותשלומים המשויכים אליכם',
+    guestNote: 'אם אינכם רשומים, פנו להנהלת הישיבה',
+    paidText: 'אין חיובים פתוחים — תודה!',
+    whatsappLabel: 'וואטסאפ להנהלה',
+    confirmationNote: 'לאחר ביצוע תשלום, עדכנו את הנהלת הישיבה לאישור ✓',
+    typeLabels: { donation: 'תרומה', tuition: 'שכר לימוד', sponsorship: 'הקדשה' },
+  },
+  organization: {
+    title: 'האזור האישי שלי',
+    subtitle: 'צפייה בחיובים ותשלומים',
+    loginText: 'התחברו עם חשבון Google שלכם כדי לראות חיובים ותשלומים המשויכים אליכם',
+    guestNote: 'אם אינכם רשומים, פנו לצוות הארגון',
+    paidText: 'אין חיובים פתוחים — תודה!',
+    whatsappLabel: 'וואטסאפ לצוות',
+    confirmationNote: 'לאחר ביצוע תשלום, עדכנו את הצוות לאישור ✓',
+    typeLabels: { payment: 'תשלום', membership: 'דמי חבר', service: 'שירות' },
+  },
+};
 
 export default function Cheshbon() {
   const { config, slug } = useTenant();
+  const copy = ACCOUNT_COPY[config.siteType] || ACCOUNT_COPY[DEFAULT_SITE_TYPE];
   const pay = config.payments || {};
   const wa  = config.whatsapp || {};
   const bitLink    = pay.bitPhone ? `https://www.bitpay.co.il/app/transfer?phone=${pay.bitPhone}` : '';
@@ -61,7 +105,7 @@ export default function Cheshbon() {
 
   return (
     <Box>
-      <PageHero title="החשבון שלי" subtitle="צפייה בחיובים ותשלום מקוון" />
+      <PageHero title={copy.title} subtitle={copy.subtitle} />
       <Box sx={{ py: 7 }}>
         <Container maxWidth="sm">
           <GoldDivider />
@@ -75,7 +119,7 @@ export default function Cheshbon() {
               <LockIcon sx={{ fontSize: '3rem', mb: 1, color: 'primary.main' }} />
               <Typography variant="h4" gutterBottom>כניסה לחשבון האישי</Typography>
               <Typography color="text.secondary" sx={{ mb: 3 }}>
-                התחברו עם חשבון Google שלכם כדי לראות את החיובים שלכם בבית הכנסת
+                {copy.loginText}
               </Typography>
               <Button onClick={login} fullWidth size="large"
                 sx={{ bgcolor: '#fff', color: '#1a1a1a', fontWeight: 700, gap: 1.5, '&:hover': { bgcolor: '#f0f0f0' } }}
@@ -91,7 +135,7 @@ export default function Cheshbon() {
                 כניסה עם Google
               </Button>
               <Typography variant="caption" color="text.secondary" display="block" mt={2}>
-                אם אינכם רשומים, פנו לגבאות לרישום חשבונכם
+                {copy.guestNote}
               </Typography>
             </Card>
           )}
@@ -115,13 +159,13 @@ export default function Cheshbon() {
                   {charges === null ? <CircularProgress size={36} /> : fmtMoney(total)}
                 </Typography>
                 <Typography sx={{ color: total > 0 ? '#fca5a5' : '#86efac' }}>
-                  {charges === null ? 'בודקים חיובים פתוחים...' : total > 0 ? 'יש סכום לתשלום' : <Box component="span" sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 0.5 }}><CheckCircleIcon fontSize="small" />החשבון מאוזן — תודה!</Box>}
+                  {charges === null ? 'בודקים חיובים פתוחים...' : total > 0 ? 'יש סכום לתשלום' : <Box component="span" sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 0.5 }}><CheckCircleIcon fontSize="small" />{copy.paidText}</Box>}
                 </Typography>
                 {total > 0 && (
                   <Box sx={{ display: 'flex', gap: 1.5, justifyContent: 'center', flexWrap: 'wrap', mt: 2 }}>
                     {bitLink && <Button href={bitLink} target="_blank" sx={{ bgcolor: '#0091FF', color: '#fff', '&:hover': { bgcolor: '#007fd9' } }}>שלם בביט</Button>}
                     {payboxLink && <Button href={payboxLink} target="_blank" sx={{ bgcolor: '#6c3cbf', color: '#fff', '&:hover': { bgcolor: '#5a30a8' } }}>שלם בפייבוקס</Button>}
-                    {waGabbai && <Button href={`${waGabbai}?text=שלום, ברצוני לשלם את חשבוני`} target="_blank" startIcon={<WhatsAppIcon />} sx={{ bgcolor: '#25D366', color: '#fff', '&:hover': { bgcolor: '#1ebe5d' } }}>וואטסאפ לגבאי</Button>}
+                    {waGabbai && <Button href={`${waGabbai}?text=${encodeURIComponent(`שלום, ברצוני לשלם באתר ${config.name}`)}`} target="_blank" startIcon={<WhatsAppIcon />} sx={{ bgcolor: '#25D366', color: '#fff', '&:hover': { bgcolor: '#1ebe5d' } }}>{copy.whatsappLabel}</Button>}
                   </Box>
                 )}
               </Card>
@@ -144,7 +188,7 @@ export default function Cheshbon() {
                           <TableRow key={c.id}>
                             <TableCell>{fmtDate(c.date)}</TableCell>
                             <TableCell>
-                              <Chip size="small" label={c.type==='aliya'?'עלייה':'נדר'} sx={{ bgcolor: c.type==='aliya'?'rgba(201,168,76,0.15)':'rgba(139,26,26,0.2)', color: c.type==='aliya'?'primary.main':'#f87171' }} />
+                              <Chip size="small" label={copy.typeLabels[c.type] || 'חיוב'} sx={{ bgcolor: c.type==='aliya'?'rgba(201,168,76,0.15)':'rgba(139,26,26,0.2)', color: c.type==='aliya'?'primary.main':'#f87171' }} />
                             </TableCell>
                             <TableCell>{c.description||''}</TableCell>
                             <TableCell align="left" sx={{ color: 'primary.main', fontWeight: 700 }}>{fmtMoney(c.amount)}</TableCell>
@@ -157,7 +201,7 @@ export default function Cheshbon() {
               )}
               {hasOpenChargeAmount && (
                 <Typography variant="caption" color="text.secondary" display="block" textAlign="center" mt={1.5}>
-                  לאחר ביצוע תשלום, עדכנו את הגבאות לאישור ✓
+                  {copy.confirmationNote}
                 </Typography>
               )}
             </>

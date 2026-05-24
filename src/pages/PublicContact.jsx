@@ -110,7 +110,7 @@ export default function PublicContact() {
       <Container maxWidth="lg" sx={{ pb: { xs: 2, md: 4 } }}>
         <PlatformPageHeader
           title="צור קשר"
-          subtitle="אם אתם רוצים אתר לבית הכנסת שלכם, אפשר לפנות אלינו דרך וואטסאפ, מייל או לפתוח טופס פנייה."
+          subtitle="אם אתם רוצים אתר לעמותה, ישיבה, בית כנסת או ארגון, אפשר לפנות אלינו דרך וואטסאפ, מייל או לפתוח טופס פנייה."
         />
 
         <Grid container spacing={3} sx={{ mb: 4 }}>

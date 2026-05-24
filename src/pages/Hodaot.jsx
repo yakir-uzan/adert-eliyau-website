@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { db } from '../firebase';
 import { collection, query, where, orderBy, limit, getDocs, startAfter } from 'firebase/firestore';
 import { useTenant } from '../config/TenantContext';
+import { getSiteTypeConfig } from '../config/siteTypes';
 import { LOCAL_TENANT_UPDATED_EVENT, isLocalDevHost, readLocalHodaot } from '../utils/localTenantAccess';
 import Box from '@mui/material/Box';
 import Container from '@mui/material/Container';
@@ -62,7 +63,8 @@ function HodaaCard({ h }) {
 }
 
 export default function Hodaot() {
-  const { slug } = useTenant();
+  const { config, slug } = useTenant();
+  const pageCopy = getSiteTypeConfig(config.siteType).pages.announcements;
   const [items, setItems]     = useState([]);
   const [lastDoc, setLastDoc] = useState(null);
   const [hasMore, setHasMore] = useState(false);
@@ -121,20 +123,20 @@ export default function Hodaot() {
 
   return (
     <Box>
-      <PageHero title="הודעות" subtitle="" />
+      <PageHero title={pageCopy.title} subtitle="" />
       <Box sx={{ py: 7 }}>
         <Container maxWidth="sm">
           <GoldDivider />
           <Box sx={{ mt: 3, display: 'flex', flexDirection: 'column', gap: 2 }}>
             {items.length === 0 && !loading && (
-              <Typography color="text.secondary" textAlign="center">אין הודעות כרגע</Typography>
+              <Typography color="text.secondary" textAlign="center">{pageCopy.emptyText}</Typography>
             )}
             {items.map(h => <HodaaCard key={h.id} h={h} />)}
           </Box>
           {hasMore && (
             <Box textAlign="center" mt={3}>
               <Button variant="outlined" onClick={() => fetchItems(lastDoc)} disabled={loading}>
-                {loading ? 'טוען...' : 'טען עוד הודעות'}
+                {loading ? 'טוען...' : `טען עוד ${pageCopy.title}`}
               </Button>
             </Box>
           )}

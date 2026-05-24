@@ -14,15 +14,15 @@ import PlatformLayout, { PlatformPageHeader } from '../components/PlatformLayout
 const QUESTIONS = [
   {
     q: 'צריך ידע טכני כדי לנהל את האתר?',
-    a: 'לא. הגבאים נכנסים לממשק ניהול פשוט, מעדכנים זמני תפילה, הודעות, תמונות ותשלומים, והאתר מתעדכן מיד.',
+    a: 'לא. מנהלי האתר נכנסים לממשק ניהול פשוט, מעדכנים תוכן, פעילות, הודעות, תמונות ותשלומים, והאתר מתעדכן מיד.',
   },
   {
     q: 'אפשר לפתוח אתר גם לפני שכל הפרטים מוכנים?',
-    a: 'כן. אפשר להתחיל עם שם בית הכנסת ופרטי קשר בסיסיים, ולאחר מכן להשלים גלריה, זמני תפילה, קישורי תשלום ותוכן נוסף.',
+    a: 'כן. אפשר להתחיל עם שם הארגון ופרטי קשר בסיסיים, ולאחר מכן להשלים גלריה, לוחות פעילות, קישורי תשלום ותוכן נוסף.',
   },
   {
     q: 'האתר מתאים לטלפונים?',
-    a: 'כן. כל דפי האתר בנויים קודם כל לשימוש נוח בנייד, כי רוב המתפללים נכנסים מהטלפון.',
+    a: 'כן. כל דפי האתר בנויים קודם כל לשימוש נוח בנייד, כי רוב המשתמשים נכנסים מהטלפון.',
   },
   {
     q: 'אפשר לחבר תרומות ותשלומים?',
@@ -44,7 +44,7 @@ export default function FAQ() {
       <Container maxWidth="md" sx={{ pb: { xs: 2, md: 4 } }}>
         <PlatformPageHeader
           title="שאלות נפוצות"
-          subtitle="כל מה שכדאי לדעת לפני שמקימים אתר לבית הכנסת."
+          subtitle="כל מה שכדאי לדעת לפני שמקימים אתר לעמותה, ישיבה, בית כנסת או ארגון."
         />
 
         <Box sx={{ display: 'grid', gap: 1.5 }}>
@@ -74,7 +74,7 @@ export default function FAQ() {
                   '& .MuiAccordionSummary-content': { my: 1.4 },
                 }}
               >
-                <Typography sx={{ fontWeight: 800, fontSize: { xs: '1rem', md: '1.08rem' } }}>
+                <Typography sx={{ fontFamily: '"Assistant", sans-serif', fontWeight: 700, fontSize: { xs: '1rem', md: '1.08rem' } }}>
                   {item.q}
                 </Typography>
               </AccordionSummary>
@@ -101,7 +101,7 @@ export default function FAQ() {
             יש לכם שאלה אחרת?
           </Typography>
           <Typography sx={{ color: COLORS.muted, mb: 3, lineHeight: 1.8 }}>
-            שלחו לנו הודעה קצרה ונעזור להבין מה מתאים לבית הכנסת שלכם.
+            שלחו לנו הודעה קצרה ונעזור להבין מה מתאים לארגון שלכם.
           </Typography>
           <Button
             component={Link}

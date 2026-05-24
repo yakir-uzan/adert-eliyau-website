@@ -18,13 +18,16 @@ import DeleteIcon from '@mui/icons-material/Delete';
 import EditIcon from '@mui/icons-material/Edit';
 import SaveIcon from '@mui/icons-material/Save';
 import { fmtMoney } from '../../utils/formatters';
-import { DEFAULT_BRACHOT } from '../Brachot';
+import { getDefaultContentItems } from '../Brachot';
+import { getSiteTypeConfig } from '../../config/siteTypes';
 import { saveLocalTenantDraft } from '../../utils/localTenantAccess';
 import { BRACHA_ICONS, BRACHA_ICON_LABELS } from './brachotConstants';
 import css from './BrachotTab.module.css';
 
 export default function BrachotTab({ config, slug, onToast, localMode }) {
-  const [items, setItems] = useState(config.brachot?.length ? config.brachot : DEFAULT_BRACHOT);
+  const pageCopy = getSiteTypeConfig(config.siteType).pages.content;
+  const fallbackItems = getDefaultContentItems(config.siteType);
+  const [items, setItems] = useState(config.brachot?.length ? config.brachot : fallbackItems);
   const [form, setForm] = useState({
     id: '',
     title: '',
@@ -35,8 +38,8 @@ export default function BrachotTab({ config, slug, onToast, localMode }) {
   });
 
   useEffect(() => {
-    setItems(config.brachot?.length ? config.brachot : DEFAULT_BRACHOT);
-  }, [config.brachot]);
+    setItems(config.brachot?.length ? config.brachot : fallbackItems);
+  }, [config.brachot, config.siteType]);
 
   const update = key => e => setForm(prev => ({ ...prev, [key]: e.target.value }));
 
@@ -60,7 +63,7 @@ export default function BrachotTab({ config, slug, onToast, localMode }) {
 
   const submit = async () => {
     if (!form.title.trim() || !form.description.trim() || !form.price) {
-      onToast('יש למלא כותרת, תיאור ומחיר', 'error');
+      onToast(`יש למלא ${pageCopy.itemNameLabel}, ${pageCopy.itemDescriptionLabel} ומחיר`, 'error');
       return;
     }
 
@@ -77,7 +80,7 @@ export default function BrachotTab({ config, slug, onToast, localMode }) {
       ? items.map(item => item.id === form.id ? nextItem : item)
       : [...items, nextItem];
 
-    await saveItems(nextItems, form.id ? 'הברכה עודכנה' : 'הברכה נוספה');
+    await saveItems(nextItems, form.id ? 'הפריט עודכן' : 'הפריט נוסף');
     resetForm();
   };
 
@@ -93,18 +96,18 @@ export default function BrachotTab({ config, slug, onToast, localMode }) {
   };
 
   const remove = async (id) => {
-    if (!confirm('למחוק את הברכה?')) return;
-    await saveItems(items.filter(item => item.id !== id), 'הברכה נמחקה');
+    if (!confirm('למחוק את הפריט?')) return;
+    await saveItems(items.filter(item => item.id !== id), 'הפריט נמחק');
     if (form.id === id) resetForm();
   };
 
   return (
     <Box>
       <Card sx={{ p: 3, mb: 3 }}>
-        <Typography variant="h6" sx={{ color: 'primary.main', mb: 2 }}>הוספה ועריכה של ברכות</Typography>
+        <Typography variant="h6" sx={{ color: 'primary.main', mb: 2 }}>{pageCopy.adminTitle}</Typography>
         <Grid container spacing={2}>
           <Grid item xs={12} sm={6}>
-            <TextField label="שם הברכה" value={form.title} onChange={update('title')} fullWidth />
+            <TextField label={pageCopy.itemNameLabel} value={form.title} onChange={update('title')} fullWidth />
           </Grid>
           <Grid item xs={12} sm={3}>
             <TextField label="מחיר" value={form.price} onChange={update('price')} type="number" fullWidth inputProps={{ min: 0, dir: 'ltr' }} />
@@ -120,7 +123,7 @@ export default function BrachotTab({ config, slug, onToast, localMode }) {
             </FormControl>
           </Grid>
           <Grid item xs={12}>
-            <TextField label="תיאור" value={form.description} onChange={update('description')} fullWidth multiline rows={3} />
+            <TextField label={pageCopy.itemDescriptionLabel} value={form.description} onChange={update('description')} fullWidth multiline rows={3} />
           </Grid>
           <Grid item xs={12} sm={6}>
             <TextField label="תג קטן (אופציונלי)" value={form.tag} onChange={update('tag')} fullWidth placeholder="פופולרי / מיוחד" />
@@ -128,7 +131,7 @@ export default function BrachotTab({ config, slug, onToast, localMode }) {
         </Grid>
         <div className={css.formActions}>
           <Button variant="contained" onClick={submit} startIcon={<SaveIcon />}>
-            {form.id ? 'שמור ברכה' : 'הוסף ברכה'}
+            {form.id ? pageCopy.saveLabel : pageCopy.addLabel}
           </Button>
           {form.id && (
             <Button variant="outlined" onClick={resetForm}>
@@ -138,7 +141,7 @@ export default function BrachotTab({ config, slug, onToast, localMode }) {
         </div>
       </Card>
 
-      <Typography variant="h6" sx={{ color: 'primary.main', mb: 2 }}>ברכות פעילות</Typography>
+      <Typography variant="h6" sx={{ color: 'primary.main', mb: 2 }}>{pageCopy.activeTitle}</Typography>
       {items.map(item => (
         <Card key={item.id} sx={{ mb: 1.5 }}>
           <CardContent sx={{ py: '14px !important' }}>

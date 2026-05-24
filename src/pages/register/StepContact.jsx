@@ -76,7 +76,7 @@ export default function StepContact({ data, update }) {
         </CompactField>
         <CompactField>
           <TextField
-            label="מספר וואטסאפ של הגבאי"
+            label="מספר וואטסאפ של מנהל האתר"
             value={data.gabaiPhone}
             onChange={e => update('gabaiPhone', e.target.value)}
             fullWidth

@@ -42,7 +42,7 @@ const ELEMENT_OPTIONS = {
   },
 };
 
-function CheckoutForm({ amount, description, onClose, tenantConfig }) {
+function CheckoutForm({ amount, description, onClose, tenantConfig, onSuccess }) {
   const stripe   = useStripe();
   const elements = useElements();
 
@@ -79,6 +79,7 @@ function CheckoutForm({ amount, description, onClose, tenantConfig }) {
 
       setReceiptId(rid || '');
       setSuccess(true);
+      onSuccess?.({ name, email, amount, description, receiptId: rid || '' });
     } catch (err) {
       const hebrewErrors = {
         'Your card number is incorrect.': 'מספר הכרטיס שגוי',
@@ -157,7 +158,7 @@ function CheckoutForm({ amount, description, onClose, tenantConfig }) {
   );
 }
 
-export default function CreditCardDialog({ open, onClose, amount, description }) {
+export default function CreditCardDialog({ open, onClose, amount, description, onSuccess }) {
   const { config } = useTenant();
   const stripeKey = config.payments?.stripeKey || import.meta.env.VITE_STRIPE_PUBLIC_KEY || '';
 
@@ -171,7 +172,7 @@ export default function CreditCardDialog({ open, onClose, amount, description })
         </DialogTitle>
         <DialogContent>
           <Typography sx={{ color: 'text.secondary', textAlign: 'center', py: 3 }}>
-            תשלום בכרטיס אשראי לא מוגדר כרגע. פנו למנהל בית הכנסת.
+            תשלום בכרטיס אשראי לא מוגדר כרגע. פנו למנהל האתר.
           </Typography>
         </DialogContent>
       </Dialog>
@@ -192,7 +193,7 @@ export default function CreditCardDialog({ open, onClose, amount, description })
       </DialogTitle>
       <DialogContent sx={{ pt: '8px !important' }}>
         <Elements stripe={stripePromise}>
-          <CheckoutForm amount={amount} description={description} onClose={onClose} tenantConfig={config} />
+          <CheckoutForm amount={amount} description={description} onClose={onClose} tenantConfig={config} onSuccess={onSuccess} />
         </Elements>
       </DialogContent>
     </Dialog>

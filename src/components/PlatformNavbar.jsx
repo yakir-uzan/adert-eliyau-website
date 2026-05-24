@@ -7,9 +7,9 @@ import LoginIcon from '@mui/icons-material/Login';
 import { PLATFORM_COLORS as COLORS } from '../utils/constants';
 
 const NAV_ITEMS = [
-  { label: 'בית', to: '/' },
+  { label: 'ראשי', to: '/' },
   { label: 'איך זה עובד?', to: '/how-it-works' },
-  { label: 'פיצ׳רים', to: '/features' },
+  { label: 'יכולות', to: '/features' },
   { label: 'מחירים', to: '/pricing' },
   { label: 'שאלות נפוצות', to: '/faq' },
   { label: 'צור קשר', to: '/contact-us' },
@@ -52,7 +52,7 @@ export default function PlatformNavbar() {
               textShadow: '0 0 24px rgba(201,168,76,0.2)',
             }}
           >
-            beit-knesset
+            Kehila Sites
           </Typography>
           <Box
             component="span"
@@ -102,7 +102,7 @@ export default function PlatformNavbar() {
             '&:hover': { bgcolor: 'rgba(201,168,76,0.12)' },
           }}
         >
-          התחברות לגבאים
+          התחברות למנהלים
         </Button>
       </Container>
     </Box>

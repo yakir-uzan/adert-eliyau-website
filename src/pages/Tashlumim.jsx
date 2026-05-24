@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { useTenant } from '../config/TenantContext';
+import { getSiteTypeConfig } from '../config/siteTypes';
 import Box from '@mui/material/Box';
 import Container from '@mui/material/Container';
 import Typography from '@mui/material/Typography';
@@ -53,8 +54,9 @@ function PhoneBox({ label, value }) {
 const LOGO_SX = { height: 52, maxWidth: 120, objectFit: 'contain', borderRadius: 2, alignSelf: 'flex-start' };
 
 export default function Tashlumim() {
-  const { config, slug } = useTenant();
-  const base = `/${slug}`;
+  const { config, basePath } = useTenant();
+  const pageCopy = getSiteTypeConfig(config.siteType).pages.payments;
+  const base = basePath;
   const pay = config.payments || {};
   const bitPhone    = pay.bitPhone || '';
   const payboxPhone = pay.payboxPhone || '';
@@ -67,11 +69,11 @@ export default function Tashlumim() {
 
   return (
     <Box>
-      <PageHero title="תשלומים" subtitle="" />
+      <PageHero title={pageCopy.title} subtitle="" />
       <Box sx={{ py: 7 }}>
         <Container maxWidth="lg">
           <GoldDivider />
-          <Typography textAlign="center" color="text.secondary" sx={{ mb: 4, mt: 2 }}>בחרו את האמצעי הנוח לכם</Typography>
+          <Typography textAlign="center" color="text.secondary" sx={{ mb: 4, mt: 2 }}>{pageCopy.subtitle}</Typography>
 
           <Grid container spacing={3}>
             {bitPhone && (
@@ -157,7 +159,7 @@ export default function Tashlumim() {
                     <Box sx={{ height: 32 }} />
                     <AccountBalanceIcon sx={{ fontSize: 52, color: 'primary.main' }} />
                     <Typography variant="h5" sx={{ color: 'primary.main' }}>העברה בנקאית</Typography>
-                    <Typography variant="body2" color="text.secondary">העברה ישירה לחשבון בית הכנסת</Typography>
+                    <Typography variant="body2" color="text.secondary">{pageCopy.bankDescription}</Typography>
                     <Table size="small">
                       <TableBody>
                         {bankRows.map(([k, v]) => (
@@ -180,18 +182,18 @@ export default function Tashlumim() {
                   <Box sx={{ height: 32 }} />
                   <LoopIcon sx={{ fontSize: 52, color: 'primary.main' }} />
                   <Typography variant="h5" sx={{ color: 'primary.main' }}>הוראת קבע</Typography>
-                  <Typography variant="body2" color="text.secondary">הגדירו תשלום חודשי קבוע לתמיכה שוטפת</Typography>
+                  <Typography variant="body2" color="text.secondary">{pageCopy.standingOrderDescription}</Typography>
                   <Button variant="outlined" href="#" sx={{ mt: 'auto' }}>הורדת טופס PDF</Button>
-                  <Typography variant="caption" color="text.secondary" textAlign="center">יש למלא ולהחזיר לגבאות</Typography>
+                  <Typography variant="caption" color="text.secondary" textAlign="center">{pageCopy.standingOrderNote}</Typography>
                 </CardContent>
               </Card>
             </Grid>
           </Grid>
 
           <Card sx={{ mt: 6, p: 3, textAlign: 'center', bgcolor: 'rgba(201,168,76,0.07)', borderColor: 'primary.main' }}>
-            <Typography variant="h5" sx={{ color: 'primary.main', mb: 1 }}>רוצים לראות את החשבון שלכם?</Typography>
-            <Typography color="text.secondary" sx={{ mb: 2 }}>התחברו עם Google ובדקו כמה אתם חייבים לבית הכנסת</Typography>
-            <Button component={Link} to={`${base}/cheshbon`} variant="contained" size="large">לחשבון האישי שלי</Button>
+            <Typography variant="h5" sx={{ color: 'primary.main', mb: 1 }}>{pageCopy.accountCtaTitle}</Typography>
+            <Typography color="text.secondary" sx={{ mb: 2 }}>{pageCopy.accountCtaText}</Typography>
+            <Button component={Link} to={`${base}/cheshbon`} variant="contained" size="large">{pageCopy.accountButton}</Button>
           </Card>
         </Container>
       </Box>

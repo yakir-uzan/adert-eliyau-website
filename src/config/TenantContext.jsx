@@ -10,6 +10,7 @@ import { doc, onSnapshot } from 'firebase/firestore';
 import createTenantTheme from './createTenantTheme';
 import { useLocation, Link } from 'react-router-dom';
 import { getTenantPlanState } from '../utils/tenantPlan';
+import { DEFAULT_SITE_TYPE } from './siteTypes';
 import {
   hasLocalTenantOwnerAccess,
   isLocalDevHost,
@@ -26,7 +27,7 @@ export function useTenant() {
   return ctx;
 }
 
-export default function TenantProvider({ slug, children }) {
+export default function TenantProvider({ slug, urlSiteType, children }) {
   const [config, setConfig] = useState(null);
   const [error, setError]   = useState(null);
   const location = useLocation();
@@ -40,14 +41,14 @@ export default function TenantProvider({ slug, children }) {
     const preferLocalDraft = isLocalHost && hasLocalTenantOwnerAccess(slug) && !!localDraft;
 
     if (localDraft && isLocalHost) {
-      setConfig(localDraft);
+      setConfig({ siteType: DEFAULT_SITE_TYPE, ...localDraft });
     }
 
     let settled = false;
     const timeoutId = setTimeout(() => {
       if (!settled) {
         if (localDraft && isLocalHost) {
-          setConfig(localDraft);
+          setConfig({ siteType: DEFAULT_SITE_TYPE, ...localDraft });
           setError(null);
         } else {
           setError('not-found');
@@ -61,11 +62,11 @@ export default function TenantProvider({ slug, children }) {
         settled = true;
         clearTimeout(timeoutId);
         if (snap.exists()) {
-          setConfig(preferLocalDraft ? localDraft : snap.data());
+          setConfig({ siteType: DEFAULT_SITE_TYPE, ...(preferLocalDraft ? localDraft : snap.data()) });
           setError(null);
         } else {
           if (localDraft && isLocalHost) {
-            setConfig(localDraft);
+            setConfig({ siteType: DEFAULT_SITE_TYPE, ...localDraft });
             setError(null);
           } else {
             setError('not-found');
@@ -76,7 +77,7 @@ export default function TenantProvider({ slug, children }) {
         settled = true;
         clearTimeout(timeoutId);
         if (localDraft && isLocalHost) {
-          setConfig(localDraft);
+          setConfig({ siteType: DEFAULT_SITE_TYPE, ...localDraft });
           setError(null);
         } else {
           setError('not-found');
@@ -97,7 +98,7 @@ export default function TenantProvider({ slug, children }) {
       if (event.detail?.slug !== slug || event.detail?.type !== 'tenant') return;
       const nextDraft = readLocalTenantDraft(slug);
       if (nextDraft) {
-        setConfig(nextDraft);
+        setConfig({ siteType: DEFAULT_SITE_TYPE, ...nextDraft });
         setError(null);
       }
     };
@@ -107,7 +108,7 @@ export default function TenantProvider({ slug, children }) {
       if (event.data?.type !== LIVE_PREVIEW_MESSAGE_TYPE) return;
       if (event.data?.slug !== slug) return;
       if (!event.data?.config) return;
-      setConfig(event.data.config);
+      setConfig({ siteType: DEFAULT_SITE_TYPE, ...event.data.config });
       setError(null);
     };
 
@@ -124,14 +125,16 @@ export default function TenantProvider({ slug, children }) {
     [config?.theme?.primaryColor, config?.theme?.bgDefault, config?.theme?.bgPaper, config?.theme?.primaryLight]
   );
   const plan = useMemo(() => getTenantPlanState(config || {}), [config]);
-  const isActivateRoute = location.pathname === `/${slug}/activate`;
+  const siteType = config?.siteType || urlSiteType || DEFAULT_SITE_TYPE;
+  const basePath = urlSiteType ? `/${urlSiteType}/${slug}` : `/${slug}`;
+  const isActivateRoute = location.pathname === `${basePath}/activate`;
 
   if (error === 'not-found') {
     return (
       <Box sx={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', bgcolor: '#0D1B2A', color: '#F5F0E8', textAlign: 'center', p: 4 }}>
         <Box>
           <Typography variant="h3" sx={{ fontFamily: '"Secular One", serif', color: '#C9A84C', mb: 2 }}>404</Typography>
-          <Typography variant="h5" sx={{ mb: 1 }}>בית הכנסת לא נמצא</Typography>
+          <Typography variant="h5" sx={{ mb: 1 }}>האתר לא נמצא</Typography>
           <Typography color="#A89F94">הכתובת <strong>/{slug}</strong> אינה קיימת במערכת</Typography>
         </Box>
       </Box>
@@ -143,7 +146,7 @@ export default function TenantProvider({ slug, children }) {
       <Box sx={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', bgcolor: '#0D1B2A', color: '#F5F0E8', textAlign: 'center', p: 4 }}>
         <Box>
           <Typography variant="h5" sx={{ mb: 1 }}>שגיאה בטעינה</Typography>
-          <Typography color="#A89F94">לא הצלחנו לטעון את פרטי בית הכנסת. נסו שוב מאוחר יותר.</Typography>
+          <Typography color="#A89F94">לא הצלחנו לטעון את פרטי האתר. נסו שוב מאוחר יותר.</Typography>
         </Box>
       </Box>
     );
@@ -170,7 +173,7 @@ export default function TenantProvider({ slug, children }) {
               תקופת הניסיון הסתיימה. כדי להמשיך לפרסם ולנהל את האתר, צריך להשלים תשלום.
             </Typography>
             <Box sx={{ display: 'flex', justifyContent: 'center', gap: 2, flexWrap: 'wrap' }}>
-              <Button component={Link} to={`/${slug}/activate`} variant="contained" size="large">
+              <Button component={Link} to={`${basePath}/activate`} variant="contained" size="large">
                 הפעלת האתר
               </Button>
               <Button component={Link} to="/contact-us" variant="outlined" size="large">
@@ -184,7 +187,7 @@ export default function TenantProvider({ slug, children }) {
   }
 
   return (
-    <TenantContext.Provider value={{ config, slug, plan }}>
+    <TenantContext.Provider value={{ config, slug, siteType, basePath, plan }}>
       <ThemeProvider theme={theme}>
         <CssBaseline />
         {children}
