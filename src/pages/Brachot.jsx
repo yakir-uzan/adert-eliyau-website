@@ -81,7 +81,13 @@ export function getDefaultContentItems(siteType) {
 function CopyButton({ value }) {
   const [copied, setCopied] = useState(false);
   const copy = async () => {
-    try { await navigator.clipboard.writeText(value); setCopied(true); setTimeout(() => setCopied(false), 1800); } catch {}
+    try {
+      await navigator.clipboard.writeText(value);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 1800);
+    } catch (err) {
+      console.warn('Copy failed', err);
+    }
   };
   return (
     <Tooltip title={copied ? 'הועתק!' : 'העתק'} placement="top">
@@ -219,7 +225,13 @@ function PurchaseDialog({ bracha, onClose, config }) {
         </DialogContent>
       </Dialog>
 
-      <CreditCardDialog open={creditOpen} onClose={() => setCreditOpen(false)} amount={price} description={title} />
+      <CreditCardDialog
+        open={creditOpen}
+        onClose={() => setCreditOpen(false)}
+        amount={price}
+        description={title}
+        paymentMetadata={{ purpose: 'content_purchase', itemId: bracha?.id || '' }}
+      />
     </>
   );
 }

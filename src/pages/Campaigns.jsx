@@ -28,9 +28,6 @@ import CreditCardDialog from '../components/CreditCardDialog';
 import { useTenant } from '../config/TenantContext';
 import { getSiteTypeConfig } from '../config/siteTypes';
 import { fmtMoney } from '../utils/formatters';
-import { db } from '../firebase';
-import { doc, setDoc } from 'firebase/firestore';
-import { isLocalDevHost, saveLocalTenantDraft } from '../utils/localTenantAccess';
 
 function pct(value, goal) {
   if (!goal) return 0;
@@ -44,7 +41,9 @@ function CopyButton({ value, label = 'העתק' }) {
       await navigator.clipboard.writeText(value);
       setCopied(true);
       setTimeout(() => setCopied(false), 1600);
-    } catch {}
+    } catch (err) {
+      console.warn('Copy failed', err);
+    }
   };
   return (
     <Tooltip title={copied ? 'הועתק' : label}>
@@ -58,7 +57,6 @@ function CopyButton({ value, label = 'העתק' }) {
 function DonationDialog({ campaign, raiser, onClose }) {
   const [amount, setAmount] = useState(campaign?.levels?.[0]?.amount || '');
   const [creditOpen, setCreditOpen] = useState(false);
-  const { config, slug } = useTenant();
   if (!campaign) return null;
 
   const description = raiser
@@ -121,26 +119,13 @@ function DonationDialog({ campaign, raiser, onClose }) {
         onClose={() => setCreditOpen(false)}
         amount={Number(amount) || 0}
         description={description}
-        onSuccess={async () => {
-          const donationAmount = Number(amount) || 0;
-          const nextCampaigns = (config.campaigns || []).map(item => {
-            if (item.id !== campaign.id) return item;
-            return {
-              ...item,
-              raised: (Number(item.raised) || 0) + donationAmount,
-              raisers: (item.raisers || []).map(r => r.slug === raiser?.slug
-                ? { ...r, raised: (Number(r.raised) || 0) + donationAmount }
-                : r),
-            };
-          });
-
-          try {
-            if (isLocalDevHost()) {
-              saveLocalTenantDraft(slug, { ...config, campaigns: nextCampaigns });
-            } else {
-              await setDoc(doc(db, 'tenants', slug), { campaigns: nextCampaigns }, { merge: true });
-            }
-          } catch {}
+        paymentMetadata={{
+          purpose: 'campaign_donation',
+          campaignId: campaign.id,
+          raiserSlug: raiser?.slug || '',
+        }}
+        onSuccess={() => {
+          setCreditOpen(false);
         }}
       />
     </>

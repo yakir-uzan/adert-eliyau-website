@@ -28,11 +28,11 @@ import css from './Tashlumim.module.css';
 function CopyButton({ value }) {
   const [copied, setCopied] = useState(false);
   const copy = async () => {
-    try { await navigator.clipboard.writeText(value); setCopied(true); setTimeout(() => setCopied(false), 1800); } catch {}
+    try { await navigator.clipboard.writeText(value); setCopied(true); setTimeout(() => setCopied(false), 1800); } catch { window.prompt('העתיקו את הערך:', value); }
   };
   return (
     <Tooltip title={copied ? 'הועתק!' : 'העתק'} placement="top">
-      <IconButton size="small" onClick={copy} sx={{ color: copied ? '#4ade80' : 'primary.main', p: 0.4, transition: 'color 0.2s' }}>
+      <IconButton aria-label="העתקה" size="small" onClick={copy} sx={{ color: copied ? '#4ade80' : 'primary.main', p: 0.4, transition: 'color 0.2s' }}>
         {copied ? <CheckIcon fontSize="small" /> : <ContentCopyIcon fontSize="small" />}
       </IconButton>
     </Tooltip>
@@ -64,6 +64,7 @@ export default function Tashlumim() {
   const nedarimLink = pay.nedarimLink || 'https://www.nedarimplus.co.il/';
   const bitLink     = bitPhone ? `https://www.bitpay.co.il/app/transfer?phone=${bitPhone}` : '';
   const bankRows    = pay.bankRows || [];
+  const standingOrderPdfUrl = pay.standingOrderPdfUrl || '';
 
   const [creditOpen, setCreditOpen] = useState(false);
 
@@ -183,7 +184,16 @@ export default function Tashlumim() {
                   <LoopIcon sx={{ fontSize: 52, color: 'primary.main' }} />
                   <Typography variant="h5" sx={{ color: 'primary.main' }}>הוראת קבע</Typography>
                   <Typography variant="body2" color="text.secondary">{pageCopy.standingOrderDescription}</Typography>
-                  <Button variant="outlined" href="#" sx={{ mt: 'auto' }}>הורדת טופס PDF</Button>
+                  <Button
+                    variant="outlined"
+                    href={standingOrderPdfUrl || undefined}
+                    target={standingOrderPdfUrl ? '_blank' : undefined}
+                    rel={standingOrderPdfUrl ? 'noopener' : undefined}
+                    disabled={!standingOrderPdfUrl}
+                    sx={{ mt: 'auto' }}
+                  >
+                    {standingOrderPdfUrl ? 'הורדת טופס PDF' : 'טופס PDF לא הוגדר'}
+                  </Button>
                   <Typography variant="caption" color="text.secondary" textAlign="center">{pageCopy.standingOrderNote}</Typography>
                 </CardContent>
               </Card>

@@ -2,7 +2,7 @@ import { useEffect, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { auth, db, storage } from '../firebase';
 import { doc, getDoc, setDoc } from 'firebase/firestore';
-import { onAuthStateChanged } from 'firebase/auth';
+import { GoogleAuthProvider, onAuthStateChanged, signInWithPopup } from 'firebase/auth';
 import { getDownloadURL, ref, uploadBytes } from 'firebase/storage';
 import Box from '@mui/material/Box';
 import Container from '@mui/material/Container';
@@ -68,6 +68,18 @@ export default function RegisterTenant() {
   const handleBack = () => { if (step > 0) setStep(c => c - 1); };
 
   const isLocalhost = typeof window !== 'undefined' && ['localhost', '127.0.0.1'].includes(window.location.hostname);
+  const requiresAuth = !isLocalhost;
+
+  const loginWithGoogle = async () => {
+    setError('');
+    try {
+      await signInWithPopup(auth, new GoogleAuthProvider());
+    } catch (err) {
+      if (err.code !== 'auth/popup-closed-by-user') {
+        setError('לא הצלחנו להתחבר עם Google. נסו שוב.');
+      }
+    }
+  };
 
   const uploadImage = async (field, file) => {
     if (!file) return;
@@ -107,6 +119,10 @@ export default function RegisterTenant() {
 
   const handleSubmit = async () => {
     if (!data.name.trim() || !data.slug.trim()) { setError('יש למלא שם וכתובת אתר'); return; }
+    if (requiresAuth && !user) {
+      setError('כדי ליצור אתר צריך להתחבר עם Google. כך האתר נפתח עם הרשאות ניהול שלך.');
+      return;
+    }
     setSaving(true);
     setError('');
     try {
@@ -204,6 +220,20 @@ export default function RegisterTenant() {
             <Box sx={{ py: 1, direction: 'rtl', textAlign: 'right', height: { xs: 'auto', lg: 'calc(100% - 128px)' }, overflowY: { xs: 'visible', lg: 'auto' }, overflowX: 'hidden', pr: 0.5 }}>
               {stepContent[step]}
             </Box>
+
+            {requiresAuth && !user && (
+              <Alert
+                severity="info"
+                sx={{ mt: 2, mb: 1, alignItems: 'center' }}
+                action={
+                  <Button color="inherit" size="small" onClick={loginWithGoogle}>
+                    התחברות
+                  </Button>
+                }
+              >
+                כדי ליצור אתר אמיתי צריך להתחבר עם Google. אחרי ההתחברות תקבלו הרשאות ניהול לאתר.
+              </Alert>
+            )}
 
             {error && <Alert severity="error" sx={{ mt: 2, mb: 1 }}>{error}</Alert>}
 

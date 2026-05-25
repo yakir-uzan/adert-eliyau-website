@@ -1,9 +1,18 @@
+import { useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import Box from '@mui/material/Box';
 import Button from '@mui/material/Button';
 import Container from '@mui/material/Container';
 import Typography from '@mui/material/Typography';
+import Drawer from '@mui/material/Drawer';
+import IconButton from '@mui/material/IconButton';
+import List from '@mui/material/List';
+import ListItem from '@mui/material/ListItem';
+import ListItemButton from '@mui/material/ListItemButton';
+import ListItemText from '@mui/material/ListItemText';
 import LoginIcon from '@mui/icons-material/Login';
+import MenuIcon from '@mui/icons-material/Menu';
+import CloseIcon from '@mui/icons-material/Close';
 import { PLATFORM_COLORS as COLORS } from '../utils/constants';
 
 const NAV_ITEMS = [
@@ -17,6 +26,7 @@ const NAV_ITEMS = [
 
 export default function PlatformNavbar() {
   const location = useLocation();
+  const [drawerOpen, setDrawerOpen] = useState(false);
 
   return (
     <Box
@@ -65,6 +75,14 @@ export default function PlatformNavbar() {
           />
         </Link>
 
+        <IconButton
+          aria-label="פתח תפריט"
+          onClick={() => setDrawerOpen(true)}
+          sx={{ display: { xs: 'inline-flex', md: 'none' }, color: COLORS.goldLight }}
+        >
+          <MenuIcon />
+        </IconButton>
+
         <Box sx={{ display: { xs: 'none', md: 'flex' }, alignItems: 'center', gap: 0.5 }}>
           {NAV_ITEMS.map((item) => (
             <Button
@@ -105,6 +123,46 @@ export default function PlatformNavbar() {
           התחברות למנהלים
         </Button>
       </Container>
+      <Drawer
+        anchor="left"
+        open={drawerOpen}
+        onClose={() => setDrawerOpen(false)}
+        PaperProps={{
+          dir: 'rtl',
+          style: { direction: 'rtl', right: 0, left: 'auto' },
+          sx: {
+            width: 280,
+            bgcolor: '#07111b',
+            borderLeft: `1px solid ${COLORS.borderSoft}`,
+          },
+        }}
+      >
+        <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', px: 2, py: 2 }}>
+          <Typography sx={{ color: COLORS.goldLight, fontWeight: 800 }}>Kehila Sites</Typography>
+          <IconButton aria-label="סגור תפריט" onClick={() => setDrawerOpen(false)} sx={{ color: 'text.secondary' }}>
+            <CloseIcon />
+          </IconButton>
+        </Box>
+        <List>
+          {NAV_ITEMS.map((item) => (
+            <ListItem key={item.to} disablePadding>
+              <ListItemButton
+                component={Link}
+                to={item.to}
+                selected={location.pathname === item.to}
+                onClick={() => setDrawerOpen(false)}
+                sx={{
+                  textAlign: 'right',
+                  color: location.pathname === item.to ? COLORS.goldLight : 'rgba(245,240,232,0.82)',
+                  '&.Mui-selected': { bgcolor: 'rgba(201,168,76,0.1)' },
+                }}
+              >
+                <ListItemText primary={item.label} primaryTypographyProps={{ fontWeight: 700 }} />
+              </ListItemButton>
+            </ListItem>
+          ))}
+        </List>
+      </Drawer>
     </Box>
   );
 }

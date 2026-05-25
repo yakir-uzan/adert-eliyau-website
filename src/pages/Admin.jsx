@@ -55,16 +55,24 @@ export default function Admin() {
   const adminEmail = adminUser?.email?.toLowerCase() || '';
   const isEmailAdmin = !!adminEmail && adminEmails.includes(adminEmail);
   const isUidAdmin = !!adminUser && admins.includes(adminUser.uid);
-  const isLegacyAdmin = !!adminUser && admins.length === 0 && adminEmails.length === 0;
-  const isAdmin = isUidAdmin || isEmailAdmin || isLegacyAdmin;
+  const isAdmin = isUidAdmin || isEmailAdmin;
   const platformAdminEmails = (import.meta.env.VITE_PLATFORM_ADMIN_EMAILS || '')
     .split(',')
     .map(email => email.trim().toLowerCase())
     .filter(Boolean);
   const isPlatformAdmin = !!adminUser?.email && platformAdminEmails.includes(adminUser.email.toLowerCase());
-  const canAccessAdmin = creatorAccess || isAdmin;
+  const canAccessAdmin = creatorAccess || isAdmin || isPlatformAdmin;
 
-  const login = () => signInWithPopup(auth, new GoogleAuthProvider()).catch(console.error);
+  const login = async () => {
+    try {
+      await signInWithPopup(auth, new GoogleAuthProvider());
+    } catch (err) {
+      const message = err?.code === 'auth/popup-closed-by-user'
+        ? 'הכניסה בוטלה'
+        : 'לא הצלחנו להתחבר עם Google. בדקו שהכניסה מופעלת ב-Firebase ונסו שוב.';
+      onToast(message, 'error');
+    }
+  };
 
   const onToast = (msg, sev = 'success') => setToast({ open: true, msg, sev });
 

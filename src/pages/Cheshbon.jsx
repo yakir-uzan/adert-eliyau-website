@@ -97,7 +97,8 @@ export default function Cheshbon() {
     } else { setUser(null); setAuthState('guest'); }
   }), [slug]);
 
-  const login  = () => signInWithPopup(auth, new GoogleAuthProvider()).catch(console.error);
+  const login  = () => signInWithPopup(auth, new GoogleAuthProvider())
+    .catch(() => window.alert('לא הצלחנו להתחבר עם Google. בדקו שהכניסה מופעלת ונסו שוב.'));
   const logout = () => signOut(auth);
   const total  = (charges || []).reduce((s,c) => s + (c.amount||0), 0);
   const openCharges = (charges || []).filter(c => (c.amount || 0) > 0);

@@ -27,6 +27,7 @@ import CloseIcon from '@mui/icons-material/Close';
 import { fmtDate } from '../../utils/formatters';
 import { readLocalHodaot, saveLocalHodaot } from '../../utils/localTenantAccess';
 import { getSiteTypeConfig } from '../../config/siteTypes';
+import ConfirmActionDialog from '../../components/ConfirmActionDialog';
 import css from './HodaotTab.module.css';
 
 export default function HodaotTab({ config, onToast, slug, localMode }) {
@@ -37,6 +38,7 @@ export default function HodaotTab({ config, onToast, slug, localMode }) {
   const [pinned, setPinned]   = useState(false);
   const [saving, setSaving]   = useState(false);
   const [editItem, setEditItem] = useState(null);
+  const [deleteId, setDeleteId] = useState(null);
 
   const load = async () => {
     if (localMode) {
@@ -54,7 +56,9 @@ export default function HodaotTab({ config, onToast, slug, localMode }) {
       const q = query(collection(db, 'hodaot'), where('active', '==', true), where('tenantId', '==', slug), orderBy('date', 'desc'));
       const s = await getDocs(q);
       setList(s.docs.map(d => ({ id: d.id, ...d.data() })));
-    } catch {}
+    } catch {
+      onToast('שגיאה בטעינת ההודעות', 'error');
+    }
   };
   useEffect(() => { load(); }, [slug, localMode]);
 
@@ -92,17 +96,17 @@ export default function HodaotTab({ config, onToast, slug, localMode }) {
   };
 
   const del = async id => {
-    if (!confirm('למחוק את ההודעה?')) return;
     try {
       if (localMode) {
         saveLocalHodaot(slug, readLocalHodaot(slug).map(item => item.id === id ? { ...item, active: false } : item));
         onToast('נמחקה');
         load();
+        setDeleteId(null);
         return;
       }
-      await updateDoc(doc(db, 'hodaot', id), { active: false }); onToast('נמחקה'); load();
+      await updateDoc(doc(db, 'hodaot', id), { active: false }); onToast('נמחקה'); load(); setDeleteId(null);
     }
-    catch { onToast('שגיאה', 'error'); }
+    catch { onToast('שגיאה', 'error'); setDeleteId(null); }
   };
 
   const pin = async (id, v) => {
@@ -168,7 +172,7 @@ export default function HodaotTab({ config, onToast, slug, localMode }) {
               <div className={css.cardActions}>
                 <IconButton size="small" onClick={() => setEditItem({ id: h.id, title: h.title, body: h.body, pinned: h.pinned || false })} sx={{ color: 'primary.main' }} title="עריכה"><EditIcon fontSize="small" /></IconButton>
                 <IconButton size="small" onClick={() => pin(h.id, !h.pinned)} sx={{ color: h.pinned ? 'primary.main' : 'text.secondary' }} title={h.pinned ? 'הסר הצמדה' : 'הצמד'}><PushPinIcon fontSize="small" /></IconButton>
-                <IconButton size="small" onClick={() => del(h.id)} sx={{ color: 'error.main' }}><DeleteIcon fontSize="small" /></IconButton>
+                <IconButton aria-label="מחיקת הודעה" size="small" onClick={() => setDeleteId(h.id)} sx={{ color: 'error.main' }}><DeleteIcon fontSize="small" /></IconButton>
               </div>
             </div>
           </CardContent>
@@ -194,6 +198,14 @@ export default function HodaotTab({ config, onToast, slug, localMode }) {
           <Button variant="contained" onClick={saveEdit} startIcon={<SaveIcon />}>שמור שינויים</Button>
         </DialogActions>
       </Dialog>
+      <ConfirmActionDialog
+        open={!!deleteId}
+        title="מחיקת הודעה"
+        message="הפעולה תמחק את ההודעה מהאתר. להמשיך?"
+        confirmLabel="מחק"
+        onClose={() => setDeleteId(null)}
+        onConfirm={() => del(deleteId)}
+      />
     </Box>
   );
 }

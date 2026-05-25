@@ -55,7 +55,11 @@ const emptyRaiser = () => ({
 
 function CopyMiniButton({ value }) {
   const copy = async () => {
-    try { await navigator.clipboard.writeText(value); } catch {}
+    try {
+      await navigator.clipboard.writeText(value);
+    } catch (err) {
+      console.warn('Copy failed', err);
+    }
   };
   return (
     <IconButton size="small" onClick={copy} sx={{ color: 'primary.main' }}>

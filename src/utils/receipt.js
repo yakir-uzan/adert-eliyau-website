@@ -98,9 +98,12 @@ function buildReceiptHtml({ name, description, amount, receiptId, date, tenantCo
 
 export async function sendReceiptEmail({ name, email, description, amount, receiptId, tenantConfig }) {
   const emailConfig = tenantConfig?.email || {};
-  const serviceId   = emailConfig.serviceId  || import.meta.env.VITE_EMAILJS_SERVICE_ID  || 'YOUR_SERVICE_ID';
-  const templateId  = emailConfig.templateId || import.meta.env.VITE_EMAILJS_TEMPLATE_ID || 'YOUR_TEMPLATE_ID';
-  const publicKey   = emailConfig.publicKey  || import.meta.env.VITE_EMAILJS_PUBLIC_KEY  || 'YOUR_PUBLIC_KEY';
+  const serviceId   = emailConfig.serviceId  || import.meta.env.VITE_EMAILJS_SERVICE_ID  || '';
+  const templateId  = emailConfig.templateId || import.meta.env.VITE_EMAILJS_TEMPLATE_ID || '';
+  const publicKey   = emailConfig.publicKey  || import.meta.env.VITE_EMAILJS_PUBLIC_KEY  || '';
+  if (!serviceId || !templateId || !publicKey) {
+    throw new Error('Email receipt service is not configured');
+  }
 
   const synagogueName = tenantConfig?.name || 'בית כנסת';
   const date = new Date().toLocaleDateString('he-IL', { day: 'numeric', month: 'long', year: 'numeric' });

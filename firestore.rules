@@ -1,0 +1,92 @@
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+    function signedIn() {
+      return request.auth != null;
+    }
+
+    function isPlatformAdmin() {
+      return signedIn() && request.auth.token.platformAdmin == true;
+    }
+
+    function tenant(slug) {
+      return get(/databases/$(database)/documents/tenants/$(slug)).data;
+    }
+
+    function isTenantAdmin(slug) {
+      let t = tenant(slug);
+      return signedIn() && (
+        isPlatformAdmin()
+        || ('admins' in t && t.admins is list && request.auth.uid in t.admins)
+        || ('adminEmails' in t && t.adminEmails is list && request.auth.token.email in t.adminEmails)
+      );
+    }
+
+    function createsTenantWithSelfAdmin() {
+      return signedIn()
+        && request.resource.data.admins is list
+        && request.auth.uid in request.resource.data.admins;
+    }
+
+    function isActiveTenantContent() {
+      return resource.data.active == true;
+    }
+
+    match /tenants/{slug} {
+      allow read: if true;
+      allow create: if createsTenantWithSelfAdmin() || isPlatformAdmin();
+      allow update: if isTenantAdmin(slug);
+      allow delete: if isPlatformAdmin();
+
+      match /payments/{paymentId} {
+        allow read: if isTenantAdmin(slug);
+        allow write: if false;
+      }
+
+      match /paymentIntents/{paymentIntentId} {
+        allow read: if isTenantAdmin(slug);
+        allow write: if false;
+      }
+    }
+
+    match /zmanim/{slug} {
+      allow read: if true;
+      allow write: if isTenantAdmin(slug);
+    }
+
+    match /hodaot/{id} {
+      allow read: if isActiveTenantContent();
+      allow create: if isTenantAdmin(request.resource.data.tenantId);
+      allow update, delete: if isTenantAdmin(resource.data.tenantId);
+    }
+
+    match /gallery/{id} {
+      allow read: if isActiveTenantContent();
+      allow create: if isTenantAdmin(request.resource.data.tenantId);
+      allow update, delete: if isTenantAdmin(resource.data.tenantId);
+    }
+
+    match /cheshbonot/{id} {
+      allow read: if signedIn() && (
+        resource.data.uid == request.auth.uid
+        || isTenantAdmin(resource.data.tenantId)
+      );
+      allow create: if isTenantAdmin(request.resource.data.tenantId);
+      allow update, delete: if isTenantAdmin(resource.data.tenantId);
+    }
+
+    match /users/{uid} {
+      allow create, update: if signedIn() && request.auth.uid == uid;
+      allow read: if signedIn() && (
+        request.auth.uid == uid
+        || isTenantAdmin(resource.data.tenantId)
+      );
+      allow delete: if false;
+    }
+
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}

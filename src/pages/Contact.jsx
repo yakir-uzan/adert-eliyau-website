@@ -37,7 +37,12 @@ export default function Contact() {
     e.preventDefault();
     setLoading(true);
     try {
-      const formspreeId = contact.formspreeId || 'YOUR_FORM_ID';
+      const formspreeId = contact.formspreeId || '';
+      if (!formspreeId || formspreeId === 'YOUR_FORM_ID') {
+        setStatus('missing-config');
+        setLoading(false);
+        return;
+      }
       const res = await fetch(`https://formspree.io/f/${formspreeId}`, {
         method: 'POST',
         headers: { Accept: 'application/json', 'Content-Type': 'application/json' },
@@ -77,6 +82,7 @@ export default function Contact() {
                     <TextField label="הודעה" value={form.message} onChange={update('message')} required multiline rows={4} fullWidth />
                     {status === 'ok' && <Alert severity="success">ההודעה נשלחה בהצלחה! נחזור אליכם בקרוב.</Alert>}
                     {status === 'err' && <Alert severity="error">שגיאה בשליחה. אנא נסו שנית.</Alert>}
+                    {status === 'missing-config' && <Alert severity="warning">טופס יצירת הקשר עדיין לא הוגדר. יש להזין Formspree ID בניהול האתר.</Alert>}
                     <Button type="submit" variant="contained" size="large" disabled={loading} fullWidth>
                       {loading ? 'שולח...' : 'שלח הודעה'}
                     </Button>

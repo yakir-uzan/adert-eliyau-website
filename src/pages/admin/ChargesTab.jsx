@@ -20,6 +20,7 @@ import CircularProgress from '@mui/material/CircularProgress';
 import CheckCircleIcon from '@mui/icons-material/CheckCircle';
 import { fmtMoney } from '../../utils/formatters';
 import { DEFAULT_SITE_TYPE } from '../../config/siteTypes';
+import ConfirmActionDialog from '../../components/ConfirmActionDialog';
 import css from './ChargesTab.module.css';
 
 const CHARGE_COPY = {
@@ -74,20 +75,25 @@ export default function ChargesTab({ config, onToast, slug }) {
   const [amount, setAmount]   = useState('');
   const [date, setDate]       = useState('');
   const [saving, setSaving]   = useState(false);
+  const [paidId, setPaidId]   = useState(null);
 
   const loadUsers = async () => {
     try {
       const q = query(collection(db, 'users'), where('tenantId', '==', slug));
       const s = await getDocs(q);
       setUsers(s.docs.map(d => ({ uid: d.id, ...d.data() })));
-    } catch {}
+    } catch {
+      onToast('שגיאה בטעינת המשתמשים', 'error');
+    }
   };
   const loadCharges = async () => {
     try {
       const q = query(collection(db, 'cheshbonot'), where('paid', '==', false), where('tenantId', '==', slug), orderBy('date', 'desc'));
       const s = await getDocs(q);
       setCharges(s.docs.map(d => ({ id: d.id, ...d.data() })));
-    } catch {}
+    } catch {
+      onToast('שגיאה בטעינת החיובים', 'error');
+    }
   };
   useEffect(() => { loadUsers(); loadCharges(); }, [slug]);
 
@@ -112,12 +118,12 @@ export default function ChargesTab({ config, onToast, slug }) {
   };
 
   const markPaid = async id => {
-    if (!confirm('לסמן כשולם?')) return;
     try {
       await updateDoc(doc(db, 'cheshbonot', id), { paid: true, paidAt: serverTimestamp() });
       onToast('סומן כשולם');
+      setPaidId(null);
       loadCharges();
-    } catch { onToast('שגיאה', 'error'); }
+    } catch { onToast('שגיאה', 'error'); setPaidId(null); }
   };
 
   return (
@@ -176,13 +182,22 @@ export default function ChargesTab({ config, onToast, slug }) {
                   <Chip size="small" label={copy.typeOptions.find(([value]) => value === c.type)?.[1] || 'חיוב'} className={c.type === 'aliya' ? css.aliyaChip : css.nederChip} sx={{ color: c.type === 'aliya' ? 'primary.main' : '#f87171' }} />
                   <Typography variant="body2" sx={{ flex: 1 }}>{c.description}</Typography>
                   <Typography variant="body2" sx={{ color: 'primary.main', fontWeight: 700 }}>{fmtMoney(c.amount)}</Typography>
-                  <Button size="small" startIcon={<CheckCircleIcon />} onClick={() => markPaid(c.id)} sx={{ color: 'success.main', borderColor: 'success.main', border: '1px solid', fontSize: '0.78rem' }}>שולם</Button>
+                  <Button size="small" startIcon={<CheckCircleIcon />} onClick={() => setPaidId(c.id)} sx={{ color: 'success.main', borderColor: 'success.main', border: '1px solid', fontSize: '0.78rem' }}>שולם</Button>
                 </div>
               ))}
             </CardContent>
           </Card>
         );
       })}
+      <ConfirmActionDialog
+        open={!!paidId}
+        title="סימון חיוב כשולם"
+        message="הפעולה תסמן את החיוב כשולם ותסיר אותו מרשימת החיובים הפתוחים. להמשיך?"
+        confirmLabel="סמן כשולם"
+        severity="primary"
+        onClose={() => setPaidId(null)}
+        onConfirm={() => markPaid(paidId)}
+      />
     </Box>
   );
 }

@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { loadStripe } from '@stripe/stripe-js';
+import { httpsCallable } from 'firebase/functions';
 import {
   Elements,
   CardNumberElement,
@@ -27,6 +28,7 @@ import CheckCircleIcon from '@mui/icons-material/CheckCircle';
 import MarkEmailReadIcon from '@mui/icons-material/MarkEmailRead';
 import { sendReceiptEmail } from '../utils/receipt';
 import { fmtMoney } from '../utils/formatters';
+import { functions } from '../firebase';
 import css from './CreditCardDialog.module.css';
 
 const ELEMENT_OPTIONS = {
@@ -42,7 +44,7 @@ const ELEMENT_OPTIONS = {
   },
 };
 
-function CheckoutForm({ amount, description, onClose, tenantConfig, onSuccess }) {
+function CheckoutForm({ amount, description, onClose, tenantConfig, tenantSlug, paymentMetadata, onSuccess }) {
   const stripe   = useStripe();
   const elements = useElements();
 
@@ -62,12 +64,31 @@ function CheckoutForm({ amount, description, onClose, tenantConfig, onSuccess })
     setError('');
 
     try {
-      const { paymentMethod, error: pmErr } = await stripe.createPaymentMethod({
-        type: 'card',
-        card: elements.getElement(CardNumberElement),
-        billing_details: { name, email },
+      const createPaymentIntent = httpsCallable(functions, 'createTenantPaymentIntent');
+      const intentResult = await createPaymentIntent({
+        tenantSlug,
+        amount: Number(amount),
+        currency: 'ils',
+        description,
+        receiptEmail: email,
+        customerName: name,
+        metadata: paymentMetadata || {},
       });
-      if (pmErr) throw new Error(pmErr.message);
+
+      const clientSecret = intentResult.data?.clientSecret;
+      if (!clientSecret) throw new Error('לא הצלחנו לפתוח תשלום מאובטח.');
+
+      const { paymentIntent, error: confirmErr } = await stripe.confirmCardPayment(clientSecret, {
+        payment_method: {
+          card: elements.getElement(CardNumberElement),
+          billing_details: { name, email },
+        },
+      });
+
+      if (confirmErr) throw new Error(confirmErr.message);
+      if (paymentIntent?.status !== 'succeeded') {
+        throw new Error('התשלום לא אושר. לא בוצע חיוב.');
+      }
 
       const rid = await sendReceiptEmail({
         name,
@@ -79,7 +100,7 @@ function CheckoutForm({ amount, description, onClose, tenantConfig, onSuccess })
 
       setReceiptId(rid || '');
       setSuccess(true);
-      onSuccess?.({ name, email, amount, description, receiptId: rid || '' });
+      onSuccess?.({ name, email, amount, description, receiptId: rid || '', payment: paymentIntent });
     } catch (err) {
       const hebrewErrors = {
         'Your card number is incorrect.': 'מספר הכרטיס שגוי',
@@ -158,21 +179,22 @@ function CheckoutForm({ amount, description, onClose, tenantConfig, onSuccess })
   );
 }
 
-export default function CreditCardDialog({ open, onClose, amount, description, onSuccess }) {
-  const { config } = useTenant();
+export default function CreditCardDialog({ open, onClose, amount, description, paymentMetadata, onSuccess }) {
+  const { config, slug } = useTenant();
   const stripeKey = config.payments?.stripeKey || import.meta.env.VITE_STRIPE_PUBLIC_KEY || '';
+  const hasValidAmount = Number(amount) > 0;
 
-  if (!stripeKey) {
+  if (!stripeKey || !hasValidAmount) {
     return (
       <Dialog open={open} onClose={onClose} maxWidth="xs" fullWidth
         PaperProps={{ className: css.dialogPaper }}>
         <DialogTitle className={css.dialogTitleRow}>
           <Typography variant="h6" className={css.titleText} sx={{ color: 'secondary.main' }}>תשלום בכרטיס אשראי</Typography>
-          <IconButton onClick={onClose} size="small" sx={{ color: 'text.secondary' }}><CloseIcon fontSize="small" /></IconButton>
+          <IconButton aria-label="סגור" onClick={onClose} size="small" sx={{ color: 'text.secondary' }}><CloseIcon fontSize="small" /></IconButton>
         </DialogTitle>
         <DialogContent>
           <Typography sx={{ color: 'text.secondary', textAlign: 'center', py: 3 }}>
-            תשלום בכרטיס אשראי לא מוגדר כרגע. פנו למנהל האתר.
+            {!stripeKey ? 'תשלום בכרטיס אשראי לא מוגדר כרגע. פנו למנהל האתר.' : 'לא הוגדר סכום תקין לתשלום.'}
           </Typography>
         </DialogContent>
       </Dialog>
@@ -189,11 +211,19 @@ export default function CreditCardDialog({ open, onClose, amount, description, o
           <CreditCardIcon sx={{ color: 'primary.main' }} />
           <Typography variant="h6" className={css.titleText} sx={{ color: 'secondary.main' }}>תשלום בכרטיס אשראי</Typography>
         </div>
-        <IconButton onClick={onClose} size="small" sx={{ color: 'text.secondary' }}><CloseIcon fontSize="small" /></IconButton>
+        <IconButton aria-label="סגור" onClick={onClose} size="small" sx={{ color: 'text.secondary' }}><CloseIcon fontSize="small" /></IconButton>
       </DialogTitle>
       <DialogContent sx={{ pt: '8px !important' }}>
         <Elements stripe={stripePromise}>
-          <CheckoutForm amount={amount} description={description} onClose={onClose} tenantConfig={config} onSuccess={onSuccess} />
+          <CheckoutForm
+            amount={amount}
+            description={description}
+            onClose={onClose}
+            tenantConfig={config}
+            onSuccess={onSuccess}
+            tenantSlug={slug}
+            paymentMetadata={paymentMetadata}
+          />
         </Elements>
       </DialogContent>
     </Dialog>

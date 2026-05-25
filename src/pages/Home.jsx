@@ -56,6 +56,8 @@ export default function Home() {
 
   useEffect(() => {
     const onWheel = (e) => {
+      if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+      if (e.target?.closest?.('button, a, input, textarea, select, [role="dialog"], [data-native-scroll]')) return;
       e.preventDefault();
       if (animatingRef.current) return;
       deltaAccRef.current += e.deltaY;
@@ -70,6 +72,8 @@ export default function Home() {
     let ty = 0;
     const onStart = (e) => { ty = e.touches[0].clientY; };
     const onEnd   = (e) => {
+      if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+      if (e.target?.closest?.('button, a, input, textarea, select, [role="dialog"], [data-native-scroll]')) return;
       const d = ty - e.changedTouches[0].clientY;
       if (Math.abs(d) > 45) d > 0 ? go(currentRef.current + 1) : go(currentRef.current - 1);
     };
@@ -83,6 +87,8 @@ export default function Home() {
 
   useEffect(() => {
     const onKey = (e) => {
+      if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+      if (e.target?.closest?.('input, textarea, select, [contenteditable="true"]')) return;
       if (e.key === 'ArrowDown' || e.key === 'PageDown') go(currentRef.current + 1);
       if (e.key === 'ArrowUp'   || e.key === 'PageUp')   go(currentRef.current - 1);
     };

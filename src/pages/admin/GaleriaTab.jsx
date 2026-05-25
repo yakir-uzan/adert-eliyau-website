@@ -17,6 +17,7 @@ import DeleteIcon from '@mui/icons-material/Delete';
 import CloudUploadIcon from '@mui/icons-material/CloudUpload';
 import { readFileAsDataUrl } from '../../utils/fileUtils';
 import { readLocalGallery, saveLocalGallery } from '../../utils/localTenantAccess';
+import ConfirmActionDialog from '../../components/ConfirmActionDialog';
 import css from './GaleriaTab.module.css';
 
 export default function GaleriaTab({ onToast, slug, localMode }) {
@@ -25,6 +26,7 @@ export default function GaleriaTab({ onToast, slug, localMode }) {
   const [file, setFile]         = useState(null);
   const [uploading, setUploading] = useState(false);
   const [progress, setProgress] = useState(0);
+  const [deleteItem, setDeleteItem] = useState(null);
   const fileRef = useRef();
 
   const load = async () => {
@@ -37,7 +39,9 @@ export default function GaleriaTab({ onToast, slug, localMode }) {
       const q = query(collection(db, 'gallery'), where('active', '==', true), where('tenantId', '==', slug), orderBy('createdAt', 'asc'));
       const s = await getDocs(q);
       setImages(s.docs.map(d => ({ id: d.id, ...d.data() })));
-    } catch {}
+    } catch {
+      onToast('שגיאה בטעינת הגלריה', 'error');
+    }
   };
   useEffect(() => { load(); }, [slug, localMode]);
 
@@ -99,21 +103,22 @@ export default function GaleriaTab({ onToast, slug, localMode }) {
   };
 
   const remove = async img => {
-    if (!confirm(`למחוק את "${img.caption}"?`)) return;
     try {
       if (localMode) {
         saveLocalGallery(slug, readLocalGallery(slug).map(item => item.id === img.id ? { ...item, active: false } : item));
         onToast('התמונה נמחקה');
+        setDeleteItem(null);
         load();
         return;
       }
       await updateDoc(doc(db, 'gallery', img.id), { active: false });
       if (img.storagePath) {
-        try { await deleteObject(ref(storage, img.storagePath)); } catch {}
+        try { await deleteObject(ref(storage, img.storagePath)); } catch { onToast('הרשומה נמחקה, אבל מחיקת הקובץ מהאחסון נכשלה', 'warning'); }
       }
       onToast('התמונה נמחקה');
+      setDeleteItem(null);
       load();
-    } catch { onToast('שגיאה במחיקה', 'error'); }
+    } catch { onToast('שגיאה במחיקה', 'error'); setDeleteItem(null); }
   };
 
   return (
@@ -145,12 +150,20 @@ export default function GaleriaTab({ onToast, slug, localMode }) {
             <div className={css.imageOverlay}>
               <Typography variant="caption" sx={{ color: 'secondary.main', fontWeight: 600, lineHeight: 1.3 }}>{img.caption}</Typography>
             </div>
-            <IconButton size="small" onClick={() => remove(img)} className={css.deleteBtn} sx={{ color: 'error.main' }}>
+            <IconButton aria-label="מחיקת תמונה" size="small" onClick={() => setDeleteItem(img)} className={css.deleteBtn} sx={{ color: 'error.main' }}>
               <DeleteIcon fontSize="small" />
             </IconButton>
           </div>
         ))}
       </div>
+      <ConfirmActionDialog
+        open={!!deleteItem}
+        title="מחיקת תמונה"
+        message={`הפעולה תמחק את "${deleteItem?.caption || 'התמונה'}" מהגלריה. להמשיך?`}
+        confirmLabel="מחק"
+        onClose={() => setDeleteItem(null)}
+        onConfirm={() => remove(deleteItem)}
+      />
     </Box>
   );
 }

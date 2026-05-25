@@ -41,7 +41,8 @@ export default function Navbar() {
   useEffect(() => onAuthStateChanged(auth, setUser), []);
 
   const handleLogin = () =>
-    signInWithPopup(auth, new GoogleAuthProvider()).catch(console.error);
+    signInWithPopup(auth, new GoogleAuthProvider())
+      .catch(() => window.alert('לא הצלחנו להתחבר עם Google. בדקו שהכניסה מופעלת ונסו שוב.'));
   const closeAccountMenu = () => setAccountMenuAnchor(null);
   const handleLogout = () => {
     closeAccountMenu();
@@ -62,6 +63,7 @@ export default function Navbar() {
         <Toolbar sx={{ justifyContent: 'space-between', px: { xs: 2, md: 3 }, minHeight: { xs: 58, md: 62 } }}>
           <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, flex: '0 0 260px', minWidth: 0 }}>
             <IconButton
+              aria-label="פתח תפריט"
               onClick={() => setDrawerOpen(true)}
               sx={{ display: { md: 'none' }, color: 'primary.main' }}
             >
@@ -103,6 +105,7 @@ export default function Navbar() {
             {user ? (
               <>
                 <IconButton
+                  aria-label="תפריט חשבון"
                   onClick={(event) => setAccountMenuAnchor(event.currentTarget)}
                   sx={{ p: 0.35 }}
                 >
@@ -150,13 +153,17 @@ export default function Navbar() {
         anchor="left"
         open={drawerOpen}
         onClose={() => setDrawerOpen(false)}
-        PaperProps={{ sx: { width: 280 } }}
+        PaperProps={{
+          dir: 'rtl',
+          style: { direction: 'rtl', right: 0, left: 'auto' },
+          sx: { width: 280 },
+        }}
       >
         <div className={css.drawerHeader}>
           <Typography className={css.drawerTitle} sx={{ color: 'primary.main' }}>
             {config.name}
           </Typography>
-          <IconButton onClick={() => setDrawerOpen(false)} sx={{ color: 'text.secondary' }}>
+          <IconButton aria-label="סגור תפריט" onClick={() => setDrawerOpen(false)} sx={{ color: 'text.secondary' }}>
             <CloseIcon />
           </IconButton>
         </div>

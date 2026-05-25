@@ -22,6 +22,7 @@ import { getDefaultContentItems } from '../Brachot';
 import { getSiteTypeConfig } from '../../config/siteTypes';
 import { saveLocalTenantDraft } from '../../utils/localTenantAccess';
 import { BRACHA_ICONS, BRACHA_ICON_LABELS } from './brachotConstants';
+import ConfirmActionDialog from '../../components/ConfirmActionDialog';
 import css from './BrachotTab.module.css';
 
 export default function BrachotTab({ config, slug, onToast, localMode }) {
@@ -36,6 +37,7 @@ export default function BrachotTab({ config, slug, onToast, localMode }) {
     tag: '',
     icon: 'key',
   });
+  const [deleteId, setDeleteId] = useState(null);
 
   useEffect(() => {
     setItems(config.brachot?.length ? config.brachot : fallbackItems);
@@ -96,9 +98,9 @@ export default function BrachotTab({ config, slug, onToast, localMode }) {
   };
 
   const remove = async (id) => {
-    if (!confirm('למחוק את הפריט?')) return;
     await saveItems(items.filter(item => item.id !== id), 'הפריט נמחק');
     if (form.id === id) resetForm();
+    setDeleteId(null);
   };
 
   return (
@@ -158,7 +160,7 @@ export default function BrachotTab({ config, slug, onToast, localMode }) {
                 <IconButton size="small" onClick={() => edit(item)} sx={{ color: 'primary.main' }}>
                   <EditIcon fontSize="small" />
                 </IconButton>
-                <IconButton size="small" onClick={() => remove(item.id)} sx={{ color: 'error.main' }}>
+                <IconButton aria-label="מחיקת פריט" size="small" onClick={() => setDeleteId(item.id)} sx={{ color: 'error.main' }}>
                   <DeleteIcon fontSize="small" />
                 </IconButton>
               </div>
@@ -166,6 +168,14 @@ export default function BrachotTab({ config, slug, onToast, localMode }) {
           </CardContent>
         </Card>
       ))}
+      <ConfirmActionDialog
+        open={!!deleteId}
+        title="מחיקת פריט"
+        message="הפעולה תמחק את הפריט מהרשימה. להמשיך?"
+        confirmLabel="מחק"
+        onClose={() => setDeleteId(null)}
+        onConfirm={() => remove(deleteId)}
+      />
     </Box>
   );
 }

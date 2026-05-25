@@ -179,7 +179,10 @@ export default function Zmanim() {
 
   const openPdf = (mode) => {
     const win = window.open('', '_blank');
-    if (!win) return;
+    if (!win) {
+      window.alert('הדפדפן חסם את פתיחת הקובץ. אפשרו חלונות קופצים ונסו שוב.');
+      return;
+    }
     win.document.write(buildPrintHtml(data || {}, mode === 'dark', config, pageCopy));
     win.document.close();
   };

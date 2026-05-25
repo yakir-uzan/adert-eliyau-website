@@ -1,6 +1,10 @@
-# Stripe activation functions
+# Stripe functions
 
-This folder contains the Firebase Functions used for automatic site activation with Stripe Checkout.
+This folder contains the Firebase Functions used for:
+
+- automatic site activation with Stripe Checkout
+- tenant payments with Stripe PaymentIntent
+- campaign donation totals via Stripe webhook
 
 ## Required setup
 
@@ -33,6 +37,19 @@ Listen to:
 
 - `checkout.session.completed`
 - `checkout.session.expired`
+- `payment_intent.succeeded`
+
+## Frontend payment setup
+
+Set a Stripe publishable key in the frontend environment or per tenant:
+
+`VITE_STRIPE_PUBLIC_KEY=pk_live_...`
+
+The secret key stays only in Firebase Functions:
+
+`firebase functions:secrets:set STRIPE_SECRET_KEY`
+
+Do not put `STRIPE_SECRET_KEY` in any Vite/client environment file.
 
 ## Recommended deploy order
 
