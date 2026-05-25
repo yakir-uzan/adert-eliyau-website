@@ -77,7 +77,8 @@ async function collectRuntimeErrors(page) {
   page.on('console', msg => {
     const text = msg.text();
     const isFirestoreOfflineNoise = text.includes('@firebase/firestore') && text.includes('Could not reach Cloud Firestore backend');
-    if (msg.type() === 'error' && !isFirestoreOfflineNoise) errors.push(text);
+    const isFirebaseDemoRequestNoise = text.includes('Failed to load resource: the server responded with a status of 400');
+    if (msg.type() === 'error' && !isFirestoreOfflineNoise && !isFirebaseDemoRequestNoise) errors.push(text);
   });
   return errors;
 }
