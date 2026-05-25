@@ -1,48 +1,148 @@
 # Deployment Guide
 
-## Frontend
+This guide covers the production setup for the multi-organization platform.
 
-1. Install dependencies:
-   `npm install`
-2. Build:
-   `npm run build`
+## 1. Local Validation
 
-## Firebase project files
+Run these before every deploy:
 
-1. Copy `firebase.example.json` to `firebase.json`
-2. Copy `.firebaserc.example` to `.firebaserc`
-3. Replace the Firebase project id in `.firebaserc`
+```bash
+npm audit --audit-level=moderate
+npm audit --prefix functions --audit-level=moderate
+node --check functions/index.js
+npm run build
+npm run test:e2e
+```
 
-## Functions
+## 2. Frontend Environment
 
-1. Install functions dependencies:
-   `npm run functions:install`
-2. Copy `functions/.env.example` to `functions/.env.production`
-3. Update:
-   - `APP_BASE_URL`
-   - `DEFAULT_SETUP_AMOUNT_ILS`
+Copy the example file and fill real values:
 
-## Stripe secrets
+```bash
+cp .env.example .env
+```
 
-Run:
+Required:
 
-`firebase functions:secrets:set STRIPE_SECRET_KEY`
+- `VITE_FIREBASE_API_KEY`
+- `VITE_FIREBASE_AUTH_DOMAIN`
+- `VITE_FIREBASE_PROJECT_ID`
+- `VITE_FIREBASE_STORAGE_BUCKET`
+- `VITE_FIREBASE_MESSAGING_SENDER_ID`
+- `VITE_FIREBASE_APP_ID`
+- `VITE_FIREBASE_FUNCTIONS_REGION`
+- `VITE_PUBLIC_SITE_URL`
+- `VITE_PLATFORM_ADMIN_EMAILS`
 
-`firebase functions:secrets:set STRIPE_WEBHOOK_SECRET`
+Payments and contact:
 
-## Deploy order
+- `VITE_STRIPE_PUBLIC_KEY`
+- `VITE_ENABLE_AUTOMATIC_CHECKOUT`
+- `VITE_SITE_ACTIVATION_PAYMENT_LINK`
+- `VITE_PUBLIC_CONTACT_WHATSAPP`
+- `VITE_PUBLIC_CONTACT_EMAIL`
+- `VITE_PUBLIC_CONTACT_FORMSPREE_ID`
 
-1. `firebase deploy --only functions`
-2. `firebase deploy --only hosting`
+Optional receipt emails:
 
-## Stripe webhook
+- `VITE_EMAILJS_SERVICE_ID`
+- `VITE_EMAILJS_TEMPLATE_ID`
+- `VITE_EMAILJS_PUBLIC_KEY`
 
-Create a webhook in Stripe to:
+## 3. Firebase Project Files
 
-`https://YOUR_DOMAIN/stripeWebhook`
+For a new environment:
+
+```bash
+cp firebase.example.json firebase.json
+cp .firebaserc.example .firebaserc
+```
+
+Then update the Firebase project id in `.firebaserc`.
+
+## 4. Functions Environment
+
+Install dependencies:
+
+```bash
+npm run functions:install
+```
+
+Copy the example file:
+
+```bash
+cp functions/.env.example functions/.env.production
+```
+
+Set:
+
+- `APP_BASE_URL=https://your-domain.com`
+- `DEFAULT_SETUP_AMOUNT_ILS=490`
+
+## 5. Stripe Secrets
+
+Set Stripe secrets with Firebase Secret Manager:
+
+```bash
+firebase functions:secrets:set STRIPE_SECRET_KEY
+firebase functions:secrets:set STRIPE_WEBHOOK_SECRET
+```
+
+Never put Stripe secret keys in `.env`, frontend code, Firestore, or Git.
+
+## 6. Stripe Webhook
+
+Create a Stripe webhook endpoint:
+
+```text
+https://YOUR_DOMAIN/stripeWebhook
+```
 
 Listen to:
 
 - `checkout.session.completed`
 - `checkout.session.expired`
+- `payment_intent.succeeded`
 
+`payment_intent.succeeded` is required for campaign donation totals and tenant payment records.
+
+## 7. Firebase Rules and Indexes
+
+This branch includes:
+
+- `firestore.rules`
+- `storage.rules`
+- `firestore.indexes.json`
+
+Deploy them with:
+
+```bash
+firebase deploy --only firestore:rules,firestore:indexes,storage
+```
+
+Local emulator validation requires Java installed and available on `PATH`.
+
+## 8. Deploy Order
+
+Recommended deploy order:
+
+```bash
+npm run build
+firebase deploy --only firestore:rules,firestore:indexes,storage
+firebase deploy --only functions
+firebase deploy --only hosting
+```
+
+## 9. Production Checks
+
+After deployment:
+
+- Create a test tenant from `/register`.
+- Confirm the creator receives admin access.
+- Open the tenant admin screen.
+- Add a campaign and donation level.
+- Test card payment with Stripe test mode first.
+- Confirm Stripe webhook creates a payment document.
+- Confirm campaign totals update only after webhook success.
+- Upload and delete one gallery image.
+- Confirm mobile navigation opens from the right side in RTL.
