@@ -1,13 +1,13 @@
 import { expect, test } from '@playwright/test';
 
-const tenantBase = '/beit-knesset/aderet-eliyahu';
-const tenantSlug = 'aderet-eliyahu';
+const tenantBase = '/beit-knesset/shaarei-tefila';
+const tenantSlug = 'shaarei-tefila';
 
 const seededTenant = {
   siteType: 'beit-knesset',
   templateId: 'beit-knesset',
-  name: 'בית כנסת אדרת אליהו',
-  subtitle: 'ע"ש אליהו אוזן ז"ל',
+  name: 'בית כנסת שערי תפילה',
+  subtitle: 'קהילה, תפילה וחסד',
   aboutText: 'בית כנסת קהילתי עם תפילות, שיעורים ופעילות קבועה.',
   contact: {
     address: 'רחוב הדוגמה 1',
@@ -44,7 +44,7 @@ const seededTenant = {
     pageHeroBg: '',
     galleryPreview: ['/images/hero/building-render.jpg'],
   },
-  ticker: [{ cat: 'לעילוי נשמת', text: 'אליהו בן שרה' }],
+  ticker: [{ cat: 'לעילוי נשמת', text: 'משה בן שרה' }],
   brachot: [{ id: 'test-bracha', title: 'ברכה לדוגמה', description: 'תיאור קצר', price: 180, icon: 'key' }],
   campaigns: [{
     id: 'main',

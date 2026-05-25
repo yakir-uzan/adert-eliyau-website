@@ -11,7 +11,7 @@
 import { initializeApp, cert } from 'firebase-admin/app';
 import { getFirestore, FieldValue } from 'firebase-admin/firestore';
 
-const TENANT_SLUG = 'aderet-eliyahu';
+const TENANT_SLUG = 'shaarei-tefila';
 
 initializeApp({ credential: cert(JSON.parse(process.env.GOOGLE_APPLICATION_CREDENTIALS_JSON || '{}')) });
 const db = getFirestore();
@@ -19,8 +19,8 @@ const db = getFirestore();
 async function createTenantDoc() {
   console.log('Creating tenant document...');
   await db.doc(`tenants/${TENANT_SLUG}`).set({
-    name: 'בית כנסת אדרת אליהו',
-    subtitle: 'ע"ש אליהו אוזן ז"ל',
+    name: 'בית כנסת שערי תפילה',
+    subtitle: 'קהילה, תפילה וחסד',
     aboutText: '',
     contact: {
       address: '',

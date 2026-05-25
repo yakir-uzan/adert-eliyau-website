@@ -1,13 +1,11 @@
 import { transliterate as transliterateHebrewAcademic } from 'hebrew-transliteration';
 
 const HEBREW_SLUG_DICTIONARY = {
-  'אדרת': 'aderet',
   'אהבה': 'ahava',
   'אהבת': 'ahavat',
   'אהל': 'ohel',
   'אוהל': 'ohel',
   'אור': 'or',
-  'אליהו': 'eliyahu',
   'אריה': 'aryeh',
   'אברהם': 'avraham',
   'בית': 'beit',
@@ -94,8 +92,6 @@ const HEBREW_SLUG_DICTIONARY = {
 };
 
 const HEBREW_WORD_OVERRIDES = {
-  'אדרת': 'aderet',
-  'אליהו': 'eliyahu',
   'אור': 'or',
   'התורה': 'hatora',
   'תורה': 'torah',
