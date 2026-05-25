@@ -1,10 +1,34 @@
-
 <div dir="rtl" align="right">
 
-# Knesset — פלטפורמת אתרים לבתי כנסת
+# Kehila Sites
 
-פלטפורמה מבוססת React ליצירת אתרים מותאמים אישית לבתי כנסת.
-כל בית כנסת מקבל אתר עצמאי עם זמני תפילה, הודעות, תרומות, גלריה ועוד — בעיצוב יוקרתי ומותאם לנייד.
+פלטפורמה ליצירת אתרים לעמותות, ישיבות, בתי כנסת וארגונים.
+
+המערכת בנויה כ־Multi-Tenant: אפליקציה אחת, מסד נתונים אחד, והרבה אתרים נפרדים לפי סוג ארגון וכתובת:
+
+- `/beit-knesset/:slug`
+- `/amuta/:slug`
+- `/yeshiva/:slug`
+- `/organization/:slug`
+
+בית כנסת נשאר template ברירת המחדל כדי לא לשבור אתרים קיימים.
+
+---
+
+## מה הפלטפורמה כוללת
+
+- דף בית מעוצב לכל אתר.
+- בחירת סוג ארגון בתהליך יצירת אתר.
+- ניהול תוכן מלא דרך מסך מנהל.
+- הודעות ועדכונים.
+- גלריית תמונות.
+- יצירת קשר, מפה, וואטסאפ וטופס פנייה.
+- תשלומים ותרומות.
+- קמפיינים להתרמות עם קישורים לפי מתרים.
+- סליקת אשראי דרך Stripe PaymentIntent.
+- Firebase Auth, Firestore, Storage ו־Functions.
+- RTL מלא בעברית.
+- בדיקות E2E עם Playwright.
 
 ---
 
@@ -12,130 +36,143 @@
 
 | שכבה | טכנולוגיה |
 |---|---|
-| צד לקוח | React 18, Vite 5, MUI 5 |
-| צד שרת | Firebase — Firestore, Auth, Storage, Functions |
-| תשלומים | Stripe Checkout |
-| מיילים | EmailJS |
-| תמיכת עברית | stylis-plugin-rtl + Emotion |
-| בדיקות | Playwright |
+| Frontend | React 18, Vite, MUI 5 |
+| Backend | Firebase Functions |
+| Database | Firestore |
+| Files | Firebase Storage |
+| Auth | Firebase Auth + Google |
+| Payments | Stripe |
+| Emails | EmailJS / Stripe receipts |
+| Tests | Playwright |
 
 ---
 
-## מבנה הפרויקט
+## מבנה נתיבים
 
-</div>
+### פלטפורמה
 
-```
-├── public/images/          # תמונות סטטיות (גלריה, באנרים, לוגואים)
-├── functions/              # פונקציות שרת — Firebase Functions (וובהוק של Stripe)
-├── scripts/                # סקריפט מיגרציה חד-פעמי
-├── src/
-│   ├── components/         # קומפוננטות משותפות (ניווט, פוטר, מחלקים דקורטיביים...)
-│   ├── config/             # הגדרות tenant — קונטקסט, ערכת צבעים דינמית
-│   ├── data/               # נתוני בנקים וסניפים
-│   ├── pages/              # דפים ראשיים
-│   │   ├── admin/          # טאבים של ממשק הניהול
-│   │   ├── home/           # סקשנים של דף הבית
-│   │   ├── landing/        # קומפוננטות דף הנחיתה
-│   │   └── register/       # שלבי אשף ההרשמה
-│   ├── styles/             # קבצי עיצוב ומשתני פלטפורמה
-│   └── utils/              # פונקציות עזר (slug, פורמטים, סניטציה...)
-├── index.html              # נקודת כניסה של Vite
-├── firebase.json           # הגדרות Firebase — אחסון ופונקציות
-└── vite.config.js
-```
+| נתיב | תיאור |
+|---|---|
+| `/` | דף נחיתה של הפלטפורמה |
+| `/register` | יצירת אתר חדש |
+| `/features` | יכולות המערכת |
+| `/pricing` | מחירים |
+| `/faq` | שאלות נפוצות |
+| `/contact-us` | יצירת קשר עם הפלטפורמה |
 
-<div dir="rtl" align="right">
+### אתר פנימי של לקוח
 
----
+| נתיב | תיאור |
+|---|---|
+| `/:siteType/:slug` | דף הבית של האתר |
+| `/:siteType/:slug/hodaot` | הודעות |
+| `/:siteType/:slug/tashlumim` | תשלומים |
+| `/:siteType/:slug/campaigns` | קמפיינים |
+| `/:siteType/:slug/galeria` | גלריה |
+| `/:siteType/:slug/contact` | יצירת קשר |
+| `/:siteType/:slug/admin` | ניהול האתר |
+| `/:siteType/:slug/activate` | הפעלת האתר |
 
-## ארכיטקטורה
-
-הפלטפורמה עובדת במודל **רב-דיירים** (Multi-Tenant) — מסד נתונים אחד, אפליקציה אחת, הרבה בתי כנסת:
-
-- **`/`** — דף נחיתה של הפלטפורמה
-- **`/register`** — אשף יצירת אתר חדש (3 שלבים + תצוגה מקדימה חיה)
-- **`/contact-us`** — דף יצירת קשר כללי
-- **`/:slug`** — אתר בית הכנסת (דף בית, זמנים, הודעות, תרומות, גלריה, ברכות, חשבון, ניהול)
-
-כל בית כנסת מקבל ערכת צבעים דינמית משלו דרך `TenantContext`.
+בבית כנסת קיימים גם מודולים ייעודיים כמו זמנים וברכות.
 
 ---
 
-## דפים לכל בית כנסת
-
-| נתיב | דף | תיאור |
-|---|---|---|
-| `/:slug` | בית | באנר עם סליידר, טיקר הודעות, אודות, גלריה מקוצרת |
-| `/:slug/zmanim` | זמנים | זמני תפילות חול ושבת + אפשרות הדפסה |
-| `/:slug/hodaot` | הודעות | לוח הודעות מהגבאי |
-| `/:slug/tashlumim` | תשלומים | ביט, פייבוקס, נדרים פלוס, העברה בנקאית, כרטיס אשראי |
-| `/:slug/galeria` | גלריה | גריד תמונות עם תצוגה מוגדלת |
-| `/:slug/brachot` | ברכות | ברכות מהקהילה לפי קטגוריה |
-| `/:slug/contact` | יצירת קשר | טופס יצירת קשר + מפה |
-| `/:slug/cheshbon` | חשבון | הגדרות חשבון + כניסה |
-| `/:slug/admin` | ניהול | ממשק ניהול מלא (הגדרות, זמנים, הודעות, גלריה, ברכות, חיובים) |
-| `/:slug/activate` | הפעלה | דף הפעלת מנוי אחרי תקופת ניסיון |
-
----
-
-## התקנה
+## התקנה מקומית
 
 </div>
 
 ```bash
-# התקנת תלויות
 npm install
-
-# הגדרת משתני סביבה
 cp .env.example .env
-# מלאו את הערכים ב-.env
-
-# הרצה מקומית
 npm run dev
 ```
 
 <div dir="rtl" align="right">
 
----
-
-## משתני סביבה
-
-| משתנה | תיאור |
-|---|---|
-| `VITE_FIREBASE_API_KEY` | מפתח API של Firebase |
-| `VITE_FIREBASE_AUTH_DOMAIN` | דומיין אימות |
-| `VITE_FIREBASE_PROJECT_ID` | מזהה פרויקט |
-| `VITE_FIREBASE_STORAGE_BUCKET` | דלי אחסון |
-| `VITE_FIREBASE_MESSAGING_SENDER_ID` | מזהה הודעות |
-| `VITE_FIREBASE_APP_ID` | מזהה אפליקציה |
-| `VITE_GOOGLE_MAPS_API_KEY` | מפתח מפות גוגל |
-| `VITE_PLATFORM_ADMIN_EMAILS` | מיילים של מנהלי הפלטפורמה |
-| `VITE_ENABLE_AUTOMATIC_CHECKOUT` | הפעלת תשלום אוטומטי דרך Stripe |
-
----
-
-## העלאה לשרת
+האתר ירוץ בדרך כלל בכתובת:
 
 </div>
 
-```bash
-# בנייה
-npm run build
-
-# העלאה ל-Firebase — קודם פונקציות, אחר כך אחסון
-firebase deploy --only functions
-firebase deploy --only hosting
+```text
+http://localhost:5173
 ```
 
 <div dir="rtl" align="right">
 
-ראו [DEPLOYMENT.md](DEPLOYMENT.md) להוראות מפורטות כולל הגדרת וובהוק של Stripe.
+---
+
+## בדיקות
+
+</div>
+
+```bash
+npm audit --audit-level=moderate
+npm audit --prefix functions --audit-level=moderate
+node --check functions/index.js
+npm run build
+npm run test:e2e
+```
+
+<div dir="rtl" align="right">
 
 ---
 
-## רישיון
+## Firebase
 
-פרויקט פרטי.
+הפרויקט כולל:
+
+- `firebase.json`
+- `firestore.rules`
+- `storage.rules`
+- `firestore.indexes.json`
+- `functions/index.js`
+
+להוראות פריסה מלאות ראו:
+
+[DEPLOYMENT.md](DEPLOYMENT.md)
+
+---
+
+## משתני סביבה
+
+קובץ דוגמה:
+
+`.env.example`
+
+משתנים מרכזיים:
+
+- `VITE_FIREBASE_*`
+- `VITE_PUBLIC_SITE_URL`
+- `VITE_PLATFORM_ADMIN_EMAILS`
+- `VITE_STRIPE_PUBLIC_KEY`
+- `VITE_ENABLE_AUTOMATIC_CHECKOUT`
+- `VITE_EMAILJS_*`
+
+סודות Stripe לא נכנסים ל־`.env`. הם מוגדרים דרך Firebase Secret Manager:
+
+</div>
+
+```bash
+firebase functions:secrets:set STRIPE_SECRET_KEY
+firebase functions:secrets:set STRIPE_WEBHOOK_SECRET
+```
+
+<div dir="rtl" align="right">
+
+---
+
+## Branch עבודה
+
+העבודה הרב־ארגונית מתבצעת על:
+
+`feature/multi-organization-platform`
+
+אין למזג ל־`main` בלי אישור מפורש.
+
+---
+
+## סטטוס
+
+הפרויקט פרטי ובפיתוח פעיל.
 
 </div>
