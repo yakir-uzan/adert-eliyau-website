@@ -4,10 +4,14 @@ import Container from '@mui/material/Container';
 import Typography from '@mui/material/Typography';
 import Button from '@mui/material/Button';
 import GoldDivider from '../../components/GoldDivider';
+import { getSiteTypeConfig } from '../../config/siteTypes';
 import css from './AboutSection.module.css';
 
 export default function AboutSection({ config, base, current, TRANSITION_MS, heroSlides, slide }) {
   const hasGalleryLink = Array.isArray(config.images?.galleryPreview) && config.images.galleryPreview.length > 0;
+  const siteTypeConfig = getSiteTypeConfig(config.siteType);
+  const aboutTitle = `על ${siteTypeConfig.label}`;
+  const fallbackAbout = `${config.name} — ${siteTypeConfig.ctaDescription}`;
 
   return (
     <div className={css.root}>
@@ -33,7 +37,7 @@ export default function AboutSection({ config, base, current, TRANSITION_MS, her
           opacity: current === 1 ? 1 : 0, transform: current === 1 ? 'translateY(0)' : 'translateY(30px)',
           transition: `opacity ${TRANSITION_MS * 0.6}ms ease ${TRANSITION_MS * 0.3}ms, transform ${TRANSITION_MS * 0.6}ms ease ${TRANSITION_MS * 0.3}ms`,
         }}>
-          על בית הכנסת
+          {aboutTitle}
         </Typography>
         <Box sx={{ opacity: current === 1 ? 1 : 0, transform: current === 1 ? 'translateY(0)' : 'translateY(20px)', transition: `opacity ${TRANSITION_MS * 0.6}ms ease ${TRANSITION_MS * 0.4}ms, transform ${TRANSITION_MS * 0.6}ms ease ${TRANSITION_MS * 0.4}ms` }}>
           <GoldDivider />
@@ -43,7 +47,7 @@ export default function AboutSection({ config, base, current, TRANSITION_MS, her
           opacity: current === 1 ? 1 : 0, transform: current === 1 ? 'translateY(0)' : 'translateY(20px)',
           transition: `opacity ${TRANSITION_MS * 0.6}ms ease ${TRANSITION_MS * 0.5}ms, transform ${TRANSITION_MS * 0.6}ms ease ${TRANSITION_MS * 0.5}ms`,
         }}>
-          {config.aboutText || `${config.name} — מקום תפילה ולימוד תורה המשמש את הקהילה בקדושה ובטהרה. מוזמנים להצטרף אלינו לתפילה, ללימוד ולכל שמחה.`}
+          {config.aboutText || fallbackAbout}
         </Typography>
         <Box className={css.buttons} sx={{ mt: 4,
           opacity: current === 1 ? 1 : 0, transform: current === 1 ? 'translateY(0)' : 'translateY(20px)',

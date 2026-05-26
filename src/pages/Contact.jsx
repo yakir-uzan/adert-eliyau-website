@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { useTenant } from '../config/TenantContext';
+import { getSiteTypeConfig } from '../config/siteTypes';
 import Box from '@mui/material/Box';
 import Container from '@mui/material/Container';
 import Typography from '@mui/material/Typography';
@@ -19,14 +20,14 @@ import PageHero from '../components/PageHero';
 import GoldDivider from '../components/GoldDivider';
 import css from './Contact.module.css';
 
-const SUBJECTS = ['שאלה כללית','תשלום / חשבון','עלייה לתורה','שיעורי תורה','אירוע / שמחה','אחר'];
-
 export default function Contact() {
   const { config } = useTenant();
+  const pageCopy = getSiteTypeConfig(config.siteType).pages.contact;
   const contact = config.contact || {};
   const wa = config.whatsapp || {};
+  const subjects = pageCopy.subjects;
 
-  const [form, setForm]     = useState({ name: '', phone: '', email: '', subject: 'שאלה כללית', message: '' });
+  const [form, setForm]     = useState({ name: '', phone: '', email: '', subject: subjects[0], message: '' });
   const [status, setStatus] = useState(null);
   const [loading, setLoading] = useState(false);
 
@@ -36,14 +37,19 @@ export default function Contact() {
     e.preventDefault();
     setLoading(true);
     try {
-      const formspreeId = contact.formspreeId || 'YOUR_FORM_ID';
+      const formspreeId = contact.formspreeId || '';
+      if (!formspreeId || formspreeId === 'YOUR_FORM_ID') {
+        setStatus('missing-config');
+        setLoading(false);
+        return;
+      }
       const res = await fetch(`https://formspree.io/f/${formspreeId}`, {
         method: 'POST',
         headers: { Accept: 'application/json', 'Content-Type': 'application/json' },
         body: JSON.stringify(form),
       });
       setStatus(res.ok ? 'ok' : 'err');
-      if (res.ok) setForm({ name: '', phone: '', email: '', subject: 'שאלה כללית', message: '' });
+      if (res.ok) setForm({ name: '', phone: '', email: '', subject: subjects[0], message: '' });
     } catch { setStatus('err'); }
     setLoading(false);
   };
@@ -57,7 +63,7 @@ export default function Contact() {
 
   return (
     <Box>
-      <PageHero title="יצירת קשר" subtitle="אנחנו כאן לכל שאלה ובקשה" />
+      <PageHero title="יצירת קשר" subtitle={pageCopy.subtitle} />
       <Box sx={{ py: 7 }}>
         <Container maxWidth="lg">
           <GoldDivider />
@@ -65,17 +71,18 @@ export default function Contact() {
             <Grid item xs={12} md={6}>
               <Card>
                 <CardContent sx={{ p: 4 }}>
-                  <Typography variant="h5" sx={{ mb: 3, color: 'secondary.main' }}>שלחו הודעה</Typography>
+                  <Typography variant="h5" sx={{ mb: 3, color: 'secondary.main' }}>{pageCopy.formTitle}</Typography>
                   <Box component="form" onSubmit={submit} sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
                     <TextField label="שם מלא" value={form.name} onChange={update('name')} required fullWidth />
                     <TextField label="טלפון" value={form.phone} onChange={update('phone')} fullWidth inputProps={{ dir: 'ltr' }} />
                     <TextField label="אימייל" value={form.email} onChange={update('email')} type="email" fullWidth inputProps={{ dir: 'ltr' }} />
                     <TextField label="נושא" value={form.subject} onChange={update('subject')} select fullWidth>
-                      {SUBJECTS.map(s => <MenuItem key={s} value={s}>{s}</MenuItem>)}
+                      {subjects.map(s => <MenuItem key={s} value={s}>{s}</MenuItem>)}
                     </TextField>
                     <TextField label="הודעה" value={form.message} onChange={update('message')} required multiline rows={4} fullWidth />
                     {status === 'ok' && <Alert severity="success">ההודעה נשלחה בהצלחה! נחזור אליכם בקרוב.</Alert>}
                     {status === 'err' && <Alert severity="error">שגיאה בשליחה. אנא נסו שנית.</Alert>}
+                    {status === 'missing-config' && <Alert severity="warning">טופס יצירת הקשר עדיין לא הוגדר. יש להזין Formspree ID בניהול האתר.</Alert>}
                     <Button type="submit" variant="contained" size="large" disabled={loading} fullWidth>
                       {loading ? 'שולח...' : 'שלח הודעה'}
                     </Button>
@@ -107,7 +114,7 @@ export default function Contact() {
                         src={contact.mapEmbedUrl}
                         style={{ width: '100%', height: 200, border: 'none', display: 'block', borderRadius: 10 }}
                         loading="lazy"
-                        title="מפת בית הכנסת"
+                        title={pageCopy.mapTitle}
                       />
                     </CardContent>
                   </Card>
@@ -118,8 +125,8 @@ export default function Contact() {
 
           {wa.groupLink && (
             <Box sx={{ mt: 6, p: 4, textAlign: 'center', borderRadius: 2, background: 'linear-gradient(135deg, #0a1f0e, #0D1B2A)', border: '1px solid rgba(37,211,102,0.3)' }}>
-              <Typography variant="h4" sx={{ color: '#25D366', mb: 1 }}>הצטרפו לקבוצת הוואטסאפ</Typography>
-              <Typography color="text.secondary" sx={{ mb: 3 }}>קבלו עדכונים, הודעות ושיעורי תורה ישירות לנייד</Typography>
+              <Typography variant="h4" sx={{ color: '#25D366', mb: 1 }}>{pageCopy.whatsappTitle}</Typography>
+              <Typography color="text.secondary" sx={{ mb: 3 }}>{pageCopy.whatsappText}</Typography>
               <Button href={wa.groupLink} target="_blank" rel="noopener" size="large" startIcon={<WhatsAppIcon />}
                 sx={{ bgcolor: '#25D366', color: '#fff', px: 5, py: 1.4, fontSize: '1rem', '&:hover': { bgcolor: '#1ebe5d', boxShadow: '0 6px 24px rgba(37,211,102,0.4)' } }}>
                 הצטרפו לקבוצה

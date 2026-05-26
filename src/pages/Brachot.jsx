@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { useTenant } from '../config/TenantContext';
+import { getSiteTypeConfig, DEFAULT_SITE_TYPE } from '../config/siteTypes';
 import Box from '@mui/material/Box';
 import Container from '@mui/material/Container';
 import Typography from '@mui/material/Typography';
@@ -54,10 +55,39 @@ export const DEFAULT_BRACHOT = [
   { id: 'shiur', title: 'ברכה אחרי השיעור', description: 'זכות לברך בסיום שיעור תורה שבועי', price: 100, tag: null, icon: 'school' },
 ];
 
+export const DEFAULT_CONTENT_ITEMS = {
+  [DEFAULT_SITE_TYPE]: DEFAULT_BRACHOT,
+  amuta: [
+    { id: 'food-packages', title: 'סלי מזון למשפחות', description: 'שותפות בחלוקת סלי מזון למשפחות הזקוקות לסיוע', price: 180, tag: 'חשוב', icon: 'stars' },
+    { id: 'monthly-support', title: 'תמיכה חודשית בפעילות', description: 'תרומה קבועה שמאפשרת לעמותה להמשיך לפעול לאורך השנה', price: 360, tag: 'קבוע', icon: 'emojievents' },
+    { id: 'volunteer-project', title: 'פרויקט מתנדבים', description: 'סיוע בהפעלת מערך מתנדבים ופעילות קהילתית', price: 120, tag: null, icon: 'school' },
+  ],
+  yeshiva: [
+    { id: 'torah-support', title: 'החזקת תורה חודשית', description: 'שותפות בלימוד התורה ובפעילות בית המדרש', price: 360, tag: 'פופולרי', icon: 'menubook' },
+    { id: 'shiur-sponsor', title: 'הקדשת שיעור', description: 'הקדשת שיעור לזכות, לרפואה או לעילוי נשמה', price: 180, tag: null, icon: 'school' },
+    { id: 'student-support', title: 'סיוע לבחורים', description: 'תמיכה בתלמידי הישיבה ובצרכי הלימוד', price: 250, tag: 'מיוחד', icon: 'stars' },
+  ],
+  organization: [
+    { id: 'community-service', title: 'שירות קהילתי', description: 'רכישה או תמיכה בשירות קהילתי של הארגון', price: 150, tag: null, icon: 'stars' },
+    { id: 'activity-ticket', title: 'השתתפות בפעילות', description: 'תשלום עבור פעילות, מפגש או אירוע של הארגון', price: 90, tag: 'חדש', icon: 'school' },
+    { id: 'annual-member', title: 'דמי חבר שנתיים', description: 'הצטרפות שנתית ותמיכה בפעילות הארגון', price: 500, tag: 'שנתי', icon: 'emojievents' },
+  ],
+};
+
+export function getDefaultContentItems(siteType) {
+  return DEFAULT_CONTENT_ITEMS[siteType] || DEFAULT_CONTENT_ITEMS[DEFAULT_SITE_TYPE];
+}
+
 function CopyButton({ value }) {
   const [copied, setCopied] = useState(false);
   const copy = async () => {
-    try { await navigator.clipboard.writeText(value); setCopied(true); setTimeout(() => setCopied(false), 1800); } catch {}
+    try {
+      await navigator.clipboard.writeText(value);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 1800);
+    } catch (err) {
+      console.warn('Copy failed', err);
+    }
   };
   return (
     <Tooltip title={copied ? 'הועתק!' : 'העתק'} placement="top">
@@ -70,11 +100,11 @@ function CopyButton({ value }) {
 
 function PaymentRow({ label, color, href, children }) {
   return (
-    <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', bgcolor: 'rgba(255,255,255,0.04)', border: '1px solid rgba(201,168,76,0.12)', borderRadius: 2, px: 2, py: 1.5, gap: 1 }}>
-      <Typography sx={{ color: 'text.secondary', fontSize: '0.9rem', minWidth: 80 }}>{label}</Typography>
+    <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', sm: '80px 1fr auto' }, alignItems: 'center', bgcolor: 'rgba(255,255,255,0.04)', border: '1px solid rgba(201,168,76,0.12)', borderRadius: 2, px: 2, py: 1.5, gap: { xs: 1, sm: 1.25 } }}>
+      <Typography sx={{ color: 'text.secondary', fontSize: '0.9rem', minWidth: { sm: 80 }, fontWeight: 700 }}>{label}</Typography>
       <Box sx={{ flex: 1 }}>{children}</Box>
       <Button href={href} target="_blank" rel="noopener" size="small" endIcon={<OpenInNewIcon sx={{ fontSize: '0.85rem !important' }} />}
-        sx={{ borderColor: color, color, fontWeight: 700, fontSize: '0.8rem', px: 1.5, border: '1px solid', '&:hover': { bgcolor: `${color}14` } }}>
+        sx={{ borderColor: color, color, fontWeight: 700, fontSize: '0.8rem', px: 1.5, border: '1px solid', width: { xs: '100%', sm: 'auto' }, minHeight: 38, '&:hover': { bgcolor: `${color}14` } }}>
         פתח
       </Button>
     </Box>
@@ -84,6 +114,7 @@ function PaymentRow({ label, color, href, children }) {
 function PurchaseDialog({ bracha, onClose, config }) {
   const [creditOpen, setCreditOpen] = useState(false);
   if (!bracha) return null;
+  const adminName = getSiteTypeConfig(config.siteType).pages.admin.loginSubtitle;
 
   const pay = config.payments || {};
   const wa  = config.whatsapp || {};
@@ -122,7 +153,7 @@ function PurchaseDialog({ bracha, onClose, config }) {
         <DialogContent sx={{ px: 3, pb: 3, pt: 2 }}>
           <Typography variant="overline" sx={{ color: 'primary.main', opacity: 0.8, display: 'block', mb: 1.5, letterSpacing: 1 }}>בחרו אמצעי תשלום</Typography>
           <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1.5 }}>
-            <Box sx={{ border: '1px solid rgba(201,168,76,0.3)', borderRadius: 2, p: 2, bgcolor: 'rgba(201,168,76,0.05)', display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 1 }}>
+            <Box sx={{ border: '1px solid rgba(201,168,76,0.3)', borderRadius: 2, p: 2, bgcolor: 'rgba(201,168,76,0.05)', display: 'grid', gridTemplateColumns: { xs: '1fr', sm: '1fr auto' }, alignItems: 'center', gap: 1.5 }}>
               <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
                 <CreditCardIcon sx={{ color: 'primary.main', fontSize: 28 }} />
                 <Box>
@@ -131,7 +162,7 @@ function PurchaseDialog({ bracha, onClose, config }) {
                 </Box>
               </Box>
               <Button variant="contained" size="small" onClick={() => setCreditOpen(true)}
-                sx={{ background: 'linear-gradient(135deg, #C9A84C 0%, #E8D5A3 50%, #C9A84C 100%)', color: '#0D1B2A', fontWeight: 700, px: 2, flexShrink: 0 }}>
+                sx={{ background: 'linear-gradient(135deg, #C9A84C 0%, #E8D5A3 50%, #C9A84C 100%)', color: '#0D1B2A', fontWeight: 700, px: 2, flexShrink: 0, width: { xs: '100%', sm: 'auto' }, minHeight: 40 }}>
                 שלם
               </Button>
             </Box>
@@ -183,25 +214,33 @@ function PurchaseDialog({ bracha, onClose, config }) {
           {waGabbai && (
             <>
               <Typography variant="caption" color="text.secondary" display="block" textAlign="center" sx={{ mb: 1.5 }}>
-                לאחר תשלום בביט / פייבוקס / בנק — אשרו לגבאות
+                לאחר תשלום בביט / פייבוקס / בנק — אשרו מול {adminName}
               </Typography>
               <Button fullWidth href={`${waGabbai}?text=${waText}`} target="_blank" rel="noopener" startIcon={<WhatsAppIcon />}
                 sx={{ bgcolor: '#25D366', color: '#fff', fontWeight: 700, py: 1.2, fontSize: '0.95rem', '&:hover': { bgcolor: '#1ebe5d', boxShadow: '0 4px 16px rgba(37,211,102,0.35)' } }}>
-                אישור תשלום לגבאות
+                אישור תשלום
               </Button>
             </>
           )}
         </DialogContent>
       </Dialog>
 
-      <CreditCardDialog open={creditOpen} onClose={() => setCreditOpen(false)} amount={price} description={title} />
+      <CreditCardDialog
+        open={creditOpen}
+        onClose={() => setCreditOpen(false)}
+        amount={price}
+        description={title}
+        paymentMetadata={{ purpose: 'content_purchase', itemId: bracha?.id || '' }}
+      />
     </>
   );
 }
 
 export default function Brachot() {
   const { config } = useTenant();
-  const brachot = config.brachot || DEFAULT_BRACHOT;
+  const siteTypeConfig = getSiteTypeConfig(config.siteType);
+  const pageCopy = siteTypeConfig.pages.content;
+  const brachot = config.brachot?.length ? config.brachot : getDefaultContentItems(config.siteType);
   const wa = config.whatsapp || {};
   const waGabbai = wa.gabaiLink || '';
 
@@ -209,12 +248,12 @@ export default function Brachot() {
 
   return (
     <Box>
-      <PageHero title="קניית ברכות" subtitle="זכו בברכה בציבור לעצמכם ולאהוביכם" />
+      <PageHero title={pageCopy.title} subtitle={pageCopy.subtitle} />
       <Box sx={{ py: 7 }}>
         <Container maxWidth="lg">
           <GoldDivider />
           <Typography textAlign="center" color="text.secondary" sx={{ mb: 5, maxWidth: 600, mx: 'auto', lineHeight: 1.9 }}>
-            לרכישת ברכה — בחרו ברכה מהרשימה, שלמו בכל אמצעי התשלום הנוח לכם ואשרו לגבאות
+            {pageCopy.description}
           </Typography>
 
           <Grid container spacing={3}>
@@ -232,14 +271,14 @@ export default function Brachot() {
                       <Typography variant="h5" sx={{ color: 'secondary.main', fontFamily: '"Secular One", serif' }}>{b.title}</Typography>
                       <Typography variant="body2" color="text.secondary" sx={{ lineHeight: 1.8, flexGrow: 1 }}>{b.description}</Typography>
                       <Divider sx={{ borderColor: 'rgba(201,168,76,0.15)', my: 0.5 }} />
-                      <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                      <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', sm: '1fr auto' }, alignItems: 'center', gap: { xs: 1.5, sm: 2 } }}>
                         <Box>
                           <Typography variant="caption" color="text.secondary">מחיר</Typography>
                           <Typography sx={{ color: 'primary.main', fontWeight: 700, fontSize: '1.6rem', fontFamily: '"Secular One", serif', lineHeight: 1 }}>{fmtMoney(b.price)}</Typography>
                         </Box>
                         <Button variant="contained" size="small" startIcon={<ShoppingCartIcon />}
                           onClick={() => setSelected({ ...b, Icon })}
-                          sx={{ background: 'linear-gradient(135deg, #C9A84C 0%, #E8D5A3 50%, #C9A84C 100%)', color: '#0D1B2A', fontWeight: 700, px: 2, '&:hover': { boxShadow: '0 4px 16px rgba(201,168,76,0.4)' } }}>
+                          sx={{ background: 'linear-gradient(135deg, #C9A84C 0%, #E8D5A3 50%, #C9A84C 100%)', color: '#0D1B2A', fontWeight: 700, px: 2, minHeight: 42, width: { xs: '100%', sm: 'auto' }, '&:hover': { boxShadow: '0 4px 16px rgba(201,168,76,0.4)' } }}>
                           קנייה
                         </Button>
                       </Box>
@@ -252,11 +291,11 @@ export default function Brachot() {
 
           {waGabbai && (
             <Card sx={{ mt: 6, p: { xs: 3, md: 4 }, textAlign: 'center', background: 'linear-gradient(135deg, rgba(201,168,76,0.08) 0%, rgba(201,168,76,0.03) 100%)', borderColor: 'primary.main' }}>
-              <Typography variant="h5" sx={{ color: 'primary.main', mb: 1 }}>רוצים ברכה מיוחדת שלא ברשימה?</Typography>
-              <Typography color="text.secondary" sx={{ mb: 3 }}>פנו ישירות לגבאות ונשמח להתאים ברכה לכל אירוע ומועד</Typography>
-              <Button href={`${waGabbai}?text=שלום, ברצוני לברר אודות רכישת ברכה`} target="_blank" rel="noopener" size="large" startIcon={<WhatsAppIcon />}
-                sx={{ bgcolor: '#25D366', color: '#fff', px: 5, py: 1.4, fontSize: '1rem', '&:hover': { bgcolor: '#1ebe5d', boxShadow: '0 6px 24px rgba(37,211,102,0.4)' } }}>
-                וואטסאפ לגבאות
+              <Typography variant="h5" sx={{ color: 'primary.main', mb: 1 }}>{pageCopy.specialCtaTitle}</Typography>
+              <Typography color="text.secondary" sx={{ mb: 3 }}>{pageCopy.specialCtaText}</Typography>
+              <Button href={`${waGabbai}?text=${encodeURIComponent(`שלום, ברצוני לברר אודות ${pageCopy.title}`)}`} target="_blank" rel="noopener" size="large" startIcon={<WhatsAppIcon />}
+                sx={{ bgcolor: '#25D366', color: '#fff', width: { xs: '100%', sm: 'auto' }, maxWidth: { xs: 320, sm: 'none' }, px: 5, py: 1.4, fontSize: '1rem', '&:hover': { bgcolor: '#1ebe5d', boxShadow: '0 6px 24px rgba(37,211,102,0.4)' } }}>
+                וואטסאפ לבירור
               </Button>
             </Card>
           )}

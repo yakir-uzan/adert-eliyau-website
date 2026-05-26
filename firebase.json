@@ -1,4 +1,11 @@
 {
+  "firestore": {
+    "rules": "firestore.rules",
+    "indexes": "firestore.indexes.json"
+  },
+  "storage": {
+    "rules": "storage.rules"
+  },
   "functions": {
     "source": "functions"
   },
@@ -10,10 +17,6 @@
       "**/node_modules/**"
     ],
     "rewrites": [
-      {
-        "source": "/stripeWebhook",
-        "function": "stripeWebhook"
-      },
       {
         "source": "**",
         "destination": "/index.html"

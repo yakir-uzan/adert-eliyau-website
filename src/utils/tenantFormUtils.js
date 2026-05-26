@@ -1,6 +1,7 @@
 import { serverTimestamp, Timestamp } from 'firebase/firestore';
 import { createTrialEndDate } from './tenantPlan';
 import { buildWhatsappLink, withSynagoguePrefix } from './slugUtils';
+import { DEFAULT_SITE_TYPE, getSiteTypeConfig } from '../config/siteTypes';
 
 const PREVIEW_TICKER_ITEMS = [
   { cat: 'לרפואה שלמה', text: 'לרפואת משה בן שרה' },
@@ -9,13 +10,16 @@ const PREVIEW_TICKER_ITEMS = [
 ];
 
 export function buildTenantDocFromForm(data, userId = '', options = {}) {
-  const fullName = withSynagoguePrefix(data.name);
-  const nameValue = options.forPreview ? fullName : (fullName || 'בית כנסת');
+  const siteType = data.siteType || DEFAULT_SITE_TYPE;
+  const siteTypeConfig = getSiteTypeConfig(siteType);
+  const cleanName = data.name.trim();
+  const fullName = siteType === DEFAULT_SITE_TYPE ? withSynagoguePrefix(cleanName) : cleanName;
+  const nameValue = options.forPreview ? fullName : (fullName || siteTypeConfig.defaultName);
   const adminEmail = data.email.trim().toLowerCase();
   const heroSlides = data.pageHeroBg.trim()
     ? [data.pageHeroBg.trim(), '/images/hero/building-render.jpg', '/images/hero/interior-01.png']
     : ['/images/hero/building-render.jpg', '/images/hero/interior-01.png', '/images/hero/interior-02.png'];
-  const tickerItems = PREVIEW_TICKER_ITEMS;
+  const tickerItems = siteTypeConfig.ticker || PREVIEW_TICKER_ITEMS;
   const bankRows = [
     ['בנק', data.bankName.trim()],
     ['סניף', data.bankBranch.trim()],
@@ -24,8 +28,10 @@ export function buildTenantDocFromForm(data, userId = '', options = {}) {
   ].filter(([, value]) => value);
 
   return {
+    siteType,
+    templateId: siteType,
     name: nameValue,
-    subtitle: data.subtitle.trim(),
+    subtitle: data.subtitle.trim() || siteTypeConfig.defaultSubtitle,
     aboutText: data.aboutText.trim(),
     contact: {
       address: data.address.trim(),
@@ -61,8 +67,14 @@ export function buildTenantDocFromForm(data, userId = '', options = {}) {
       pageHeroBg: data.pageHeroBg.trim(),
       galleryPreview: [],
     },
+    content: {
+      siteType,
+      primaryModule: siteTypeConfig.nav?.[1]?.path || 'hodaot',
+      secondaryModule: siteTypeConfig.nav?.[2]?.path || 'tashlumim',
+    },
     ticker: tickerItems,
     brachot: [],
+    campaigns: [],
     email: {
       serviceId: '',
       templateId: '',
@@ -73,8 +85,8 @@ export function buildTenantDocFromForm(data, userId = '', options = {}) {
     trialEndsAt: Timestamp.fromDate(createTrialEndDate()),
     meta: {
       copyrightYear: new Date().getFullYear(),
-      templateId: 'default',
-      templateName: 'העיצוב הרגיל',
+      templateId: siteType,
+      templateName: siteTypeConfig.templateName,
     },
     admins: userId ? [userId] : [],
     adminEmails: adminEmail ? [adminEmail] : [],

@@ -9,7 +9,7 @@ import PaymentIcon from '@mui/icons-material/Payment';
 import CollectionsIcon from '@mui/icons-material/Collections';
 import PhoneIphoneIcon from '@mui/icons-material/PhoneIphone';
 import DashboardCustomizeIcon from '@mui/icons-material/DashboardCustomize';
-import CelebrationIcon from '@mui/icons-material/Celebration';
+import WidgetsIcon from '@mui/icons-material/Widgets';
 import SecurityIcon from '@mui/icons-material/Security';
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import { PLATFORM_COLORS as COLORS } from '../utils/constants';
@@ -18,13 +18,13 @@ import PlatformLayout, { PlatformPageHeader } from '../components/PlatformLayout
 const FEATURES = [
   {
     icon: <AccessTimeIcon sx={{ fontSize: 32 }} />,
-    title: 'זמני תפילה',
-    desc: 'הצגת תפילות ושיעורים בצורה ברורה ומעודכנת. עדכון קל ומהיר דרך הממשק.',
+    title: 'לוחות זמנים ופעילות',
+    desc: 'הצגת זמני פעילות, שיעורים, אירועים או סדרי יום בצורה ברורה ומעודכנת לפי סוג הארגון.',
   },
   {
     icon: <CampaignIcon sx={{ fontSize: 32 }} />,
     title: 'הודעות ועדכונים',
-    desc: 'פרסום הודעות לקהילה — שיעורים, אירועים, הודעות לשבת ועוד. הכל במקום אחד.',
+    desc: 'פרסום הודעות לקהילה, לתורמים, לתלמידים או לחברים — אירועים, עדכונים וחדשות במקום אחד.',
   },
   {
     icon: <PaymentIcon sx={{ fontSize: 32 }} />,
@@ -34,7 +34,7 @@ const FEATURES = [
   {
     icon: <CollectionsIcon sx={{ fontSize: 32 }} />,
     title: 'גלריית תמונות',
-    desc: 'הצגת תמונות מבית הכנסת, מאירועים ומפעילויות הקהילה בגלריה מרשימה.',
+    desc: 'הצגת תמונות מהפעילות, מהאירועים ומהקהילה בגלריה מרשימה ומותאמת לנייד.',
   },
   {
     icon: <PhoneIphoneIcon sx={{ fontSize: 32 }} />,
@@ -44,17 +44,17 @@ const FEATURES = [
   {
     icon: <DashboardCustomizeIcon sx={{ fontSize: 32 }} />,
     title: 'ממשק ניהול',
-    desc: 'ממשק ניהול אינטואיטיבי שמאפשר לגבאים לעדכן את כל התוכן בקלות וללא ידע טכני.',
+    desc: 'ממשק ניהול אינטואיטיבי שמאפשר למנהלי האתר לעדכן את כל התוכן בקלות וללא ידע טכני.',
   },
   {
-    icon: <CelebrationIcon sx={{ fontSize: 32 }} />,
-    title: 'ברכות ואירועים',
-    desc: 'מערכת ברכות לאירועים שמחים — בר מצווה, חתונות, ימי הולדת ועוד.',
+    icon: <WidgetsIcon sx={{ fontSize: 32 }} />,
+    title: 'מודולים לפי סוג אתר',
+    desc: 'ברכות לבית כנסת, פרויקטים לעמותה, שיעורים לישיבה או שירותים לארגון — הכל מותאם לסוג האתר.',
   },
   {
     icon: <SecurityIcon sx={{ fontSize: 32 }} />,
     title: 'אבטחה ופרטיות',
-    desc: 'המידע מאוחסן בצורה מאובטחת עם גיבויים אוטומטיים. פרטיות המתפללים מובטחת.',
+    desc: 'המידע מאוחסן בצורה מאובטחת עם גיבויים אוטומטיים, הרשאות מנהל ופרטיות משתמשים.',
   },
 ];
 
@@ -63,8 +63,8 @@ export default function Features() {
     <PlatformLayout>
       <Container maxWidth="lg" sx={{ pb: { xs: 2, md: 4 } }}>
         <PlatformPageHeader
-          title="כל מה שבית כנסת צריך"
-          subtitle="פיצ׳רים שנבנו במיוחד לצרכים של בתי כנסת וקהילות"
+          title="כל מה שאתר קהילתי צריך"
+          subtitle="יכולות שנבנו לעמותות, ישיבות, בתי כנסת וארגונים שרוצים אתר מכובד ומנוהל בקלות"
         />
 
         {/* Features Grid */}
@@ -130,9 +130,11 @@ export default function Features() {
               bgcolor: COLORS.gold,
               color: COLORS.bg,
               fontWeight: 700,
-              fontSize: '1.1rem',
+              fontSize: { xs: '1rem', sm: '1.1rem' },
+              width: { xs: '100%', sm: 'auto' },
+              maxWidth: { xs: 320, sm: 'none' },
               px: 5,
-              py: 1.6,
+              py: { xs: 1.45, sm: 1.6 },
               borderRadius: 3,
               boxShadow: '0 12px 36px rgba(201,168,76,0.28)',
               '&:hover': {

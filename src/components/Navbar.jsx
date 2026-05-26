@@ -20,22 +20,17 @@ import Typography from '@mui/material/Typography';
 import MenuIcon from '@mui/icons-material/Menu';
 import CloseIcon from '@mui/icons-material/Close';
 import useScrollTrigger from '@mui/material/useScrollTrigger';
+import { getSiteTypeConfig } from '../config/siteTypes';
 import css from './Navbar.module.css';
 
 export default function Navbar() {
-  const { config, slug } = useTenant();
-  const base = `/${slug}`;
-
-  const NAV_LINKS = [
-    { label: 'ראשי',        to: base },
-    { label: 'זמני תפילות', to: `${base}/zmanim` },
-    { label: 'הודעות',      to: `${base}/hodaot` },
-    { label: 'תשלומים',    to: `${base}/tashlumim` },
-    { label: 'ברכות',      to: `${base}/brachot` },
-    { label: 'גלריה',      to: `${base}/galeria` },
-    { label: 'יצירת קשר',  to: `${base}/contact` },
-    { label: 'ניהול',      to: `${base}/admin`, adminLink: true },
-  ];
+  const { config, basePath } = useTenant();
+  const base = basePath;
+  const siteTypeConfig = getSiteTypeConfig(config.siteType);
+  const NAV_LINKS = siteTypeConfig.nav.map(item => ({
+    ...item,
+    to: item.path ? `${base}/${item.path}` : base,
+  }));
 
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [user, setUser]             = useState(null);
@@ -46,7 +41,8 @@ export default function Navbar() {
   useEffect(() => onAuthStateChanged(auth, setUser), []);
 
   const handleLogin = () =>
-    signInWithPopup(auth, new GoogleAuthProvider()).catch(console.error);
+    signInWithPopup(auth, new GoogleAuthProvider())
+      .catch(() => window.alert('לא הצלחנו להתחבר עם Google. בדקו שהכניסה מופעלת ונסו שוב.'));
   const closeAccountMenu = () => setAccountMenuAnchor(null);
   const handleLogout = () => {
     closeAccountMenu();
@@ -64,9 +60,10 @@ export default function Navbar() {
           boxShadow: scrolled ? '0 2px 20px rgba(0,0,0,0.5)' : 'none',
         }}
       >
-        <Toolbar sx={{ justifyContent: 'space-between', px: { xs: 2, md: 3 }, minHeight: { xs: 58, md: 62 } }}>
-          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, flex: '0 0 260px', minWidth: 0 }}>
+        <Toolbar sx={{ justifyContent: 'space-between', gap: { xs: 1, md: 2 }, px: { xs: 1.5, md: 3 }, minHeight: { xs: 58, md: 62 } }}>
+          <Box sx={{ display: 'flex', alignItems: 'center', gap: { xs: 0.75, md: 1 }, flex: { xs: '1 1 auto', md: '0 0 260px' }, minWidth: 0 }}>
             <IconButton
+              aria-label="פתח תפריט"
               onClick={() => setDrawerOpen(true)}
               sx={{ display: { md: 'none' }, color: 'primary.main' }}
             >
@@ -77,7 +74,11 @@ export default function Navbar() {
                 className={css.logoText}
                 sx={{
                   color: 'primary.main',
-                  fontSize: { xs: '1.18rem !important', md: '1.38rem !important' },
+                  fontSize: { xs: 'clamp(1rem, 5.4vw, 1.18rem) !important', md: '1.38rem !important' },
+                  maxWidth: { xs: 'calc(100vw - 154px)', sm: 320, md: 'none' },
+                  overflow: 'hidden',
+                  textOverflow: 'ellipsis',
+                  whiteSpace: 'nowrap',
                 }}
               >
                 {config.name}
@@ -104,10 +105,11 @@ export default function Navbar() {
             ))}
           </Box>
 
-          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, flex: '0 0 260px', justifyContent: 'flex-end' }}>
+          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, flex: { xs: '0 0 auto', md: '0 0 260px' }, justifyContent: 'flex-end' }}>
             {user ? (
               <>
                 <IconButton
+                  aria-label="תפריט חשבון"
                   onClick={(event) => setAccountMenuAnchor(event.currentTarget)}
                   sx={{ p: 0.35 }}
                 >
@@ -142,7 +144,12 @@ export default function Navbar() {
                 size="small"
                 variant="outlined"
                 onClick={handleLogin}
-                sx={{ fontSize: '0.82rem', py: 0.5, px: 1.4 }}
+                sx={{
+                  fontSize: '0.82rem',
+                  minHeight: { xs: 42, md: 36 },
+                  px: { xs: 1.7, md: 1.4 },
+                  py: 0.5,
+                }}
               >
                 התחבר
               </Button>
@@ -155,13 +162,17 @@ export default function Navbar() {
         anchor="left"
         open={drawerOpen}
         onClose={() => setDrawerOpen(false)}
-        PaperProps={{ sx: { width: 280 } }}
+        PaperProps={{
+          dir: 'rtl',
+          style: { direction: 'rtl', right: 0, left: 'auto' },
+          sx: { width: 280 },
+        }}
       >
         <div className={css.drawerHeader}>
           <Typography className={css.drawerTitle} sx={{ color: 'primary.main' }}>
             {config.name}
           </Typography>
-          <IconButton onClick={() => setDrawerOpen(false)} sx={{ color: 'text.secondary' }}>
+          <IconButton aria-label="סגור תפריט" onClick={() => setDrawerOpen(false)} sx={{ color: 'text.secondary' }}>
             <CloseIcon />
           </IconButton>
         </div>

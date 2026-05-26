@@ -21,7 +21,7 @@ import css from './TenantActivate.module.css';
 
 const BENEFITS = [
   'האתר נשאר פעיל ופתוח לציבור',
-  'הודעות, זמני תפילה ויצירת קשר ממשיכים לעבוד',
+  'הודעות, לוחות פעילות, תשלומים ויצירת קשר ממשיכים לעבוד',
   'ניהול ועדכונים שוטפים מתוך הממשק',
   'תחזוקה ותמיכה שוטפת',
 ];
@@ -34,7 +34,7 @@ function getPriceLabel(value, fallback) {
 }
 
 export default function TenantActivate() {
-  const { config, slug, plan } = useTenant();
+  const { config, slug, basePath, plan } = useTenant();
   const [searchParams] = useSearchParams();
   const [requesting, setRequesting] = useState(false);
   const [checkoutLoading, setCheckoutLoading] = useState(false);
@@ -183,7 +183,7 @@ export default function TenantActivate() {
               >
                 {requesting ? <CircularProgress size={20} sx={{ color: 'inherit' }} /> : requested ? 'הבקשה נשלחה' : 'שלחתי תשלום'}
               </Button>
-              <Button component={Link} to={`/${slug}`} variant="text" size="large">
+              <Button component={Link} to={basePath} variant="text" size="large">
                 חזרה לאתר
               </Button>
             </Stack>

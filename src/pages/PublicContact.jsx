@@ -45,6 +45,8 @@ function ContactCard({ icon, title, text, href, buttonText, buttonColor, onClick
           rel={href.startsWith('http') ? 'noopener noreferrer' : undefined}
           variant="outlined"
           sx={{
+            width: { xs: '100%', sm: 'auto' },
+            minHeight: 42,
             color: buttonColor,
             borderColor: `${buttonColor}55`,
             '&:hover': {
@@ -110,7 +112,7 @@ export default function PublicContact() {
       <Container maxWidth="lg" sx={{ pb: { xs: 2, md: 4 } }}>
         <PlatformPageHeader
           title="צור קשר"
-          subtitle="אם אתם רוצים אתר לבית הכנסת שלכם, אפשר לפנות אלינו דרך וואטסאפ, מייל או לפתוח טופס פנייה."
+          subtitle="אם אתם רוצים אתר לעמותה, ישיבה, בית כנסת או ארגון, אפשר לפנות אלינו דרך וואטסאפ, מייל או לפתוח טופס פנייה."
         />
 
         <Grid container spacing={3} sx={{ mb: 4 }}>
@@ -193,6 +195,8 @@ export default function PublicContact() {
                     variant="contained"
                     disabled={loading}
                     sx={{
+                      width: { xs: '100%', sm: 'auto' },
+                      minHeight: 46,
                       px: 4,
                       py: 1.3,
                       bgcolor: COLORS.gold,

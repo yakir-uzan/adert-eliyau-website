@@ -9,9 +9,9 @@ import { PLATFORM_COLORS as COLORS } from '../utils/constants';
 import PlatformLayout, { PlatformPageHeader } from '../components/PlatformLayout';
 
 const INCLUDED = [
-  'אתר מלא לבית הכנסת עם כתובת ייחודית',
-  'ממשק ניהול לגבאים ללא ידע טכני',
-  'זמני תפילה, הודעות, גלריה וברכות',
+  'אתר מלא לעמותה, ישיבה, בית כנסת או ארגון עם כתובת ייחודית',
+  'ממשק ניהול למנהלי האתר ללא ידע טכני',
+  'פעילות, הודעות, גלריה, תשלומים ותוכן ייעודי לפי סוג האתר',
   'אפשרויות תרומה ותשלום אונליין',
   'התאמה מלאה לנייד ולמחשב',
   'עדכוני תוכן בזמן אמת',
@@ -23,7 +23,7 @@ export default function Pricing() {
       <Container maxWidth="lg" sx={{ pb: { xs: 2, md: 4 } }}>
         <PlatformPageHeader
           title="מחירים"
-          subtitle="מתחילים בתקופת ניסיון, בודקים שהכל מתאים לקהילה, ורק אז מפעילים את האתר להמשך שימוש."
+          subtitle="מתחילים בתקופת ניסיון, בודקים שהכל מתאים לארגון ולקהילה, ורק אז מפעילים את האתר להמשך שימוש."
         />
 
         <Box
@@ -58,7 +58,7 @@ export default function Pricing() {
             />
 
             <Typography sx={{ color: COLORS.goldLight, fontWeight: 700, fontSize: '1.15rem', mb: 1 }}>
-              תוכנית מלאה לבית כנסת
+              תוכנית מלאה לאתר קהילתי
             </Typography>
             <Typography sx={{ color: COLORS.ivory, fontFamily: '"Secular One", sans-serif', fontSize: { xs: '2.4rem', md: '3.4rem' }, lineHeight: 1.08, mb: 1.5 }}>
               30 ימי ניסיון
@@ -85,9 +85,11 @@ export default function Pricing() {
                 bgcolor: COLORS.gold,
                 color: COLORS.bg,
                 fontWeight: 800,
-                fontSize: '1.05rem',
+                fontSize: { xs: '1rem', sm: '1.05rem' },
+                width: { xs: '100%', sm: 'auto' },
+                maxWidth: { xs: 320, sm: 'none' },
                 px: 4.5,
-                py: 1.55,
+                py: { xs: 1.45, sm: 1.55 },
                 borderRadius: 3,
                 boxShadow: '0 16px 42px rgba(201,168,76,0.26)',
                 '&:hover': { bgcolor: COLORS.goldLight, transform: 'translateY(-2px)' },

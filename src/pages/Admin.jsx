@@ -19,6 +19,7 @@ import PhotoLibraryIcon from '@mui/icons-material/PhotoLibrary';
 import AccessTimeIcon from '@mui/icons-material/AccessTime';
 import PaletteIcon from '@mui/icons-material/Palette';
 import MenuBookIcon from '@mui/icons-material/MenuBook';
+import VolunteerActivismIcon from '@mui/icons-material/VolunteerActivism';
 import { hasLocalTenantOwnerAccess, isLocalDevHost } from '../utils/localTenantAccess';
 import css from './Admin.module.css';
 import SettingsTab from './admin/SettingsTab';
@@ -26,14 +27,18 @@ import ZmanimTab from './admin/ZmanimTab';
 import HodaotTab from './admin/HodaotTab';
 import GaleriaTab from './admin/GaleriaTab';
 import BrachotTab from './admin/BrachotTab';
+import CampaignsTab from './admin/CampaignsTab';
 import ChargesTab from './admin/ChargesTab';
+import { getSiteTypeConfig } from '../config/siteTypes';
 
 function TabPanel({ value, index, children }) {
   return value === index ? <Box pt={3}>{children}</Box> : null;
 }
 
 export default function Admin() {
-  const { config, slug } = useTenant();
+  const { config, slug, basePath } = useTenant();
+  const siteTypeConfig = getSiteTypeConfig(config.siteType);
+  const pageCopy = siteTypeConfig.pages;
   const [authState, setAuthState] = useState('loading');
   const [adminUser, setAdminUser] = useState(null);
   const [tab, setTab]             = useState(0);
@@ -50,16 +55,24 @@ export default function Admin() {
   const adminEmail = adminUser?.email?.toLowerCase() || '';
   const isEmailAdmin = !!adminEmail && adminEmails.includes(adminEmail);
   const isUidAdmin = !!adminUser && admins.includes(adminUser.uid);
-  const isLegacyAdmin = !!adminUser && admins.length === 0 && adminEmails.length === 0;
-  const isAdmin = isUidAdmin || isEmailAdmin || isLegacyAdmin;
+  const isAdmin = isUidAdmin || isEmailAdmin;
   const platformAdminEmails = (import.meta.env.VITE_PLATFORM_ADMIN_EMAILS || '')
     .split(',')
     .map(email => email.trim().toLowerCase())
     .filter(Boolean);
   const isPlatformAdmin = !!adminUser?.email && platformAdminEmails.includes(adminUser.email.toLowerCase());
-  const canAccessAdmin = creatorAccess || isAdmin;
+  const canAccessAdmin = creatorAccess || isAdmin || isPlatformAdmin;
 
-  const login = () => signInWithPopup(auth, new GoogleAuthProvider()).catch(console.error);
+  const login = async () => {
+    try {
+      await signInWithPopup(auth, new GoogleAuthProvider());
+    } catch (err) {
+      const message = err?.code === 'auth/popup-closed-by-user'
+        ? 'הכניסה בוטלה'
+        : 'לא הצלחנו להתחבר עם Google. בדקו שהכניסה מופעלת ב-Firebase ונסו שוב.';
+      onToast(message, 'error');
+    }
+  };
 
   const onToast = (msg, sev = 'success') => setToast({ open: true, msg, sev });
 
@@ -74,7 +87,7 @@ export default function Admin() {
       <Card className={css.loginCard} sx={{ p: 4 }}>
         <LockIcon sx={{ fontSize: '3rem', color: 'primary.main', mb: 1 }} />
         <Typography variant="h4" gutterBottom>כניסה לניהול</Typography>
-        <Typography color="text.secondary" sx={{ mb: 3, fontSize: '0.9rem' }}>{config.name} — גבאות</Typography>
+        <Typography color="text.secondary" sx={{ mb: 3, fontSize: '0.9rem' }}>{config.name} — {pageCopy.admin.loginSubtitle}</Typography>
         <Button onClick={login} fullWidth size="large" variant="contained">כניסה עם Google</Button>
       </Card>
     </div>
@@ -97,25 +110,27 @@ export default function Admin() {
         <Tabs value={tab} onChange={(_, v) => setTab(v)} textColor="primary" indicatorColor="primary"
           className={css.tabBorder}
           sx={{ mb: 1,
-            '& .MuiTabs-flexContainer': { justifyContent: 'center' },
+            '& .MuiTabs-flexContainer': { justifyContent: { xs: 'flex-start', md: 'center' } },
+            '& .MuiTab-root': { minHeight: 48, px: { xs: 1.2, md: 2 }, whiteSpace: 'nowrap' },
           }}
           variant="scrollable"
           scrollButtons="auto"
-          centered
         >
-          <Tab icon={<PaletteIcon />} iconPosition="start" label="פרטי האתר" />
-          <Tab icon={<AccessTimeIcon />} iconPosition="start" label="זמני תפילות" />
-          <Tab icon={<CampaignIcon />}   iconPosition="start" label="הודעות" />
+          <Tab icon={<PaletteIcon />} iconPosition="start" label={pageCopy.admin.settings} />
+          <Tab icon={<AccessTimeIcon />} iconPosition="start" label={pageCopy.admin.schedule} />
+          <Tab icon={<CampaignIcon />}   iconPosition="start" label={siteTypeConfig.nav.find(item => item.path === 'hodaot')?.label || 'הודעות'} />
+          <Tab icon={<VolunteerActivismIcon />} iconPosition="start" label="קמפיינים" />
           <Tab icon={<PhotoLibraryIcon />} iconPosition="start" label="גלריה" />
-          <Tab icon={<MenuBookIcon />} iconPosition="start" label="ברכות" />
-          <Tab icon={<CreditCardIcon />} iconPosition="start" label="חיובי מתפללים" />
+          <Tab icon={<MenuBookIcon />} iconPosition="start" label={siteTypeConfig.nav.find(item => item.path === 'brachot')?.label || 'תוכן'} />
+          <Tab icon={<CreditCardIcon />} iconPosition="start" label={pageCopy.admin.charges} />
         </Tabs>
         <TabPanel value={tab} index={0}><SettingsTab config={config} slug={slug} onToast={onToast} currentUser={adminUser} isPlatformAdmin={isPlatformAdmin} localMode={localMode} /></TabPanel>
-        <TabPanel value={tab} index={1}><ZmanimTab  onToast={onToast} slug={slug} localMode={localMode} /></TabPanel>
-        <TabPanel value={tab} index={2}><HodaotTab  onToast={onToast} slug={slug} localMode={localMode} /></TabPanel>
-        <TabPanel value={tab} index={3}><GaleriaTab onToast={onToast} slug={slug} localMode={localMode} /></TabPanel>
-        <TabPanel value={tab} index={4}><BrachotTab config={config} slug={slug} onToast={onToast} localMode={localMode} /></TabPanel>
-        <TabPanel value={tab} index={5}><ChargesTab onToast={onToast} slug={slug} /></TabPanel>
+        <TabPanel value={tab} index={1}><ZmanimTab config={config} onToast={onToast} slug={slug} localMode={localMode} /></TabPanel>
+        <TabPanel value={tab} index={2}><HodaotTab config={config} onToast={onToast} slug={slug} localMode={localMode} /></TabPanel>
+        <TabPanel value={tab} index={3}><CampaignsTab config={config} slug={slug} basePath={basePath} onToast={onToast} localMode={localMode} /></TabPanel>
+        <TabPanel value={tab} index={4}><GaleriaTab onToast={onToast} slug={slug} localMode={localMode} /></TabPanel>
+        <TabPanel value={tab} index={5}><BrachotTab config={config} slug={slug} onToast={onToast} localMode={localMode} /></TabPanel>
+        <TabPanel value={tab} index={6}><ChargesTab config={config} onToast={onToast} slug={slug} /></TabPanel>
       </Container>
 
       <Snackbar open={toast.open} autoHideDuration={3000} onClose={() => setToast(t => ({ ...t, open: false }))} anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}>

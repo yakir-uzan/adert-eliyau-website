@@ -6,6 +6,7 @@ import HeroSection from './home/HeroSection';
 import AboutSection from './home/AboutSection';
 import GallerySection from './home/GallerySection';
 import WhatsAppSection from './home/WhatsAppSection';
+import { DEFAULT_SITE_TYPE, getSiteTypeConfig } from '../config/siteTypes';
 import css from './Home.module.css';
 
 const TOTAL_SECTIONS = 4;
@@ -18,15 +19,18 @@ const DEFAULT_TICKER_ITEMS = [
 const DEFAULT_HERO_SLIDES = ['/images/hero/building-render.jpg', '/images/hero/interior-01.png', '/images/hero/interior-02.png'];
 
 export default function Home() {
-  const { config, slug } = useTenant();
-  const base = `/${slug}`;
+  const { config, basePath } = useTenant();
+  const base = basePath;
+  const siteTypeConfig = getSiteTypeConfig(config.siteType);
   const fullName = config.name?.trim() || '';
-  const strippedName = fullName.replace(/^בית\s+כנסת\s*/u, '').trim();
+  const strippedName = config.siteType === DEFAULT_SITE_TYPE
+    ? fullName.replace(/^בית\s+כנסת\s*/u, '').trim()
+    : fullName;
   const hasCustomName = !!strippedName;
 
   const heroSlides     = Array.isArray(config.images?.heroSlides) && config.images.heroSlides.length > 0 ? config.images.heroSlides : DEFAULT_HERO_SLIDES;
   const galleryPreview = Array.isArray(config.images?.galleryPreview) ? config.images.galleryPreview : [];
-  const tickerItems    = config.ticker?.length ? config.ticker : DEFAULT_TICKER_ITEMS;
+  const tickerItems    = config.ticker?.length ? config.ticker : (siteTypeConfig.ticker || DEFAULT_TICKER_ITEMS);
   const waLink         = config.whatsapp?.groupLink || '';
 
   const [slide,   setSlide]   = useState(0);
@@ -52,6 +56,8 @@ export default function Home() {
 
   useEffect(() => {
     const onWheel = (e) => {
+      if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+      if (e.target?.closest?.('button, a, input, textarea, select, [role="dialog"], [data-native-scroll]')) return;
       e.preventDefault();
       if (animatingRef.current) return;
       deltaAccRef.current += e.deltaY;
@@ -66,6 +72,8 @@ export default function Home() {
     let ty = 0;
     const onStart = (e) => { ty = e.touches[0].clientY; };
     const onEnd   = (e) => {
+      if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+      if (e.target?.closest?.('button, a, input, textarea, select, [role="dialog"], [data-native-scroll]')) return;
       const d = ty - e.changedTouches[0].clientY;
       if (Math.abs(d) > 45) d > 0 ? go(currentRef.current + 1) : go(currentRef.current - 1);
     };
@@ -79,6 +87,8 @@ export default function Home() {
 
   useEffect(() => {
     const onKey = (e) => {
+      if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+      if (e.target?.closest?.('input, textarea, select, [contenteditable="true"]')) return;
       if (e.key === 'ArrowDown' || e.key === 'PageDown') go(currentRef.current + 1);
       if (e.key === 'ArrowUp'   || e.key === 'PageUp')   go(currentRef.current - 1);
     };
@@ -87,8 +97,8 @@ export default function Home() {
   }, []);
 
   useEffect(() => {
-    document.title = config.name || 'בית כנסת';
-  }, [config.name]);
+    document.title = config.name || siteTypeConfig.defaultName || 'אתר';
+  }, [config.name, siteTypeConfig.defaultName]);
 
   return (
     <Box className={css.root} sx={{ bgcolor: 'background.default' }}>
@@ -122,6 +132,7 @@ export default function Home() {
           heroSlides={heroSlides}
           slide={slide}
           config={config}
+          siteTypeConfig={siteTypeConfig}
           base={base}
           hasCustomName={hasCustomName}
           strippedName={strippedName}

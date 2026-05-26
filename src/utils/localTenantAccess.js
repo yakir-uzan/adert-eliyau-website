@@ -49,6 +49,18 @@ export function readLocalTenantDraft(slug) {
   return readJson(`${LOCAL_TENANT_PREFIX}${slug}`);
 }
 
+export function listLocalOwnedTenants() {
+  if (typeof window === 'undefined') return [];
+  return Object.keys(window.localStorage)
+    .filter(key => key.startsWith(LOCAL_TENANT_OWNER_PREFIX) && window.localStorage.getItem(key) === '1')
+    .map(key => {
+      const slug = key.slice(LOCAL_TENANT_OWNER_PREFIX.length);
+      const tenant = readLocalTenantDraft(slug);
+      return tenant ? { slug, ...tenant } : null;
+    })
+    .filter(Boolean);
+}
+
 export function saveLocalTenantDraft(slug, tenantDoc) {
   writeJson(`${LOCAL_TENANT_PREFIX}${slug}`, tenantDoc, { slug, type: 'tenant' });
 }

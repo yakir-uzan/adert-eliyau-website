@@ -1,0 +1,63 @@
+name: CI
+
+on:
+  pull_request:
+  push:
+    branches:
+      - main
+      - feature/multi-organization-platform
+
+jobs:
+  validate:
+    runs-on: windows-latest
+    timeout-minutes: 15
+    env:
+      VITE_FIREBASE_API_KEY: test-api-key
+      VITE_FIREBASE_AUTH_DOMAIN: demo-test.firebaseapp.com
+      VITE_FIREBASE_PROJECT_ID: demo-test
+      VITE_FIREBASE_STORAGE_BUCKET: demo-test.appspot.com
+      VITE_FIREBASE_MESSAGING_SENDER_ID: "123456789"
+      VITE_FIREBASE_APP_ID: "1:123456789:web:test"
+      VITE_FIREBASE_MEASUREMENT_ID: G-TEST
+      VITE_FIREBASE_FUNCTIONS_REGION: us-central1
+      VITE_PUBLIC_SITE_URL: http://127.0.0.1:5176
+      VITE_PLATFORM_ADMIN_EMAILS: admin@example.com
+      VITE_ENABLE_AUTOMATIC_CHECKOUT: "false"
+      VITE_PUBLIC_CONTACT_WHATSAPP: https://wa.me/972000000000
+      VITE_PUBLIC_CONTACT_EMAIL: info@example.com
+      VITE_PUBLIC_CONTACT_FORMSPREE_ID: ""
+      VITE_STRIPE_PUBLIC_KEY: ""
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Install functions dependencies
+        run: npm --prefix functions ci
+
+      - name: Audit frontend dependencies
+        run: npm audit --audit-level=moderate
+
+      - name: Audit functions dependencies
+        run: npm audit --prefix functions --audit-level=moderate
+
+      - name: Check functions syntax
+        run: node --check functions/index.js
+
+      - name: Build
+        run: npm run build
+
+      - name: Install Playwright browser
+        run: npx playwright install chromium
+
+      - name: Run E2E tests
+        run: npm run test:e2e

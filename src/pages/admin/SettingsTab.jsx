@@ -16,6 +16,7 @@ import { tenantToForm, mergeTenantConfig } from './adminFormUtils';
 import { registerInputSx as inputSx, autocompleteSx, autocompleteDropdownSx } from '../../utils/inputStyles';
 import { BANK_OPTIONS, BRANCH_OPTIONS } from '../register/registerConstants';
 import { getBranchLabel, BankOptionContent, BranchOptionContent } from '../register/registerComponents';
+import { getSiteTypeConfig } from '../../config/siteTypes';
 import css from './SettingsTab.module.css';
 
 const autocompletePopperSx = {
@@ -28,12 +29,18 @@ const optionStyle = { direction: 'rtl', textAlign: 'right', justifyContent: 'fle
 const adminAutocompleteSx = {
   ...autocompleteSx,
   direction: 'rtl',
-  '& .MuiInputBase-root': { direction: 'rtl', textAlign: 'right' },
+  '& .MuiInputBase-root': { direction: 'rtl', textAlign: 'right', minHeight: 56, pr: '14px !important', pl: '86px !important' },
   '& .MuiInputBase-input': { direction: 'rtl !important', textAlign: 'right !important' },
   '& .MuiAutocomplete-endAdornment': { left: 9, right: 'auto' },
+  '& .MuiAutocomplete-endAdornment .MuiIconButton-root': {
+    width: 40,
+    height: 40,
+    p: 0,
+  },
 };
 
 export default function SettingsTab({ config, slug, onToast, localMode }) {
+  const siteTypeConfig = getSiteTypeConfig(config.siteType);
   const [form, setForm] = useState(() => tenantToForm(config));
   const [saving, setSaving] = useState(false);
 
@@ -79,10 +86,10 @@ export default function SettingsTab({ config, slug, onToast, localMode }) {
   return (
     <Box>
       <Card sx={{ p: 3, mb: 3 }}>
-        <Typography variant="h6" sx={{ color: 'primary.main', mb: 2 }}>פרטי בית הכנסת</Typography>
+        <Typography variant="h6" sx={{ color: 'primary.main', mb: 2 }}>{siteTypeConfig.pages.admin.settings}</Typography>
         <Grid container spacing={2}>
           <Grid item xs={12} sm={6}>
-            <TextField label="שם בית הכנסת" value={form.name} onChange={update('name')} fullWidth />
+            <TextField label={siteTypeConfig.nameFieldLabel.replace(' *', '')} value={form.name} onChange={update('name')} fullWidth />
           </Grid>
           <Grid item xs={12} sm={6}>
             <TextField label="כותרת משנה" value={form.subtitle} onChange={update('subtitle')} fullWidth />
@@ -112,7 +119,7 @@ export default function SettingsTab({ config, slug, onToast, localMode }) {
             <TextField label="אימייל" value={form.email} onChange={update('email')} fullWidth inputProps={{ dir: 'ltr' }} />
           </Grid>
           <Grid item xs={12} sm={6}>
-            <TextField label="וואטסאפ של הגבאי" value={form.waGabaiLink} onChange={update('waGabaiLink')} fullWidth inputProps={{ dir: 'ltr' }} />
+            <TextField label={`וואטסאפ של ${siteTypeConfig.pages.admin.loginSubtitle}`} value={form.waGabaiLink} onChange={update('waGabaiLink')} fullWidth inputProps={{ dir: 'ltr' }} />
           </Grid>
          
           <Grid item xs={12}>
@@ -224,7 +231,7 @@ export default function SettingsTab({ config, slug, onToast, localMode }) {
 
         <div className={css.saveRow}>
           <Alert severity="info" sx={{ flex: 1, minWidth: 260 }}>
-            אחרי שמירה, השינויים יופיעו בכל האתר של בית הכנסת הזה בלבד.
+            אחרי שמירה, השינויים יופיעו בכל האתר של {siteTypeConfig.label} הזה בלבד.
           </Alert>
           <Button variant="contained" onClick={save} disabled={saving} startIcon={saving ? null : <SaveIcon />} sx={{ px: 4 }}>
             {saving ? <CircularProgress size={20} sx={{ color: 'inherit' }} /> : 'שמור פרטי אתר'}

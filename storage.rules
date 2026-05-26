@@ -1,0 +1,60 @@
+rules_version = '2';
+
+service firebase.storage {
+  match /b/{bucket}/o {
+    function signedIn() {
+      return request.auth != null;
+    }
+
+    function isPlatformAdmin() {
+      return signedIn() && request.auth.token.platformAdmin == true;
+    }
+
+    function tenantExists(slug) {
+      return firestore.exists(/databases/(default)/documents/tenants/$(slug));
+    }
+
+    function tenant(slug) {
+      return firestore.get(/databases/(default)/documents/tenants/$(slug)).data;
+    }
+
+    function isTenantAdmin(slug) {
+      let t = tenant(slug);
+      return signedIn() && tenantExists(slug) && (
+        isPlatformAdmin()
+        || ('admins' in t && t.admins is list && request.auth.uid in t.admins)
+        || ('adminEmails' in t && t.adminEmails is list && request.auth.token.email in t.adminEmails)
+      );
+    }
+
+    function isSafeImageUpload() {
+      return request.resource != null
+        && request.resource.size < 8 * 1024 * 1024
+        && request.resource.contentType.matches('image/.*');
+    }
+
+    match /tenants/{slug}/branding/{fileName=**} {
+      allow read: if true;
+      allow create, update: if signedIn() && isSafeImageUpload() && (
+        !tenantExists(slug) || isTenantAdmin(slug)
+      );
+      allow delete: if isTenantAdmin(slug);
+    }
+
+    match /tenants/{slug}/gallery/{fileName=**} {
+      allow read: if true;
+      allow create, update: if isTenantAdmin(slug) && isSafeImageUpload();
+      allow delete: if isTenantAdmin(slug);
+    }
+
+    match /gallery/{slug}/{fileName=**} {
+      allow read: if true;
+      allow create, update: if isTenantAdmin(slug) && isSafeImageUpload();
+      allow delete: if isTenantAdmin(slug);
+    }
+
+    match /{allPaths=**} {
+      allow read, write: if false;
+    }
+  }
+}

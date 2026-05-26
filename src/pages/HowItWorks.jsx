@@ -15,19 +15,19 @@ const STEPS = [
     num: '01',
     icon: <TouchAppIcon sx={{ fontSize: 36 }} />,
     title: 'הרשמה מהירה',
-    desc: 'מלאו את שם בית הכנסת והפרטים הבסיסיים. תוך פחות מדקה תקבלו אתר מוכן עם כתובת ייחודית.',
+    desc: 'בחרו את סוג האתר, מלאו את שם הארגון והפרטים הבסיסיים. תוך פחות מדקה תקבלו אתר מוכן עם כתובת ייחודית.',
   },
   {
     num: '02',
     icon: <EditIcon sx={{ fontSize: 36 }} />,
     title: 'התאמה אישית',
-    desc: 'הוסיפו זמני תפילה, הודעות, תמונות לגלריה, פרטי תשלום ועוד. הכל דרך ממשק ניהול פשוט ונוח.',
+    desc: 'הוסיפו פעילות, הודעות, תמונות לגלריה, פרטי תשלום, תוכן ייעודי ועוד. הכל דרך ממשק ניהול פשוט ונוח.',
   },
   {
     num: '03',
     icon: <RocketLaunchIcon sx={{ fontSize: 36 }} />,
     title: 'האתר באוויר!',
-    desc: 'שתפו את הקישור עם המתפללים. האתר מותאם לנייד, מהיר ומעודכן בזמן אמת.',
+    desc: 'שתפו את הקישור עם הקהילה, התורמים, התלמידים או הלקוחות. האתר מותאם לנייד, מהיר ומעודכן בזמן אמת.',
   },
 ];
 
@@ -37,7 +37,7 @@ export default function HowItWorks() {
       <Container maxWidth="lg" sx={{ pb: { xs: 2, md: 4 } }}>
         <PlatformPageHeader
           title="איך זה עובד?"
-          subtitle="שלושה צעדים פשוטים ויש לכם אתר מקצועי לבית הכנסת"
+          subtitle="שלושה צעדים פשוטים ויש לכם אתר מקצועי לעמותה, ישיבה, בית כנסת או ארגון"
         />
 
         {/* Steps */}
@@ -117,9 +117,11 @@ export default function HowItWorks() {
               bgcolor: COLORS.gold,
               color: COLORS.bg,
               fontWeight: 700,
-              fontSize: '1.1rem',
+              fontSize: { xs: '1rem', sm: '1.1rem' },
+              width: { xs: '100%', sm: 'auto' },
+              maxWidth: { xs: 320, sm: 'none' },
               px: 5,
-              py: 1.6,
+              py: { xs: 1.45, sm: 1.6 },
               borderRadius: 3,
               boxShadow: '0 12px 36px rgba(201,168,76,0.28)',
               '&:hover': {

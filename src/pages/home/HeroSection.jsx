@@ -5,7 +5,15 @@ import Button from '@mui/material/Button';
 import TickerContent from './TickerContent';
 import css from './HeroSection.module.css';
 
-export default function HeroSection({ heroSlides, slide, config, base, hasCustomName, strippedName, tickerItems, onGoNext }) {
+export default function HeroSection({ heroSlides, slide, config, siteTypeConfig, base, hasCustomName, strippedName, tickerItems, onGoNext }) {
+  const heroTypeLabel = siteTypeConfig?.id === 'yeshiva' ? 'ישיבת' : siteTypeConfig?.label;
+  const primaryCta = siteTypeConfig?.id === 'beit-knesset'
+    ? { label: 'זמני תפילות', to: `${base}/zmanim` }
+    : { label: siteTypeConfig?.nav?.[1]?.label || 'פעילות', to: `${base}/${siteTypeConfig?.nav?.[1]?.path || 'hodaot'}` };
+  const secondaryCta = siteTypeConfig?.nav?.find(item => item.path === 'hodaot')
+    || siteTypeConfig?.nav?.find(item => item.path === 'tashlumim')
+    || { label: 'הודעות', path: 'hodaot' };
+
   return (
     <div className={css.root}>
       <div className={css.slideArea}>
@@ -35,11 +43,11 @@ export default function HeroSection({ heroSlides, slide, config, base, hasCustom
               },
             }}
           >
-            <span className={css.titleGold}>בית כנסת<br /></span>
+            <span className={css.titleGold}>{heroTypeLabel || 'בית כנסת'}<br /></span>
             {hasCustomName ? (
               <span className={css.titleGold}>{strippedName}</span>
             ) : (
-              <span className={css.previewPlaceholder}>שם הבית כנסת שלך</span>
+              <span className={css.previewPlaceholder}>שם {siteTypeConfig?.label || 'האתר'} שלך</span>
             )}
           </Typography>
           {config.subtitle && (
@@ -48,8 +56,8 @@ export default function HeroSection({ heroSlides, slide, config, base, hasCustom
             </Typography>
           )}
           <div className={css.ctaButtons}>
-            <Button component={Link} to={`${base}/zmanim`} variant="contained" size="large" sx={{ px: 4 }}>זמני תפילות</Button>
-            <Button component={Link} to={`${base}/hodaot`} variant="outlined" size="large" sx={{ px: 4 }}>הודעות</Button>
+            <Button component={Link} to={primaryCta.to} variant="contained" size="large" sx={{ px: 4 }}>{primaryCta.label}</Button>
+            <Button component={Link} to={`${base}/${secondaryCta.path}`} variant="outlined" size="large" sx={{ px: 4 }}>{secondaryCta.label}</Button>
           </div>
         </Box>
         <Box
