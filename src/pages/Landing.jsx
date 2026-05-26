@@ -44,15 +44,15 @@ export default function Landing() {
           display: 'flex',
           flexDirection: 'column',
           justifyContent: 'center',
-          minHeight: { xs: 'calc(100vh - 66px)', md: 'calc(100vh - 74px)' },
-          py: { xs: 2, md: 0 },
+          minHeight: { xs: 'auto', md: 'calc(100vh - 74px)' },
+          py: { xs: 5, sm: 6, md: 0 },
         }}
       >
         <Box
           sx={{
             display: 'grid',
             gridTemplateColumns: { xs: '1fr', lg: '1fr 1.15fr' },
-            gap: { xs: 4, lg: 2 },
+            gap: { xs: 3.5, lg: 2 },
             alignItems: 'center',
           }}
         >
@@ -73,10 +73,10 @@ export default function Landing() {
                 className={css.heroHeading}
                 sx={{
                   fontFamily: '"Secular One", "Assistant", sans-serif',
-                  fontSize: { xs: '2.8rem', sm: '3.8rem', lg: '5rem' },
-                  lineHeight: 1.08,
+                  fontSize: { xs: 'clamp(2.3rem, 12vw, 3.15rem)', sm: '3.8rem', lg: '5rem' },
+                  lineHeight: { xs: 1.12, md: 1.08 },
                   color: COLORS.ivory,
-                  mb: 2.5,
+                  mb: { xs: 2, md: 2.5 },
                   width: '100%',
                 }}
               >
@@ -102,15 +102,15 @@ export default function Landing() {
               </Typography>
 
               <Box sx={{ display: 'flex', justifyContent: 'center', width: '100%' }}>
-                <PlatformGoldDivider width={160} sx={{ mb: 2.5 }} />
+                <PlatformGoldDivider width={160} sx={{ mb: { xs: 2, md: 2.5 } }} />
               </Box>
 
               <Typography
                 sx={{
                   color: 'rgba(245,240,232,0.8)',
-                  fontSize: { xs: '1.05rem', md: '1.18rem' },
-                  lineHeight: 1.95,
-                  mb: 4,
+                  fontSize: { xs: '1rem', md: '1.18rem' },
+                  lineHeight: { xs: 1.78, md: 1.95 },
+                  mb: { xs: 3, md: 4 },
                   textAlign: 'center',
                 }}
               >
@@ -127,9 +127,11 @@ export default function Landing() {
                     bgcolor: COLORS.gold,
                     color: COLORS.bg,
                     fontWeight: 700,
-                    fontSize: '1.05rem',
-                    px: 4.5,
-                    py: 1.6,
+                    width: { xs: '100%', sm: 'auto' },
+                    maxWidth: { xs: 300, sm: 'none' },
+                    fontSize: { xs: '1rem', md: '1.05rem' },
+                    px: { xs: 3, md: 4.5 },
+                    py: { xs: 1.45, md: 1.6 },
                     borderRadius: 3,
                     boxShadow: '0 12px 36px rgba(201,168,76,0.28)',
                     border: `1px solid ${COLORS.goldLight}`,
@@ -155,7 +157,7 @@ export default function Landing() {
             className={css.deviceWrap}
             sx={{
               position: 'relative',
-              minHeight: { xs: 390, sm: 495, lg: 560 },
+              minHeight: { xs: 300, sm: 430, lg: 560 },
               display: 'flex',
               alignItems: 'center',
               justifyContent: { xs: 'center', lg: 'flex-start' },

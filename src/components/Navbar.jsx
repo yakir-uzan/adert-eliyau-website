@@ -60,8 +60,8 @@ export default function Navbar() {
           boxShadow: scrolled ? '0 2px 20px rgba(0,0,0,0.5)' : 'none',
         }}
       >
-        <Toolbar sx={{ justifyContent: 'space-between', px: { xs: 2, md: 3 }, minHeight: { xs: 58, md: 62 } }}>
-          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, flex: '0 0 260px', minWidth: 0 }}>
+        <Toolbar sx={{ justifyContent: 'space-between', gap: { xs: 1, md: 2 }, px: { xs: 1.5, md: 3 }, minHeight: { xs: 58, md: 62 } }}>
+          <Box sx={{ display: 'flex', alignItems: 'center', gap: { xs: 0.75, md: 1 }, flex: { xs: '1 1 auto', md: '0 0 260px' }, minWidth: 0 }}>
             <IconButton
               aria-label="פתח תפריט"
               onClick={() => setDrawerOpen(true)}
@@ -74,7 +74,11 @@ export default function Navbar() {
                 className={css.logoText}
                 sx={{
                   color: 'primary.main',
-                  fontSize: { xs: '1.18rem !important', md: '1.38rem !important' },
+                  fontSize: { xs: 'clamp(1rem, 5.4vw, 1.18rem) !important', md: '1.38rem !important' },
+                  maxWidth: { xs: 'calc(100vw - 154px)', sm: 320, md: 'none' },
+                  overflow: 'hidden',
+                  textOverflow: 'ellipsis',
+                  whiteSpace: 'nowrap',
                 }}
               >
                 {config.name}
@@ -101,7 +105,7 @@ export default function Navbar() {
             ))}
           </Box>
 
-          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, flex: '0 0 260px', justifyContent: 'flex-end' }}>
+          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, flex: { xs: '0 0 auto', md: '0 0 260px' }, justifyContent: 'flex-end' }}>
             {user ? (
               <>
                 <IconButton

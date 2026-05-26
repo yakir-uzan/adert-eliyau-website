@@ -183,7 +183,7 @@ export default function RegisterTenant() {
   ];
 
   return (
-    <Box sx={{ minHeight: '100vh', bgcolor: COLORS.bg, py: { xs: 2, md: 4 }, px: 2, position: 'relative', overflow: 'hidden' }}>
+    <Box sx={{ minHeight: '100vh', bgcolor: COLORS.bg, py: { xs: 2.25, md: 4 }, px: { xs: 1.5, sm: 2 }, position: 'relative', overflow: 'hidden' }}>
       <div className={css.bgImage} />
       <div className={css.bgGradient} />
       <div className={css.bgRadial} />
@@ -195,7 +195,7 @@ export default function RegisterTenant() {
           <Typography variant="caption" sx={{ color: COLORS.goldLight, letterSpacing: '0.22em', display: { xs: 'none', sm: 'block' }, mb: 0.8 }}>
             פתיחת אתר
           </Typography>
-          <Typography variant="h3" sx={{ fontFamily: '"Secular One", serif', color: COLORS.gold, mb: 0.5, fontSize: { xs: '1.6rem', sm: '2rem', md: '2.6rem' } }}>
+          <Typography variant="h3" sx={{ fontFamily: '"Secular One", serif', color: COLORS.gold, mb: 0.5, fontSize: { xs: 'clamp(1.55rem, 8.6vw, 2.05rem)', sm: '2rem', md: '2.6rem' }, lineHeight: 1.15 }}>
             {siteTypeConfig.registerTitle}
           </Typography>
           <PlatformGoldDivider width={140} sideWidth={26} sideOffset={36} sx={{ mx: 'auto', my: 1.75 }} />
@@ -204,7 +204,7 @@ export default function RegisterTenant() {
         <Box
           sx={{
             display: 'flex', flexDirection: { xs: 'column', lg: 'row' }, gap: { xs: 3, lg: 6, xl: 8 },
-            mt: { xs: 3.25, md: 4.5, lg: 5.5 }, alignItems: 'flex-start', justifyContent: { lg: 'center' },
+            mt: { xs: 2.5, md: 4.5, lg: 5.5 }, alignItems: 'flex-start', justifyContent: { lg: 'center' },
             width: '100%', overflow: 'hidden', direction: 'ltr', maxWidth: 1480, mx: 'auto',
           }}
         >
@@ -218,7 +218,7 @@ export default function RegisterTenant() {
           >
             <ProgressSteps steps={STEPS} activeStep={step} />
 
-            <Box sx={{ py: 1, direction: 'rtl', textAlign: 'right', height: { xs: 'auto', lg: 'calc(100% - 128px)' }, overflowY: { xs: 'visible', lg: 'auto' }, overflowX: 'hidden', pr: 0.5 }}>
+            <Box sx={{ py: 1, direction: 'rtl', textAlign: 'right', height: { xs: 'auto', lg: 'calc(100% - 128px)' }, overflowY: { xs: 'visible', lg: 'auto' }, overflowX: 'hidden', pr: { xs: 0, lg: 0.5 } }}>
               {stepContent[step]}
             </Box>
 
@@ -238,25 +238,25 @@ export default function RegisterTenant() {
 
             {error && <Alert severity="error" sx={{ mt: 2, mb: 1 }}>{error}</Alert>}
 
-            <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: 2, flexWrap: 'wrap', pt: 2.5, borderTop: '1px solid rgba(201,168,76,0.14)', flexDirection: 'row-reverse', direction: 'rtl', position: { xs: 'static', lg: 'absolute' }, right: 0, left: 0, bottom: { xs: 0, lg: 60 }, bgcolor: 'transparent' }}>
-              <Button onClick={handleBack} disabled={step === 0} sx={{ ...secondaryButtonSx, visibility: step === 0 ? 'hidden' : 'visible' }}>
+            <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr auto 1fr', sm: '1fr auto 1fr' }, alignItems: 'center', gap: { xs: 1.25, sm: 2 }, pt: 2.5, borderTop: '1px solid rgba(201,168,76,0.14)', direction: 'rtl', position: { xs: 'static', lg: 'absolute' }, right: 0, left: 0, bottom: { xs: 0, lg: 60 }, bgcolor: 'transparent' }}>
+              <Button onClick={handleBack} disabled={step === 0} sx={{ ...secondaryButtonSx, justifySelf: 'start', minWidth: { xs: 0, sm: 120 }, px: { xs: 1.25, sm: 2.2 }, visibility: step === 0 ? 'hidden' : 'visible' }}>
                 <Box sx={{ display: 'inline-flex', alignItems: 'center', gap: 1.1, direction: 'rtl' }}>
                   <span>הקודם</span>
                   <ArrowForwardIcon sx={{ fontSize: 18, flexShrink: 0 }} />
                 </Box>
               </Button>
 
-              <Typography variant="caption" sx={{ color: COLORS.muted }}>{step + 1} / {STEPS.length}</Typography>
+              <Typography variant="caption" sx={{ color: COLORS.muted, justifySelf: 'center', whiteSpace: 'nowrap' }}>{step + 1} / {STEPS.length}</Typography>
 
               {step < STEPS.length - 1 ? (
-                <Button onClick={handleNext} disabled={!canNext()} variant="contained" sx={primaryButtonSx}>
+                <Button onClick={handleNext} disabled={!canNext()} variant="contained" sx={{ ...primaryButtonSx, justifySelf: 'end', minWidth: { xs: 136, sm: 170 }, px: { xs: 2.2, sm: 3 } }}>
                   <Box sx={{ display: 'inline-flex', alignItems: 'center', gap: 1.1, direction: 'rtl' }}>
                     <ArrowBackIcon sx={{ fontSize: 18, flexShrink: 0 }} />
                     <span>הבא</span>
                   </Box>
                 </Button>
               ) : (
-                <Button onClick={handleSubmit} disabled={saving} variant="contained" sx={primaryButtonSx}>
+                <Button onClick={handleSubmit} disabled={saving} variant="contained" sx={{ ...primaryButtonSx, justifySelf: 'end', minWidth: { xs: 136, sm: 170 }, px: { xs: 2.2, sm: 3 } }}>
                   <Box sx={{ display: 'inline-flex', alignItems: 'center', gap: 1.1, direction: 'ltr' }}>
                     <span>{saving ? 'יוצר...' : 'צור את האתר'}</span>
                     {saving ? <CircularProgress size={20} sx={{ color: COLORS.bg, flexShrink: 0 }} /> : <CheckCircleIcon sx={{ fontSize: 19, flexShrink: 0 }} />}

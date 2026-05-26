@@ -40,6 +40,7 @@
     0 2px 0 rgba(0, 0, 0, 0.65);
   -webkit-text-stroke: 0.35px rgba(232, 213, 163, 0.65);
   white-space: nowrap;
+  min-width: 0;
 }
 
 .drawerTitle {

@@ -6,21 +6,21 @@ import PlatformNavbar from './PlatformNavbar';
 
 export function PlatformPageHeader({ title, subtitle }) {
   return (
-    <Box sx={{ textAlign: 'center', pt: { xs: 7, md: 10 }, mb: { xs: 5, md: 7 } }}>
+    <Box sx={{ textAlign: 'center', pt: { xs: 5.5, md: 10 }, mb: { xs: 4, md: 7 }, px: { xs: 1, sm: 0 } }}>
       <Typography
         variant="h1"
         sx={{
           fontFamily: '"Secular One", "Assistant", sans-serif',
-          fontSize: { xs: '2.45rem', md: '3.8rem' },
-          lineHeight: 1.1,
+          fontSize: { xs: 'clamp(2rem, 11vw, 2.7rem)', md: '3.8rem' },
+          lineHeight: { xs: 1.16, md: 1.1 },
           color: COLORS.ivory,
-          mb: 2,
+          mb: { xs: 1.5, md: 2 },
         }}
       >
         {title}
       </Typography>
       {subtitle && (
-        <Typography sx={{ color: COLORS.muted, fontSize: { xs: '1rem', md: '1.12rem' }, lineHeight: 1.9, maxWidth: 680, mx: 'auto' }}>
+        <Typography sx={{ color: COLORS.muted, fontSize: { xs: '1rem', md: '1.12rem' }, lineHeight: { xs: 1.75, md: 1.9 }, maxWidth: 680, mx: 'auto' }}>
           {subtitle}
         </Typography>
       )}
@@ -51,13 +51,13 @@ export default function PlatformLayout({ children }) {
         component="footer"
         sx={{
           borderTop: `1px solid ${COLORS.borderSoft}`,
-          py: 3,
-          mt: 8,
+          py: { xs: 2.5, md: 3 },
+          mt: { xs: 6, md: 8 },
         }}
       >
         <Container maxWidth="lg">
           <Typography variant="body2" sx={{ color: 'rgba(183,173,160,0.55)', textAlign: 'center' }}>
-            2026 &copy; beit-knesset. כל הזכויות שמורות.
+            © 2026 genisite. כל הזכויות שמורות.
           </Typography>
         </Container>
       </Box>

@@ -46,7 +46,9 @@ export default function PlatformNavbar() {
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'space-between',
-          py: { xs: 1.4, md: 1.8 },
+          gap: { xs: 1, md: 2 },
+          py: { xs: 1.05, md: 1.8 },
+          px: { xs: 1.5, sm: 2, md: 3 },
         }}
       >
         <Link to="/" style={{ textDecoration: 'none', display: 'flex', alignItems: 'center', gap: 6 }}>
@@ -54,7 +56,7 @@ export default function PlatformNavbar() {
             component="span"
             sx={{
               fontFamily: 'Georgia, "Times New Roman", serif',
-              fontSize: '1.65rem',
+              fontSize: { xs: '1.42rem', sm: '1.65rem' },
               lineHeight: 1,
               fontWeight: 400,
               letterSpacing: '0.01em',
@@ -78,7 +80,13 @@ export default function PlatformNavbar() {
         <IconButton
           aria-label="פתח תפריט"
           onClick={() => setDrawerOpen(true)}
-          sx={{ display: { xs: 'inline-flex', md: 'none' }, color: COLORS.goldLight }}
+          sx={{
+            display: { xs: 'inline-flex', md: 'none' },
+            color: COLORS.goldLight,
+            width: 44,
+            height: 44,
+            flexShrink: 0,
+          }}
         >
           <MenuIcon />
         </IconButton>
@@ -110,6 +118,7 @@ export default function PlatformNavbar() {
           to="/login"
           endIcon={<LoginIcon sx={{ fontSize: 18 }} />}
           sx={{
+            display: { xs: 'none', sm: 'inline-flex' },
             color: COLORS.goldLight,
             fontWeight: 600,
             fontSize: '0.88rem',
@@ -122,6 +131,23 @@ export default function PlatformNavbar() {
         >
           התחברות למנהלים
         </Button>
+        <IconButton
+          component={Link}
+          to="/login"
+          aria-label="התחברות למנהלים"
+          sx={{
+            display: { xs: 'inline-flex', sm: 'none' },
+            color: COLORS.goldLight,
+            bgcolor: 'rgba(201,168,76,0.06)',
+            borderRadius: 2.25,
+            width: 44,
+            height: 44,
+            flexShrink: 0,
+            '&:hover': { bgcolor: 'rgba(201,168,76,0.12)' },
+          }}
+        >
+          <LoginIcon sx={{ fontSize: 23 }} />
+        </IconButton>
       </Container>
       <Drawer
         anchor="left"

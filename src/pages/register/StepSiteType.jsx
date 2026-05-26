@@ -19,7 +19,7 @@ export default function StepSiteType({ value, update }) {
         sx={{
           display: 'grid',
           gridTemplateColumns: { xs: '1fr 1fr', sm: 'repeat(4, 1fr)' },
-          gap: 1.4,
+          gap: { xs: 1.1, sm: 1.4 },
           direction: 'rtl',
           textAlign: 'right',
         }}
@@ -41,8 +41,8 @@ export default function StepSiteType({ value, update }) {
               <CardActionArea
                 onClick={() => update('siteType', id)}
                 sx={{
-                  p: 1.6,
-                  minHeight: 72,
+                  p: { xs: 1.35, sm: 1.6 },
+                  minHeight: { xs: 70, sm: 72 },
                   position: 'relative',
                   direction: 'rtl',
                   display: 'flex',
@@ -57,14 +57,14 @@ export default function StepSiteType({ value, update }) {
                     sx={{ position: 'absolute', top: 8, left: 8, color: COLORS.goldLight, fontSize: 19 }}
                   />
                 )}
-                <Icon sx={{ color: COLORS.gold, fontSize: 28, flexShrink: 0 }} />
+                <Icon sx={{ color: COLORS.gold, fontSize: { xs: 25, sm: 28 }, flexShrink: 0 }} />
                 <Typography
                   sx={{
                     color: COLORS.ivory,
                     flex: '0 1 auto',
                     fontFamily: '"Assistant", sans-serif',
                     fontWeight: 800,
-                    fontSize: { xs: '0.95rem', sm: '1rem' },
+                    fontSize: { xs: '0.92rem', sm: '1rem' },
                     lineHeight: 1.2,
                   }}
                 >

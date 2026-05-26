@@ -110,11 +110,11 @@ export default function Admin() {
         <Tabs value={tab} onChange={(_, v) => setTab(v)} textColor="primary" indicatorColor="primary"
           className={css.tabBorder}
           sx={{ mb: 1,
-            '& .MuiTabs-flexContainer': { justifyContent: 'center' },
+            '& .MuiTabs-flexContainer': { justifyContent: { xs: 'flex-start', md: 'center' } },
+            '& .MuiTab-root': { minHeight: 48, px: { xs: 1.2, md: 2 }, whiteSpace: 'nowrap' },
           }}
           variant="scrollable"
           scrollButtons="auto"
-          centered
         >
           <Tab icon={<PaletteIcon />} iconPosition="start" label={pageCopy.admin.settings} />
           <Tab icon={<AccessTimeIcon />} iconPosition="start" label={pageCopy.admin.schedule} />
