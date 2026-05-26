@@ -14,6 +14,7 @@ import Snackbar from '@mui/material/Snackbar';
 import CheckCircleIcon from '@mui/icons-material/CheckCircle';
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import ArrowForwardIcon from '@mui/icons-material/ArrowForward';
+import LoginIcon from '@mui/icons-material/Login';
 import { PLATFORM_COLORS as COLORS } from '../utils/constants';
 import { cleanSlug, buildSlugFromName, withTimeout } from '../utils/slugUtils';
 import { buildTenantDocFromForm } from '../utils/tenantFormUtils';
@@ -121,7 +122,7 @@ export default function RegisterTenant() {
   const handleSubmit = async () => {
     if (!data.name.trim() || !data.slug.trim()) { setError('יש למלא שם וכתובת אתר'); return; }
     if (requiresAuth && !user) {
-      setError('כדי ליצור אתר צריך להתחבר עם Google. כך האתר נפתח עם הרשאות ניהול שלך.');
+      setError('לפני השמירה צריך להתחבר עם Google, כדי שנוכל לשייך את האתר לחשבון הניהול שלכם.');
       return;
     }
     setSaving(true);
@@ -223,17 +224,54 @@ export default function RegisterTenant() {
             </Box>
 
             {requiresAuth && !user && (
-              <Alert
-                severity="info"
-                sx={{ mt: 2, mb: 1, alignItems: 'center' }}
-                action={
-                  <Button color="inherit" size="small" onClick={loginWithGoogle}>
-                    התחברות
-                  </Button>
-                }
+              <Box
+                sx={{
+                  mt: 2,
+                  mb: 1,
+                  p: { xs: 1.6, sm: 2 },
+                  borderRadius: 3,
+                  border: '1px solid rgba(201,168,76,0.22)',
+                  bgcolor: 'rgba(201,168,76,0.07)',
+                  display: 'grid',
+                  gridTemplateColumns: { xs: '1fr', sm: '1fr auto' },
+                  alignItems: 'center',
+                  gap: 1.5,
+                  textAlign: 'right',
+                }}
               >
-                כדי ליצור אתר אמיתי צריך להתחבר עם Google. אחרי ההתחברות תקבלו הרשאות ניהול לאתר.
-              </Alert>
+                <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.2, minWidth: 0 }}>
+                  <Box
+                    sx={{
+                      width: 38,
+                      height: 38,
+                      borderRadius: 2,
+                      flexShrink: 0,
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      color: COLORS.gold,
+                      bgcolor: 'rgba(7,17,27,0.42)',
+                    }}
+                  >
+                    <LoginIcon sx={{ fontSize: 21 }} />
+                  </Box>
+                  <Box sx={{ minWidth: 0 }}>
+                    <Typography sx={{ color: COLORS.goldLight, fontWeight: 900, lineHeight: 1.3 }}>
+                      עוד רגע שומרים את האתר
+                    </Typography>
+                    <Typography variant="body2" sx={{ color: COLORS.muted, lineHeight: 1.6 }}>
+                      התחברו עם Google כדי שנוכל לשייך את האתר לחשבון הניהול שלכם.
+                    </Typography>
+                  </Box>
+                </Box>
+                <Button
+                  onClick={loginWithGoogle}
+                  variant="outlined"
+                  sx={{ width: { xs: '100%', sm: 'auto' }, minHeight: 42, px: 2.5, fontWeight: 800, textTransform: 'none' }}
+                >
+                  כניסה עם גוגל
+                </Button>
+              </Box>
             )}
 
             {error && <Alert severity="error" sx={{ mt: 2, mb: 1 }}>{error}</Alert>}
