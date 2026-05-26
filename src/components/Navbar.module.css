@@ -25,6 +25,7 @@
   text-decoration: none;
   direction: rtl;
   text-align: right;
+  min-height: 42px;
 }
 
 .logoText {

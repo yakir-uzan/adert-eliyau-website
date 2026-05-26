@@ -51,7 +51,7 @@ export default function PlatformNavbar() {
           px: { xs: 1.5, sm: 2, md: 3 },
         }}
       >
-        <Link to="/" style={{ textDecoration: 'none', display: 'flex', alignItems: 'center', gap: 6 }}>
+        <Link to="/" style={{ textDecoration: 'none', display: 'flex', alignItems: 'center', gap: 6, minHeight: 44 }}>
           <Typography
             component="span"
             sx={{

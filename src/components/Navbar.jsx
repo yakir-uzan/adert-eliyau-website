@@ -144,7 +144,12 @@ export default function Navbar() {
                 size="small"
                 variant="outlined"
                 onClick={handleLogin}
-                sx={{ fontSize: '0.82rem', py: 0.5, px: 1.4 }}
+                sx={{
+                  fontSize: '0.82rem',
+                  minHeight: { xs: 42, md: 36 },
+                  px: { xs: 1.7, md: 1.4 },
+                  py: 0.5,
+                }}
               >
                 התחבר
               </Button>

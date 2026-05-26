@@ -9,7 +9,6 @@ import Container from '@mui/material/Container';
 import Grid from '@mui/material/Grid';
 import Typography from '@mui/material/Typography';
 import Alert from '@mui/material/Alert';
-import LoginIcon from '@mui/icons-material/Login';
 import AdminPanelSettingsIcon from '@mui/icons-material/AdminPanelSettings';
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import AddCircleOutlineIcon from '@mui/icons-material/AddCircleOutline';
@@ -174,7 +173,6 @@ export default function Login() {
                 disabled={authLoading}
                 size="large"
                 variant="contained"
-                startIcon={<LoginIcon />}
                 sx={{
                   width: { xs: '100%', sm: 'auto' },
                   minWidth: { sm: 260 },

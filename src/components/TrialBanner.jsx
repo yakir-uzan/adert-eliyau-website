@@ -34,7 +34,8 @@ export default function TrialBanner({ slug, basePath, plan }) {
       <Box
         sx={{
           position: 'fixed',
-          bottom: { xs: 14, sm: 20 },
+          top: { xs: 72, sm: 'auto' },
+          bottom: { xs: 'auto', sm: 20 },
           left: { xs: 14, sm: 20 },
           zIndex: 1400,
         }}

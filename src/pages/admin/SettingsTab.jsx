@@ -29,9 +29,14 @@ const optionStyle = { direction: 'rtl', textAlign: 'right', justifyContent: 'fle
 const adminAutocompleteSx = {
   ...autocompleteSx,
   direction: 'rtl',
-  '& .MuiInputBase-root': { direction: 'rtl', textAlign: 'right' },
+  '& .MuiInputBase-root': { direction: 'rtl', textAlign: 'right', minHeight: 56, pr: '14px !important', pl: '86px !important' },
   '& .MuiInputBase-input': { direction: 'rtl !important', textAlign: 'right !important' },
   '& .MuiAutocomplete-endAdornment': { left: 9, right: 'auto' },
+  '& .MuiAutocomplete-endAdornment .MuiIconButton-root': {
+    width: 40,
+    height: 40,
+    p: 0,
+  },
 };
 
 export default function SettingsTab({ config, slug, onToast, localMode }) {

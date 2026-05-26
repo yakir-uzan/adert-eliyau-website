@@ -32,7 +32,20 @@ function CopyButton({ value }) {
   };
   return (
     <Tooltip title={copied ? 'הועתק!' : 'העתק'} placement="top">
-      <IconButton aria-label="העתקה" size="small" onClick={copy} sx={{ color: copied ? '#4ade80' : 'primary.main', p: 0.4, transition: 'color 0.2s' }}>
+      <IconButton
+        aria-label="העתקה"
+        size="small"
+        onClick={copy}
+        sx={{
+          color: copied ? '#4ade80' : 'primary.main',
+          width: 40,
+          height: 40,
+          p: 0,
+          flexShrink: 0,
+          transition: 'color 0.2s, background-color 0.2s',
+          '&:hover': { bgcolor: 'rgba(201,168,76,0.08)' },
+        }}
+      >
         {copied ? <CheckIcon fontSize="small" /> : <ContentCopyIcon fontSize="small" />}
       </IconButton>
     </Tooltip>
@@ -167,7 +180,7 @@ export default function Tashlumim() {
                           <TableRow key={k}>
                             <TableCell sx={{ color: 'text.secondary', border: 'none', py: 0.5, px: 0 }}>{k}</TableCell>
                             <TableCell sx={{ color: 'secondary.main', fontWeight: 700, border: 'none', py: 0.5 }}>{v}</TableCell>
-                            <TableCell sx={{ border: 'none', py: 0.5, px: 0.5, width: 32 }}><CopyButton value={v} /></TableCell>
+                            <TableCell sx={{ border: 'none', py: 0.5, px: 0.5, width: 44 }}><CopyButton value={v} /></TableCell>
                           </TableRow>
                         ))}
                       </TableBody>
