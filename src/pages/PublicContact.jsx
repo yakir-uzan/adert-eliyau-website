@@ -45,6 +45,8 @@ function ContactCard({ icon, title, text, href, buttonText, buttonColor, onClick
           rel={href.startsWith('http') ? 'noopener noreferrer' : undefined}
           variant="outlined"
           sx={{
+            width: { xs: '100%', sm: 'auto' },
+            minHeight: 42,
             color: buttonColor,
             borderColor: `${buttonColor}55`,
             '&:hover': {
@@ -193,6 +195,8 @@ export default function PublicContact() {
                     variant="contained"
                     disabled={loading}
                     sx={{
+                      width: { xs: '100%', sm: 'auto' },
+                      minHeight: 46,
                       px: 4,
                       py: 1.3,
                       bgcolor: COLORS.gold,

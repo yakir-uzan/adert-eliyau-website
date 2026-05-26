@@ -238,25 +238,31 @@ export default function RegisterTenant() {
 
             {error && <Alert severity="error" sx={{ mt: 2, mb: 1 }}>{error}</Alert>}
 
-            <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr auto 1fr', sm: '1fr auto 1fr' }, alignItems: 'center', gap: { xs: 1.25, sm: 2 }, pt: 2.5, borderTop: '1px solid rgba(201,168,76,0.14)', direction: 'rtl', position: { xs: 'static', lg: 'absolute' }, right: 0, left: 0, bottom: { xs: 0, lg: 60 }, bgcolor: 'transparent' }}>
-              <Button onClick={handleBack} disabled={step === 0} sx={{ ...secondaryButtonSx, justifySelf: 'start', minWidth: { xs: 0, sm: 120 }, px: { xs: 1.25, sm: 2.2 }, visibility: step === 0 ? 'hidden' : 'visible' }}>
-                <Box sx={{ display: 'inline-flex', alignItems: 'center', gap: 1.1, direction: 'rtl' }}>
-                  <span>הקודם</span>
-                  <ArrowForwardIcon sx={{ fontSize: 18, flexShrink: 0 }} />
-                </Box>
-              </Button>
+            <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', sm: '1fr auto 1fr' }, alignItems: 'center', gap: { xs: 1.25, sm: 2 }, pt: 2.5, borderTop: '1px solid rgba(201,168,76,0.14)', direction: 'rtl', position: { xs: 'static', lg: 'absolute' }, right: 0, left: 0, bottom: { xs: 0, lg: 60 }, bgcolor: 'transparent' }}>
+              <Typography variant="caption" sx={{ color: COLORS.muted, justifySelf: 'center', whiteSpace: 'nowrap', display: { xs: 'block', sm: 'none' } }}>{step + 1} / {STEPS.length}</Typography>
 
-              <Typography variant="caption" sx={{ color: COLORS.muted, justifySelf: 'center', whiteSpace: 'nowrap' }}>{step + 1} / {STEPS.length}</Typography>
+              {step > 0 ? (
+                <Button onClick={handleBack} sx={{ ...secondaryButtonSx, justifySelf: { xs: 'stretch', sm: 'start' }, width: { xs: '100%', sm: 'auto' }, minWidth: { xs: 0, sm: 120 }, px: { xs: 1.25, sm: 2.2 }, order: { xs: 3, sm: 0 } }}>
+                  <Box sx={{ display: 'inline-flex', alignItems: 'center', gap: 1.1, direction: 'rtl' }}>
+                    <span>הקודם</span>
+                    <ArrowForwardIcon sx={{ fontSize: 18, flexShrink: 0 }} />
+                  </Box>
+                </Button>
+              ) : (
+                <Box sx={{ display: { xs: 'none', sm: 'block' } }} />
+              )}
+
+              <Typography variant="caption" sx={{ color: COLORS.muted, justifySelf: 'center', whiteSpace: 'nowrap', display: { xs: 'none', sm: 'block' } }}>{step + 1} / {STEPS.length}</Typography>
 
               {step < STEPS.length - 1 ? (
-                <Button onClick={handleNext} disabled={!canNext()} variant="contained" sx={{ ...primaryButtonSx, justifySelf: 'end', minWidth: { xs: 136, sm: 170 }, px: { xs: 2.2, sm: 3 } }}>
+                <Button onClick={handleNext} disabled={!canNext()} variant="contained" sx={{ ...primaryButtonSx, justifySelf: { xs: 'stretch', sm: 'end' }, width: { xs: '100%', sm: 'auto' }, minWidth: { xs: 0, sm: 170 }, px: { xs: 2.2, sm: 3 } }}>
                   <Box sx={{ display: 'inline-flex', alignItems: 'center', gap: 1.1, direction: 'rtl' }}>
                     <ArrowBackIcon sx={{ fontSize: 18, flexShrink: 0 }} />
                     <span>הבא</span>
                   </Box>
                 </Button>
               ) : (
-                <Button onClick={handleSubmit} disabled={saving} variant="contained" sx={{ ...primaryButtonSx, justifySelf: 'end', minWidth: { xs: 136, sm: 170 }, px: { xs: 2.2, sm: 3 } }}>
+                <Button onClick={handleSubmit} disabled={saving} variant="contained" sx={{ ...primaryButtonSx, justifySelf: { xs: 'stretch', sm: 'end' }, width: { xs: '100%', sm: 'auto' }, minWidth: { xs: 0, sm: 170 }, px: { xs: 2.2, sm: 3 } }}>
                   <Box sx={{ display: 'inline-flex', alignItems: 'center', gap: 1.1, direction: 'ltr' }}>
                     <span>{saving ? 'יוצר...' : 'צור את האתר'}</span>
                     {saving ? <CircularProgress size={20} sx={{ color: COLORS.bg, flexShrink: 0 }} /> : <CheckCircleIcon sx={{ fontSize: 19, flexShrink: 0 }} />}

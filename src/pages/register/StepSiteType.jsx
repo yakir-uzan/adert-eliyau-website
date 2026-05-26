@@ -47,7 +47,7 @@ export default function StepSiteType({ value, update }) {
                   direction: 'rtl',
                   display: 'flex',
                   alignItems: 'center',
-                  justifyContent: 'flex-end',
+                  justifyContent: 'flex-start',
                   gap: 1.2,
                   textAlign: 'right',
                 }}
@@ -66,6 +66,7 @@ export default function StepSiteType({ value, update }) {
                     fontWeight: 800,
                     fontSize: { xs: '0.92rem', sm: '1rem' },
                     lineHeight: 1.2,
+                    textAlign: 'right',
                   }}
                 >
                   {label}

@@ -117,9 +117,11 @@ export default function HowItWorks() {
               bgcolor: COLORS.gold,
               color: COLORS.bg,
               fontWeight: 700,
-              fontSize: '1.1rem',
+              fontSize: { xs: '1rem', sm: '1.1rem' },
+              width: { xs: '100%', sm: 'auto' },
+              maxWidth: { xs: 320, sm: 'none' },
               px: 5,
-              py: 1.6,
+              py: { xs: 1.45, sm: 1.6 },
               borderRadius: 3,
               boxShadow: '0 12px 36px rgba(201,168,76,0.28)',
               '&:hover': {

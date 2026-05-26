@@ -100,11 +100,11 @@ function CopyButton({ value }) {
 
 function PaymentRow({ label, color, href, children }) {
   return (
-    <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', bgcolor: 'rgba(255,255,255,0.04)', border: '1px solid rgba(201,168,76,0.12)', borderRadius: 2, px: 2, py: 1.5, gap: 1 }}>
-      <Typography sx={{ color: 'text.secondary', fontSize: '0.9rem', minWidth: 80 }}>{label}</Typography>
+    <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', sm: '80px 1fr auto' }, alignItems: 'center', bgcolor: 'rgba(255,255,255,0.04)', border: '1px solid rgba(201,168,76,0.12)', borderRadius: 2, px: 2, py: 1.5, gap: { xs: 1, sm: 1.25 } }}>
+      <Typography sx={{ color: 'text.secondary', fontSize: '0.9rem', minWidth: { sm: 80 }, fontWeight: 700 }}>{label}</Typography>
       <Box sx={{ flex: 1 }}>{children}</Box>
       <Button href={href} target="_blank" rel="noopener" size="small" endIcon={<OpenInNewIcon sx={{ fontSize: '0.85rem !important' }} />}
-        sx={{ borderColor: color, color, fontWeight: 700, fontSize: '0.8rem', px: 1.5, border: '1px solid', '&:hover': { bgcolor: `${color}14` } }}>
+        sx={{ borderColor: color, color, fontWeight: 700, fontSize: '0.8rem', px: 1.5, border: '1px solid', width: { xs: '100%', sm: 'auto' }, minHeight: 38, '&:hover': { bgcolor: `${color}14` } }}>
         פתח
       </Button>
     </Box>
@@ -153,7 +153,7 @@ function PurchaseDialog({ bracha, onClose, config }) {
         <DialogContent sx={{ px: 3, pb: 3, pt: 2 }}>
           <Typography variant="overline" sx={{ color: 'primary.main', opacity: 0.8, display: 'block', mb: 1.5, letterSpacing: 1 }}>בחרו אמצעי תשלום</Typography>
           <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1.5 }}>
-            <Box sx={{ border: '1px solid rgba(201,168,76,0.3)', borderRadius: 2, p: 2, bgcolor: 'rgba(201,168,76,0.05)', display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 1 }}>
+            <Box sx={{ border: '1px solid rgba(201,168,76,0.3)', borderRadius: 2, p: 2, bgcolor: 'rgba(201,168,76,0.05)', display: 'grid', gridTemplateColumns: { xs: '1fr', sm: '1fr auto' }, alignItems: 'center', gap: 1.5 }}>
               <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
                 <CreditCardIcon sx={{ color: 'primary.main', fontSize: 28 }} />
                 <Box>
@@ -162,7 +162,7 @@ function PurchaseDialog({ bracha, onClose, config }) {
                 </Box>
               </Box>
               <Button variant="contained" size="small" onClick={() => setCreditOpen(true)}
-                sx={{ background: 'linear-gradient(135deg, #C9A84C 0%, #E8D5A3 50%, #C9A84C 100%)', color: '#0D1B2A', fontWeight: 700, px: 2, flexShrink: 0 }}>
+                sx={{ background: 'linear-gradient(135deg, #C9A84C 0%, #E8D5A3 50%, #C9A84C 100%)', color: '#0D1B2A', fontWeight: 700, px: 2, flexShrink: 0, width: { xs: '100%', sm: 'auto' }, minHeight: 40 }}>
                 שלם
               </Button>
             </Box>
@@ -271,14 +271,14 @@ export default function Brachot() {
                       <Typography variant="h5" sx={{ color: 'secondary.main', fontFamily: '"Secular One", serif' }}>{b.title}</Typography>
                       <Typography variant="body2" color="text.secondary" sx={{ lineHeight: 1.8, flexGrow: 1 }}>{b.description}</Typography>
                       <Divider sx={{ borderColor: 'rgba(201,168,76,0.15)', my: 0.5 }} />
-                      <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                      <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', sm: '1fr auto' }, alignItems: 'center', gap: { xs: 1.5, sm: 2 } }}>
                         <Box>
                           <Typography variant="caption" color="text.secondary">מחיר</Typography>
                           <Typography sx={{ color: 'primary.main', fontWeight: 700, fontSize: '1.6rem', fontFamily: '"Secular One", serif', lineHeight: 1 }}>{fmtMoney(b.price)}</Typography>
                         </Box>
                         <Button variant="contained" size="small" startIcon={<ShoppingCartIcon />}
                           onClick={() => setSelected({ ...b, Icon })}
-                          sx={{ background: 'linear-gradient(135deg, #C9A84C 0%, #E8D5A3 50%, #C9A84C 100%)', color: '#0D1B2A', fontWeight: 700, px: 2, '&:hover': { boxShadow: '0 4px 16px rgba(201,168,76,0.4)' } }}>
+                          sx={{ background: 'linear-gradient(135deg, #C9A84C 0%, #E8D5A3 50%, #C9A84C 100%)', color: '#0D1B2A', fontWeight: 700, px: 2, minHeight: 42, width: { xs: '100%', sm: 'auto' }, '&:hover': { boxShadow: '0 4px 16px rgba(201,168,76,0.4)' } }}>
                           קנייה
                         </Button>
                       </Box>
@@ -294,7 +294,7 @@ export default function Brachot() {
               <Typography variant="h5" sx={{ color: 'primary.main', mb: 1 }}>{pageCopy.specialCtaTitle}</Typography>
               <Typography color="text.secondary" sx={{ mb: 3 }}>{pageCopy.specialCtaText}</Typography>
               <Button href={`${waGabbai}?text=${encodeURIComponent(`שלום, ברצוני לברר אודות ${pageCopy.title}`)}`} target="_blank" rel="noopener" size="large" startIcon={<WhatsAppIcon />}
-                sx={{ bgcolor: '#25D366', color: '#fff', px: 5, py: 1.4, fontSize: '1rem', '&:hover': { bgcolor: '#1ebe5d', boxShadow: '0 6px 24px rgba(37,211,102,0.4)' } }}>
+                sx={{ bgcolor: '#25D366', color: '#fff', width: { xs: '100%', sm: 'auto' }, maxWidth: { xs: 320, sm: 'none' }, px: 5, py: 1.4, fontSize: '1rem', '&:hover': { bgcolor: '#1ebe5d', boxShadow: '0 6px 24px rgba(37,211,102,0.4)' } }}>
                 וואטסאפ לבירור
               </Button>
             </Card>

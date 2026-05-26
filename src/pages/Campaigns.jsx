@@ -75,13 +75,13 @@ function DonationDialog({ campaign, raiser, onClose }) {
           <Typography variant="h5" sx={{ color: 'primary.main', mb: 0.5 }}>{campaign.title}</Typography>
           {raiser && <Typography color="text.secondary" sx={{ mb: 2 }}>התרומה תשויך אל: {raiser.name}</Typography>}
 
-          <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 1, mb: 2 }}>
+          <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr 1fr', sm: 'repeat(3, minmax(112px, auto))' }, gap: 1, mb: 2 }}>
             {(campaign.levels || []).map(level => (
               <Button
                 key={`${level.label}-${level.amount}`}
                 variant={Number(amount) === Number(level.amount) ? 'contained' : 'outlined'}
                 onClick={() => setAmount(level.amount)}
-                sx={{ minWidth: 112 }}
+                sx={{ minWidth: 0, minHeight: 44 }}
               >
                 {level.label || fmtMoney(level.amount)}
               </Button>
@@ -201,14 +201,16 @@ function CampaignCard({ campaign, personalRaiser, copy }) {
         />
         <Typography textAlign="left" sx={{ color: 'primary.main', fontWeight: 800, mt: 0.8 }}>{progress}%</Typography>
 
-        <Box sx={{ display: 'flex', gap: 1.5, flexWrap: 'wrap', mt: 3 }}>
-          <Button variant="contained" size="large" startIcon={<VolunteerActivismIcon />} onClick={() => setDonation({ campaign, raiser: personalRaiser })}>
+        <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', sm: 'auto auto 44px' }, gap: 1.5, alignItems: 'center', mt: 3 }}>
+          <Button variant="contained" size="large" startIcon={<VolunteerActivismIcon />} onClick={() => setDonation({ campaign, raiser: personalRaiser })} sx={{ minHeight: 50, px: { xs: 2, sm: 3.5 } }}>
             {copy.donateLabel}
           </Button>
-          <Button variant="outlined" size="large" startIcon={<ShareIcon />} href={`https://wa.me/?text=${encodeURIComponent(shareUrl)}`} target="_blank" rel="noopener">
+          <Button variant="outlined" size="large" startIcon={<ShareIcon />} href={`https://wa.me/?text=${encodeURIComponent(shareUrl)}`} target="_blank" rel="noopener" sx={{ minHeight: 50, px: { xs: 2, sm: 3.5 } }}>
             {copy.shareLabel}
           </Button>
-          <CopyButton value={shareUrl} label="העתקת קישור קמפיין" />
+          <Box sx={{ justifySelf: { xs: 'center', sm: 'start' } }}>
+            <CopyButton value={shareUrl} label="העתקת קישור קמפיין" />
+          </Box>
         </Box>
       </CardContent>
 
@@ -236,8 +238,8 @@ function RaiserCard({ campaign, raiser, copy }) {
           <Typography variant="caption" color="text.secondary">{fmtMoney(raised)} מתוך {fmtMoney(goal)}</Typography>
           <LinearProgress variant="determinate" value={pct(raised, goal)} sx={{ mt: 0.8, height: 8, borderRadius: 999 }} />
         </Box>
-        <Box sx={{ display: 'flex', gap: 1, mt: 'auto' }}>
-          <Button size="small" variant="outlined" onClick={() => setDonation({ campaign, raiser })}>תרומה דרכי</Button>
+        <Box sx={{ display: 'grid', gridTemplateColumns: '1fr auto', gap: 1, mt: 'auto', alignItems: 'center' }}>
+          <Button size="small" variant="outlined" onClick={() => setDonation({ campaign, raiser })} sx={{ minHeight: 42 }}>תרומה דרכי</Button>
           <CopyButton value={link} label="העתקת קישור אישי" />
         </Box>
       </CardContent>

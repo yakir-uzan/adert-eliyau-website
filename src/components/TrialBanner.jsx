@@ -35,7 +35,7 @@ export default function TrialBanner({ slug, basePath, plan }) {
         sx={{
           position: 'fixed',
           bottom: { xs: 14, sm: 20 },
-          right: { xs: 14, sm: 20 },
+          left: { xs: 14, sm: 20 },
           zIndex: 1400,
         }}
       >
