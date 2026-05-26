@@ -62,7 +62,7 @@ export default function PlatformNavbar() {
               textShadow: '0 0 24px rgba(201,168,76,0.2)',
             }}
           >
-            Kehila Sites
+            genisite
           </Typography>
           <Box
             component="span"
@@ -138,7 +138,7 @@ export default function PlatformNavbar() {
         }}
       >
         <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', px: 2, py: 2 }}>
-          <Typography sx={{ color: COLORS.goldLight, fontWeight: 800 }}>Kehila Sites</Typography>
+          <Typography sx={{ color: COLORS.goldLight, fontWeight: 800 }}>genisite</Typography>
           <IconButton aria-label="סגור תפריט" onClick={() => setDrawerOpen(false)} sx={{ color: 'text.secondary' }}>
             <CloseIcon />
           </IconButton>

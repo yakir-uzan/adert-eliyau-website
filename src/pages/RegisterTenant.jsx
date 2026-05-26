@@ -43,7 +43,7 @@ const INITIAL_DATA = {
 
 export default function RegisterTenant() {
   const navigate = useNavigate();
-  const baseUrl = import.meta.env.VITE_PUBLIC_SITE_URL || 'https://beit-knesset.com';
+  const baseUrl = import.meta.env.VITE_PUBLIC_SITE_URL || 'https://www.genisite.com';
   const previewBaseUrl = typeof window !== 'undefined' ? window.location.origin : baseUrl;
   const [step, setStep] = useState(0);
   const [saving, setSaving] = useState(false);
@@ -100,10 +100,11 @@ export default function RegisterTenant() {
     setUploads(prev => ({ ...prev, [field]: false }));
   };
 
-  const previewSlug = cleanSlug(data.slug || buildSlugFromName(data.name) || 'your-synagogue');
   const siteTypeConfig = getSiteTypeConfig(data.siteType);
+  const fallbackSlug = siteTypeConfig.slugPlaceholder?.split('/').pop() || (data.siteType === DEFAULT_SITE_TYPE ? 'shaarei-tefila' : 'your-site');
+  const previewSlug = cleanSlug(data.slug || buildSlugFromName(data.name) || fallbackSlug);
   const previewUrl = `${previewBaseUrl}/${data.siteType}/${LIVE_PREVIEW_SLUG}`;
-  const publicPreviewUrl = `${baseUrl}/${data.siteType}/${previewSlug || (data.siteType === DEFAULT_SITE_TYPE ? 'your-synagogue' : 'your-site')}`;
+  const publicPreviewUrl = `${baseUrl}/${data.siteType}/${previewSlug || fallbackSlug}`;
 
   const pushPreviewUpdate = () => {
     if (typeof window === 'undefined') return;

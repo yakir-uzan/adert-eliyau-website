@@ -18,10 +18,6 @@
     ],
     "rewrites": [
       {
-        "source": "/stripeWebhook",
-        "function": "stripeWebhook"
-      },
-      {
         "source": "**",
         "destination": "/index.html"
       }

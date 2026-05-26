@@ -15,6 +15,7 @@ export default function StepBasicInfo({ data, update, baseUrl, uploads, onUpload
   const siteTypeConfig = getSiteTypeConfig(siteType);
   const displayName = siteType === DEFAULT_SITE_TYPE ? stripSynagoguePrefix(data.name) : data.name;
   const urlPrefix = `${baseUrl.replace(/\/+$/g, '')}/${siteType}`;
+  const slugExample = siteTypeConfig.slugPlaceholder?.split('/').pop() || 'your-site';
   const generatedSlug = buildSlugFromName(data.name);
   const legacyGeneratedSlug = buildLegacySlugFromName(data.name);
 
@@ -67,7 +68,7 @@ export default function StepBasicInfo({ data, update, baseUrl, uploads, onUpload
             }}
             fullWidth
             sx={inputSx}
-            placeholder={`${baseUrl.replace(/\/+$/g, '')}/${siteTypeConfig.slugPlaceholder || `${siteType}/your-site`}`}
+            placeholder={`${baseUrl.replace(/\/+$/g, '')}/${siteType}/${slugExample}`}
             inputProps={{ dir: 'ltr', style: { fontFamily: 'monospace' } }}
             InputProps={{
               startAdornment: (

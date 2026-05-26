@@ -157,13 +157,14 @@ export const createTenantCheckoutSession = onCall(
     const baseUrl = normalizeBaseUrl(origin);
     const amount = resolveStripeAmount(tenant);
     const siteName = tenant.name || tenantSlug;
+    const siteType = tenant.siteType || 'beit-knesset';
 
     const session = await stripe.checkout.sessions.create({
       mode: 'payment',
       locale: 'he',
       customer_email: tenant.contact?.email || undefined,
-      success_url: `${baseUrl}/${tenantSlug}/activate?checkout=success&session_id={CHECKOUT_SESSION_ID}`,
-      cancel_url: `${baseUrl}/${tenantSlug}/activate?checkout=cancelled`,
+      success_url: `${baseUrl}/${siteType}/${tenantSlug}/activate?checkout=success&session_id={CHECKOUT_SESSION_ID}`,
+      cancel_url: `${baseUrl}/${siteType}/${tenantSlug}/activate?checkout=cancelled`,
       metadata: {
         tenantSlug,
         purpose: 'site_activation',
@@ -176,7 +177,7 @@ export const createTenantCheckoutSession = onCall(
             unit_amount: amount,
             product_data: {
               name: `הפעלת אתר - ${siteName}`,
-              description: 'הקמה והפעלה של אתר בית הכנסת',
+              description: 'הקמה והפעלה של אתר ב־genisite',
             },
           },
         },
