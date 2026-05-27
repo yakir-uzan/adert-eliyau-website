@@ -2,7 +2,7 @@ import { useEffect, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { auth, db, storage } from '../firebase';
 import { doc, getDoc, setDoc } from 'firebase/firestore';
-import { GoogleAuthProvider, onAuthStateChanged, signInWithPopup } from 'firebase/auth';
+import { onAuthStateChanged } from 'firebase/auth';
 import { getDownloadURL, ref, uploadBytes } from 'firebase/storage';
 import Box from '@mui/material/Box';
 import Container from '@mui/material/Container';
@@ -21,6 +21,7 @@ import { buildTenantDocFromForm } from '../utils/tenantFormUtils';
 import { primaryButtonSx, secondaryButtonSx } from '../utils/buttonStyles';
 import { createTrialEndDate, TRIAL_DAYS } from '../utils/tenantPlan';
 import { markLocalTenantOwnerAccess, saveLocalTenantDraft } from '../utils/localTenantAccess';
+import { getGoogleAuthErrorMessage, signInWithGoogle } from '../utils/googleAuth';
 import { DEFAULT_SITE_TYPE, getSiteTypeConfig } from '../config/siteTypes';
 import PlatformGoldDivider from '../components/PlatformGoldDivider';
 import { STEPS, LIVE_PREVIEW_SLUG, LIVE_PREVIEW_MESSAGE_TYPE } from './register/registerConstants';
@@ -74,11 +75,9 @@ export default function RegisterTenant() {
   const loginWithGoogle = async () => {
     setError('');
     try {
-      await signInWithPopup(auth, new GoogleAuthProvider());
+      await signInWithGoogle();
     } catch (err) {
-      if (err.code !== 'auth/popup-closed-by-user') {
-        setError('לא הצלחנו להתחבר עם Google. נסו שוב.');
-      }
+      setError(getGoogleAuthErrorMessage(err));
     }
   };
 

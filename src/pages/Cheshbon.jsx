@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { auth, db } from '../firebase';
-import { onAuthStateChanged, signOut, GoogleAuthProvider, signInWithPopup } from 'firebase/auth';
+import { onAuthStateChanged, signOut } from 'firebase/auth';
 import { collection, query, where, orderBy, getDocs, setDoc, doc, serverTimestamp } from 'firebase/firestore';
 import { useTenant } from '../config/TenantContext';
 import { DEFAULT_SITE_TYPE } from '../config/siteTypes';
@@ -24,6 +24,7 @@ import LockIcon from '@mui/icons-material/Lock';
 import CheckCircleIcon from '@mui/icons-material/CheckCircle';
 import PageHero from '../components/PageHero';
 import GoldDivider from '../components/GoldDivider';
+import { getGoogleAuthErrorMessage, signInWithGoogle } from '../utils/googleAuth';
 import css from './Cheshbon.module.css';
 
 const fmtDate  = ts => { if (!ts) return ''; const d = ts?.toDate ? ts.toDate() : new Date(ts); return d.toLocaleDateString('he-IL', { day:'numeric', month:'long', year:'numeric' }); };
@@ -97,8 +98,8 @@ export default function Cheshbon() {
     } else { setUser(null); setAuthState('guest'); }
   }), [slug]);
 
-  const login  = () => signInWithPopup(auth, new GoogleAuthProvider())
-    .catch(() => window.alert('לא הצלחנו להתחבר עם Google. בדקו שהכניסה מופעלת ונסו שוב.'));
+  const login  = () => signInWithGoogle()
+    .catch(err => window.alert(getGoogleAuthErrorMessage(err)));
   const logout = () => signOut(auth);
   const total  = (charges || []).reduce((s,c) => s + (c.amount||0), 0);
   const openCharges = (charges || []).filter(c => (c.amount || 0) > 0);

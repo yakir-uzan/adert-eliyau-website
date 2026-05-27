@@ -12,13 +12,14 @@ import Alert from '@mui/material/Alert';
 import AdminPanelSettingsIcon from '@mui/icons-material/AdminPanelSettings';
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import AddCircleOutlineIcon from '@mui/icons-material/AddCircleOutline';
-import { GoogleAuthProvider, onAuthStateChanged, signInWithPopup, signOut } from 'firebase/auth';
+import { onAuthStateChanged, signOut } from 'firebase/auth';
 import { collection, getDocs, query, where } from 'firebase/firestore';
 import { auth, db } from '../firebase';
 import { DEFAULT_SITE_TYPE, getSiteTypeConfig } from '../config/siteTypes';
 import { PLATFORM_COLORS as COLORS } from '../utils/constants';
 import { withTimeout } from '../utils/slugUtils';
 import { listLocalOwnedTenants, isLocalDevHost } from '../utils/localTenantAccess';
+import { getGoogleAuthErrorMessage, readGoogleRedirectResult, signInWithGoogleRedirect } from '../utils/googleAuth';
 import PlatformLayout, { PlatformPageHeader } from '../components/PlatformLayout';
 
 function tenantAdminPath(site) {
@@ -84,6 +85,12 @@ export default function Login() {
   }), []);
 
   useEffect(() => {
+    readGoogleRedirectResult().catch(err => {
+      if (err?.code) setError(getGoogleAuthErrorMessage(err));
+    });
+  }, []);
+
+  useEffect(() => {
     if (!user) return undefined;
     let active = true;
     setError('');
@@ -110,11 +117,9 @@ export default function Login() {
   const login = async () => {
     setError('');
     try {
-      await signInWithPopup(auth, new GoogleAuthProvider());
+      await signInWithGoogleRedirect();
     } catch (err) {
-      if (err.code !== 'auth/popup-closed-by-user') {
-        setError('הכניסה עם Google לא הצליחה. בדקו שהחלון לא נחסם ונסו שוב.');
-      }
+      setError(getGoogleAuthErrorMessage(err));
     }
   };
 

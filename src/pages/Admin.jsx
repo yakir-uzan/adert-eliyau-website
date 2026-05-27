@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { auth } from '../firebase';
-import { signOut, onAuthStateChanged, GoogleAuthProvider, signInWithPopup } from 'firebase/auth';
+import { signOut, onAuthStateChanged } from 'firebase/auth';
 import { useTenant } from '../config/TenantContext';
 import Box from '@mui/material/Box';
 import Container from '@mui/material/Container';
@@ -21,6 +21,7 @@ import PaletteIcon from '@mui/icons-material/Palette';
 import MenuBookIcon from '@mui/icons-material/MenuBook';
 import VolunteerActivismIcon from '@mui/icons-material/VolunteerActivism';
 import { hasLocalTenantOwnerAccess, isLocalDevHost } from '../utils/localTenantAccess';
+import { getGoogleAuthErrorMessage, signInWithGoogle } from '../utils/googleAuth';
 import css from './Admin.module.css';
 import SettingsTab from './admin/SettingsTab';
 import ZmanimTab from './admin/ZmanimTab';
@@ -65,12 +66,9 @@ export default function Admin() {
 
   const login = async () => {
     try {
-      await signInWithPopup(auth, new GoogleAuthProvider());
+      await signInWithGoogle();
     } catch (err) {
-      const message = err?.code === 'auth/popup-closed-by-user'
-        ? 'הכניסה בוטלה'
-        : 'לא הצלחנו להתחבר עם Google. בדקו שהכניסה מופעלת ב-Firebase ונסו שוב.';
-      onToast(message, 'error');
+      onToast(getGoogleAuthErrorMessage(err), 'error');
     }
   };
 

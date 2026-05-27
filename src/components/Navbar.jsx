@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { auth } from '../firebase';
-import { onAuthStateChanged, signOut, GoogleAuthProvider, signInWithPopup } from 'firebase/auth';
+import { onAuthStateChanged, signOut } from 'firebase/auth';
 import { useTenant } from '../config/TenantContext';
 import AppBar from '@mui/material/AppBar';
 import Toolbar from '@mui/material/Toolbar';
@@ -21,6 +21,7 @@ import MenuIcon from '@mui/icons-material/Menu';
 import CloseIcon from '@mui/icons-material/Close';
 import useScrollTrigger from '@mui/material/useScrollTrigger';
 import { getSiteTypeConfig } from '../config/siteTypes';
+import { getGoogleAuthErrorMessage, signInWithGoogle } from '../utils/googleAuth';
 import css from './Navbar.module.css';
 
 export default function Navbar() {
@@ -41,8 +42,8 @@ export default function Navbar() {
   useEffect(() => onAuthStateChanged(auth, setUser), []);
 
   const handleLogin = () =>
-    signInWithPopup(auth, new GoogleAuthProvider())
-      .catch(() => window.alert('לא הצלחנו להתחבר עם Google. בדקו שהכניסה מופעלת ונסו שוב.'));
+    signInWithGoogle()
+      .catch(err => window.alert(getGoogleAuthErrorMessage(err)));
   const closeAccountMenu = () => setAccountMenuAnchor(null);
   const handleLogout = () => {
     closeAccountMenu();
