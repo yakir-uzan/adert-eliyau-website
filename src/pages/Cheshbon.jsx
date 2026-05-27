@@ -108,7 +108,7 @@ export default function Cheshbon() {
   return (
     <Box>
       <PageHero title={copy.title} subtitle={copy.subtitle} />
-      <Box sx={{ py: 7 }}>
+      <Box sx={{ py: { xs: 4, md: 7 } }}>
         <Container maxWidth="sm">
           <GoldDivider />
 
@@ -176,28 +176,30 @@ export default function Cheshbon() {
                 <Card sx={{ mt: 2 }}>
                   <CardContent>
                     <Typography variant="h6" sx={{ color: 'primary.main', mb: 2 }}>פירוט חיובים פתוחים</Typography>
-                    <Table size="small">
-                      <TableHead>
-                        <TableRow>
-                          <TableCell>תאריך</TableCell>
-                          <TableCell>סוג</TableCell>
-                          <TableCell>תיאור</TableCell>
-                          <TableCell align="left">סכום</TableCell>
-                        </TableRow>
-                      </TableHead>
-                      <TableBody>
-                        {openCharges.map(c => (
-                          <TableRow key={c.id}>
-                            <TableCell>{fmtDate(c.date)}</TableCell>
-                            <TableCell>
-                              <Chip size="small" label={copy.typeLabels[c.type] || 'חיוב'} sx={{ bgcolor: c.type==='aliya'?'rgba(201,168,76,0.15)':'rgba(139,26,26,0.2)', color: c.type==='aliya'?'primary.main':'#f87171' }} />
-                            </TableCell>
-                            <TableCell>{c.description||''}</TableCell>
-                            <TableCell align="left" sx={{ color: 'primary.main', fontWeight: 700 }}>{fmtMoney(c.amount)}</TableCell>
+                    <Box sx={{ overflowX: 'auto', mx: -1 }}>
+                      <Table size="small" sx={{ minWidth: 340 }}>
+                        <TableHead>
+                          <TableRow>
+                            <TableCell sx={{ display: { xs: 'none', sm: 'table-cell' } }}>תאריך</TableCell>
+                            <TableCell>סוג</TableCell>
+                            <TableCell>תיאור</TableCell>
+                            <TableCell align="left">סכום</TableCell>
                           </TableRow>
-                        ))}
-                      </TableBody>
-                    </Table>
+                        </TableHead>
+                        <TableBody>
+                          {openCharges.map(c => (
+                            <TableRow key={c.id}>
+                              <TableCell sx={{ display: { xs: 'none', sm: 'table-cell' } }}>{fmtDate(c.date)}</TableCell>
+                              <TableCell>
+                                <Chip size="small" label={copy.typeLabels[c.type] || 'חיוב'} sx={{ bgcolor: c.type==='aliya'?'rgba(201,168,76,0.15)':'rgba(139,26,26,0.2)', color: c.type==='aliya'?'primary.main':'#f87171' }} />
+                              </TableCell>
+                              <TableCell sx={{ maxWidth: { xs: 120, sm: 'none' }, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{c.description||''}</TableCell>
+                              <TableCell align="left" sx={{ color: 'primary.main', fontWeight: 700, whiteSpace: 'nowrap' }}>{fmtMoney(c.amount)}</TableCell>
+                            </TableRow>
+                          ))}
+                        </TableBody>
+                      </Table>
+                    </Box>
                   </CardContent>
                 </Card>
               )}

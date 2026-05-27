@@ -41,7 +41,7 @@ export default function GallerySection({ galleryPreview, base, current, heroSlid
         {hasImages ? (
           <>
             <Box sx={{
-              display: 'grid', gridTemplateColumns: { xs: 'repeat(4, 1fr)', sm: 'repeat(4, 1fr)' }, gap: 1, mt: 2,
+              display: 'grid', gridTemplateColumns: { xs: 'repeat(2, 1fr)', sm: 'repeat(4, 1fr)' }, gap: 1, mt: 2,
               opacity: current === 2 ? 1 : 0, transform: current === 2 ? 'translateY(0)' : 'translateY(18px)',
               transition: 'opacity 0.7s ease 0.4s, transform 0.7s ease 0.4s',
             }}>

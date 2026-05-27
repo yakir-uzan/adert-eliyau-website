@@ -37,7 +37,7 @@ export default function HeroSection({ heroSlides, slide, config, siteTypeConfig,
             variant="h1"
             className={css.titleH1}
             sx={{
-              fontSize: { xs: '2.8rem', md: '5rem' }, mb: 1.5,
+              fontSize: { xs: 'clamp(1.9rem, 8vw, 2.8rem)', md: '5rem' }, mb: 1.5,
               '& span': {
                 backgroundImage: (theme) => `linear-gradient(90deg, ${theme.palette.primary.main} 0%, ${theme.palette.primary.light} 45%, ${theme.palette.primary.main} 100%)`,
               },

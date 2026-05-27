@@ -64,7 +64,7 @@ export default function Contact() {
   return (
     <Box>
       <PageHero title="יצירת קשר" subtitle={pageCopy.subtitle} />
-      <Box sx={{ py: 7 }}>
+      <Box sx={{ py: { xs: 4, md: 7 } }}>
         <Container maxWidth="lg">
           <GoldDivider />
           <Grid container spacing={4} mt={1}>

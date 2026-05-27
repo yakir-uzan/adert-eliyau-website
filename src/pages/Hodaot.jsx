@@ -124,7 +124,7 @@ export default function Hodaot() {
   return (
     <Box>
       <PageHero title={pageCopy.title} subtitle="" />
-      <Box sx={{ py: 7 }}>
+      <Box sx={{ py: { xs: 4, md: 7 } }}>
         <Container maxWidth="sm">
           <GoldDivider />
           <Box sx={{ mt: 3, display: 'flex', flexDirection: 'column', gap: 2 }}>

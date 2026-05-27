@@ -190,7 +190,7 @@ export default function Zmanim() {
   return (
     <Box>
       <PageHero title={pageCopy.title} subtitle="" />
-      <Box sx={{ py: 7 }}>
+      <Box sx={{ py: { xs: 4, md: 7 } }}>
         <Container maxWidth="md">
           <GoldDivider />
           {visibleSections.length > 0 ? (

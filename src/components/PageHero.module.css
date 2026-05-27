@@ -1,11 +1,11 @@
 .hero {
-  height: 260px;
+  height: clamp(160px, 30vw, 260px);
   position: relative;
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: flex-end;
-  padding-bottom: 40px; /* pb: 5 = 40px */
+  padding-bottom: clamp(24px, 5vw, 40px);
   overflow: hidden;
   text-align: center;
 }

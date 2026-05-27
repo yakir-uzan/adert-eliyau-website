@@ -165,8 +165,7 @@ export default function Navbar() {
         onClose={() => setDrawerOpen(false)}
         PaperProps={{
           dir: 'rtl',
-          style: { direction: 'rtl', right: 0, left: 'auto' },
-          sx: { width: 280 },
+          sx: { width: 280, display: 'flex', flexDirection: 'column' },
         }}
       >
         <div className={css.drawerHeader}>
@@ -177,8 +176,8 @@ export default function Navbar() {
             <CloseIcon />
           </IconButton>
         </div>
-        <List>
-          {[...NAV_LINKS, { label: 'החשבון שלי', to: `${base}/cheshbon` }].map(l => (
+        <List sx={{ flex: 1 }}>
+          {NAV_LINKS.map(l => (
             <ListItem key={l.to} disablePadding>
               <ListItemButton
                 component={Link}
@@ -195,7 +194,44 @@ export default function Navbar() {
               </ListItemButton>
             </ListItem>
           ))}
+          {user && (
+            <ListItem disablePadding>
+              <ListItemButton
+                component={Link}
+                to={`${base}/cheshbon`}
+                onClick={() => setDrawerOpen(false)}
+                selected={location.pathname === `${base}/cheshbon`}
+                className={css.drawerItemBorder}
+                sx={{ '&.Mui-selected': { bgcolor: 'rgba(201,168,76,0.1)', color: 'primary.main' } }}
+              >
+                <ListItemText primary="החשבון שלי" primaryTypographyProps={{ fontWeight: 600 }} />
+              </ListItemButton>
+            </ListItem>
+          )}
         </List>
+        <Box sx={{ p: 2, borderTop: '1px solid rgba(201,168,76,0.15)' }}>
+          {user ? (
+            <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
+              <Avatar src={user.photoURL} sx={{ width: 36, height: 36, border: '1.5px solid', borderColor: 'primary.main' }} />
+              <Box sx={{ flex: 1, minWidth: 0 }}>
+                <Typography variant="body2" fontWeight={700} noWrap sx={{ color: 'secondary.main' }}>{user.displayName}</Typography>
+              </Box>
+              <Button size="small" variant="outlined" onClick={() => { setDrawerOpen(false); handleLogout(); }}>
+                יציאה
+              </Button>
+            </Box>
+          ) : (
+            <Button
+              fullWidth
+              variant="outlined"
+              size="large"
+              sx={{ minHeight: 48 }}
+              onClick={() => { setDrawerOpen(false); handleLogin(); }}
+            >
+              התחבר
+            </Button>
+          )}
+        </Box>
       </Drawer>
     </>
   );

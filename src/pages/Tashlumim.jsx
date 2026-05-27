@@ -84,7 +84,7 @@ export default function Tashlumim() {
   return (
     <Box>
       <PageHero title={pageCopy.title} subtitle="" />
-      <Box sx={{ py: 7 }}>
+      <Box sx={{ py: { xs: 4, md: 7 } }}>
         <Container maxWidth="lg">
           <GoldDivider />
           <Typography textAlign="center" color="text.secondary" sx={{ mb: 4, mt: 2 }}>{pageCopy.subtitle}</Typography>

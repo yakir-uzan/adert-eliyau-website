@@ -21,6 +21,7 @@ export default function Galeria() {
   const [images, setImages] = useState([]);
   const [open, setOpen]     = useState(false);
   const [idx, setIdx]       = useState(0);
+  const [touchStartX, setTouchStartX] = useState(null);
 
   useEffect(() => {
     if (isLocalDevHost()) {
@@ -60,7 +61,7 @@ export default function Galeria() {
   return (
     <Box>
       <PageHero title="גלריה" subtitle={`תמונות מ${config.name}`} />
-      <Box sx={{ py: 7 }}>
+      <Box sx={{ py: { xs: 4, md: 7 } }}>
         <Container maxWidth="lg">
           <GoldDivider />
           {images.length === 0 ? (
@@ -102,8 +103,17 @@ export default function Galeria() {
           PaperProps={{ sx: { bgcolor: 'rgba(0,0,0,0.95)', boxShadow: 'none', m: 1 } }}
           BackdropProps={{ sx: { bgcolor: 'rgba(0,0,0,0.93)' } }}
         >
-          <DialogContent sx={{ p: 0, position: 'relative', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-            <IconButton onClick={() => setOpen(false)} sx={{ position: 'absolute', top: 8, left: 8, color: 'primary.light', zIndex: 10 }}><CloseIcon /></IconButton>
+          <DialogContent
+            sx={{ p: 0, position: 'relative', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
+            onTouchStart={(e) => setTouchStartX(e.touches[0].clientX)}
+            onTouchEnd={(e) => {
+              if (touchStartX === null) return;
+              const diff = touchStartX - e.changedTouches[0].clientX;
+              if (Math.abs(diff) > 50) diff > 0 ? next() : prev();
+              setTouchStartX(null);
+            }}
+          >
+            <IconButton onClick={() => setOpen(false)} sx={{ position: 'absolute', top: 8, right: 8, color: 'primary.light', zIndex: 10 }}><CloseIcon /></IconButton>
             <IconButton onClick={prev} sx={{ position: 'absolute', left: 8, top: '50%', transform: 'translateY(-50%)', color: 'primary.main', bgcolor: 'rgba(201,168,76,0.1)', '&:hover': { bgcolor: 'rgba(201,168,76,0.25)' } }}><ChevronRightIcon fontSize="large" /></IconButton>
             <Box component="img" src={images[idx].src} alt={images[idx].caption} sx={{ maxWidth: '90vw', maxHeight: '85vh', objectFit: 'contain', borderRadius: 1, display: 'block' }} />
             <IconButton onClick={next} sx={{ position: 'absolute', right: 8, top: '50%', transform: 'translateY(-50%)', color: 'primary.main', bgcolor: 'rgba(201,168,76,0.1)', '&:hover': { bgcolor: 'rgba(201,168,76,0.25)' } }}><ChevronLeftIcon fontSize="large" /></IconButton>
