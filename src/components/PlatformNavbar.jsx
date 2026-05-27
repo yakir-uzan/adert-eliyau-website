@@ -51,7 +51,22 @@ export default function PlatformNavbar() {
           px: { xs: 1.5, sm: 2, md: 3 },
         }}
       >
-        <Link to="/" style={{ textDecoration: 'none', display: 'flex', alignItems: 'center', gap: 6, minHeight: 44 }}>
+        <Box sx={{ display: 'flex', alignItems: 'center', gap: { xs: 0.5, sm: 1 }, minWidth: 0, flexShrink: 0 }}>
+          <IconButton
+            aria-label="פתח תפריט"
+            onClick={() => setDrawerOpen(true)}
+            sx={{
+              display: { xs: 'inline-flex', md: 'none' },
+              color: COLORS.goldLight,
+              width: 44,
+              height: 44,
+              flexShrink: 0,
+            }}
+          >
+            <MenuIcon />
+          </IconButton>
+
+        <Link to="/" style={{ textDecoration: 'none', display: 'flex', alignItems: 'center', gap: 6, minHeight: 44, minWidth: 0 }}>
           <Typography
             component="span"
             sx={{
@@ -76,20 +91,7 @@ export default function PlatformNavbar() {
             }}
           />
         </Link>
-
-        <IconButton
-          aria-label="פתח תפריט"
-          onClick={() => setDrawerOpen(true)}
-          sx={{
-            display: { xs: 'inline-flex', md: 'none' },
-            color: COLORS.goldLight,
-            width: 44,
-            height: 44,
-            flexShrink: 0,
-          }}
-        >
-          <MenuIcon />
-        </IconButton>
+        </Box>
 
         <Box sx={{ display: { xs: 'none', md: 'flex' }, alignItems: 'center', gap: 0.5 }}>
           {NAV_ITEMS.map((item) => (
