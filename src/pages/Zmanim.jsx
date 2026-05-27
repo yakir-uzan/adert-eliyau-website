@@ -135,7 +135,7 @@ function TimeBlock({ section }) {
         </Typography>
         {section.rows.map((row, index) => (
           <Box key={`${row.label}-${row.time}-${index}`} className={css.timeRow} sx={{ py: 1.25 }}>
-            <Typography sx={{ color: 'primary.main', fontWeight: 600, fontSize: '1.02rem' }}>{row.label}</Typography>
+            <Typography sx={{ color: 'primary.main', fontWeight: 700, fontSize: '1.15rem' }}>{row.label}</Typography>
             <Typography className={css.timeValue} sx={{ color: '#FFFFFF' }}>
               {row.time}
             </Typography>
