@@ -32,7 +32,7 @@ export default function TrialBanner({ slug, basePath, plan }) {
   return (
     <>
       <Box
-        sx={{
+        style={{
           position: 'fixed',
           bottom: 20,
           left: 20,

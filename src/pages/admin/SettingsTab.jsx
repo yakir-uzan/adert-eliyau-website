@@ -7,7 +7,6 @@ import Card from '@mui/material/Card';
 import TextField from '@mui/material/TextField';
 import Button from '@mui/material/Button';
 import Grid from '@mui/material/Grid';
-import Alert from '@mui/material/Alert';
 import Autocomplete from '@mui/material/Autocomplete';
 import CircularProgress from '@mui/material/CircularProgress';
 import SaveIcon from '@mui/icons-material/Save';
@@ -47,6 +46,22 @@ export default function SettingsTab({ config, slug, onToast, localMode }) {
   useEffect(() => {
     setForm(tenantToForm(config));
   }, [config]);
+
+  // Auto-generate Google Maps embed URL from address + city
+  useEffect(() => {
+    const addr = form.address?.trim() || '';
+    const city = form.city?.trim() || '';
+    if (!addr && !city) return;
+    const q = [addr, city].filter(Boolean).join(', ');
+    const generated = `https://maps.google.com/maps?q=${encodeURIComponent(q)}&output=embed`;
+    setForm(prev => {
+      const current = prev.mapEmbedUrl || '';
+      // Only overwrite if empty or previously auto-generated
+      if (current && !current.startsWith('https://maps.google.com/maps?q=')) return prev;
+      if (current === generated) return prev;
+      return { ...prev, mapEmbedUrl: generated };
+    });
+  }, [form.address, form.city]);
 
   const update = key => e => setForm(prev => ({ ...prev, [key]: e.target.value }));
   const updateValue = (key, value) => setForm(prev => ({ ...prev, [key]: value }));
@@ -235,9 +250,6 @@ export default function SettingsTab({ config, slug, onToast, localMode }) {
         </Grid>
 
         <div className={css.saveRow}>
-          <Alert severity="info" sx={{ flex: 1, minWidth: 260 }}>
-            אחרי שמירה, השינויים יופיעו בכל האתר של {siteTypeConfig.label} הזה בלבד.
-          </Alert>
           <Button variant="contained" onClick={save} disabled={saving} startIcon={saving ? null : <SaveIcon />} sx={{ px: 4 }}>
             {saving ? <CircularProgress size={20} sx={{ color: 'inherit' }} /> : 'שמור פרטי אתר'}
           </Button>
