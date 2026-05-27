@@ -24,6 +24,7 @@ service firebase.storage {
         isPlatformAdmin()
         || ('admins' in t && t.admins is list && request.auth.uid in t.admins)
         || ('adminEmails' in t && t.adminEmails is list && request.auth.token.email in t.adminEmails)
+        || ('createdBy' in t && t.createdBy == request.auth.uid)
       );
     }
 

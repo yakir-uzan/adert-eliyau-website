@@ -95,8 +95,15 @@ export default function GaleriaTab({ onToast, slug, localMode }) {
       setFile(null); setCaption('');
       if (fileRef.current) fileRef.current.value = '';
       load();
-    } catch {
-      onToast('שגיאה בהעלאה — וודאו שה-Firebase מוגדר', 'error');
+    } catch (err) {
+      console.error('Gallery upload error:', err);
+      if (err?.code === 'storage/unauthorized' || err?.code === 'permission-denied') {
+        onToast('אין הרשאה להעלאה — בדקו את כללי Firebase Storage', 'error');
+      } else if (err?.code?.startsWith('storage/')) {
+        onToast(`שגיאת Storage: ${err.message}`, 'error');
+      } else {
+        onToast(`שגיאה בהעלאה: ${err?.message || err?.code || 'שגיאה לא ידועה'}`, 'error');
+      }
     }
     setUploading(false);
     setProgress(0);
