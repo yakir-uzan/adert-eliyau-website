@@ -122,18 +122,18 @@ export default function Admin() {
           <Tab icon={<PaletteIcon />} iconPosition="start" label={pageCopy.admin.settings} />
           <Tab icon={<AccessTimeIcon />} iconPosition="start" label={pageCopy.admin.schedule} />
           <Tab icon={<CampaignIcon />}   iconPosition="start" label={siteTypeConfig.nav.find(item => item.path === 'hodaot')?.label || 'הודעות'} />
-          <Tab icon={<VolunteerActivismIcon />} iconPosition="start" label="קמפיינים" />
-          <Tab icon={<PhotoLibraryIcon />} iconPosition="start" label="גלריה" />
           <Tab icon={<MenuBookIcon />} iconPosition="start" label={siteTypeConfig.nav.find(item => item.path === 'brachot')?.label || 'תוכן'} />
           <Tab icon={<CreditCardIcon />} iconPosition="start" label={pageCopy.admin.charges} />
+          <Tab icon={<VolunteerActivismIcon />} iconPosition="start" label="קמפיינים" />
+          <Tab icon={<PhotoLibraryIcon />} iconPosition="start" label="גלריה" />
         </Tabs>
         <TabPanel value={tab} index={0}><SettingsTab config={config} slug={slug} onToast={onToast} currentUser={adminUser} isPlatformAdmin={isPlatformAdmin} localMode={localMode} /></TabPanel>
         <TabPanel value={tab} index={1}><ZmanimTab config={config} onToast={onToast} slug={slug} localMode={localMode} /></TabPanel>
         <TabPanel value={tab} index={2}><HodaotTab config={config} onToast={onToast} slug={slug} localMode={localMode} /></TabPanel>
-        <TabPanel value={tab} index={3}><CampaignsTab config={config} slug={slug} basePath={basePath} onToast={onToast} localMode={localMode} /></TabPanel>
-        <TabPanel value={tab} index={4}><GaleriaTab onToast={onToast} slug={slug} localMode={localMode} /></TabPanel>
-        <TabPanel value={tab} index={5}><BrachotTab config={config} slug={slug} onToast={onToast} localMode={localMode} /></TabPanel>
-        <TabPanel value={tab} index={6}><ChargesTab config={config} onToast={onToast} slug={slug} /></TabPanel>
+        <TabPanel value={tab} index={3}><BrachotTab config={config} slug={slug} onToast={onToast} localMode={localMode} /></TabPanel>
+        <TabPanel value={tab} index={4}><ChargesTab config={config} onToast={onToast} slug={slug} /></TabPanel>
+        <TabPanel value={tab} index={5}><CampaignsTab config={config} slug={slug} basePath={basePath} onToast={onToast} localMode={localMode} /></TabPanel>
+        <TabPanel value={tab} index={6}><GaleriaTab onToast={onToast} slug={slug} localMode={localMode} /></TabPanel>
       </Container>
 
       <Snackbar open={toast.open} autoHideDuration={3000} onClose={() => setToast(t => ({ ...t, open: false }))} anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}>
