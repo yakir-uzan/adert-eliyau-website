@@ -29,18 +29,9 @@ export function getGoogleAuthErrorMessage(error) {
   }
 }
 
-function shouldUseRedirect() {
-  if (typeof window === 'undefined') return false;
-  return window.matchMedia?.('(max-width: 768px)').matches
-    || /Android|iPhone|iPad|iPod/i.test(window.navigator.userAgent);
-}
-
-export async function signInWithGoogle({ preferRedirect = false } = {}) {
-  if (preferRedirect || shouldUseRedirect()) {
-    await signInWithRedirect(auth, provider);
-    return null;
-  }
-
+export async function signInWithGoogle() {
+  // Always use popup — redirect causes cross-domain auth issues on custom domains.
+  // Popup works reliably from a user gesture on all modern browsers (desktop + mobile).
   try {
     return await signInWithPopup(auth, provider);
   } catch (error) {
@@ -48,6 +39,7 @@ export async function signInWithGoogle({ preferRedirect = false } = {}) {
       error?.code === 'auth/popup-blocked'
       || error?.code === 'auth/operation-not-supported-in-this-environment'
     ) {
+      // Last-resort fallback: if the browser blocks the popup, use redirect.
       await signInWithRedirect(auth, provider);
       return null;
     }

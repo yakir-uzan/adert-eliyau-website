@@ -19,7 +19,7 @@ import { DEFAULT_SITE_TYPE, getSiteTypeConfig } from '../config/siteTypes';
 import { PLATFORM_COLORS as COLORS } from '../utils/constants';
 import { withTimeout } from '../utils/slugUtils';
 import { listLocalOwnedTenants, isLocalDevHost } from '../utils/localTenantAccess';
-import { getGoogleAuthErrorMessage, readGoogleRedirectResult, signInWithGoogleRedirect } from '../utils/googleAuth';
+import { getGoogleAuthErrorMessage, readGoogleRedirectResult, signInWithGoogle } from '../utils/googleAuth';
 import PlatformLayout, { PlatformPageHeader } from '../components/PlatformLayout';
 
 function tenantAdminPath(site) {
@@ -117,7 +117,7 @@ export default function Login() {
   const login = async () => {
     setError('');
     try {
-      await signInWithGoogleRedirect();
+      await signInWithGoogle();
     } catch (err) {
       setError(getGoogleAuthErrorMessage(err));
     }

@@ -8,6 +8,7 @@ import Box from '@mui/material/Box';
 import CircularProgress from '@mui/material/CircularProgress';
 import TrialBanner from './components/TrialBanner';
 import { useTenant } from './config/TenantContext';
+import { readGoogleRedirectResult } from './utils/googleAuth';
 
 const Home = lazy(() => import('./pages/Home'));
 const Zmanim = lazy(() => import('./pages/Zmanim'));
@@ -89,6 +90,10 @@ function TenantWrapper() {
 }
 
 export default function App() {
+  // Process any pending redirect sign-in result (fallback from signInWithRedirect).
+  // Must run once globally so any page the user lands on after redirect completes auth.
+  useEffect(() => { readGoogleRedirectResult().catch(() => {}); }, []);
+
   useEffect(() => {
     const applyRtlToInputs = (root = document) => {
       root.querySelectorAll('input:not([dir="ltr"]), textarea:not([dir="ltr"])').forEach((element) => {
