@@ -23,13 +23,6 @@ export function buildTenantDocFromForm(data, userId = '', options = {}) {
     ? [data.pageHeroBg.trim(), '/images/hero/building-render.jpg', '/images/hero/interior-01.png']
     : ['/images/hero/building-render.jpg', '/images/hero/interior-01.png', '/images/hero/interior-02.png'];
   const tickerItems = siteTypeConfig.ticker || PREVIEW_TICKER_ITEMS;
-  const bankRows = [
-    ['בנק', data.bankName.trim()],
-    ['סניף', data.bankBranch.trim()],
-    ['חשבון', data.accountNumber.trim()],
-    ['לפקודת', data.accountOwner.trim()],
-  ].filter(([, value]) => value);
-
   return {
     siteType,
     templateId: siteType,
@@ -55,7 +48,10 @@ export function buildTenantDocFromForm(data, userId = '', options = {}) {
       payboxPhone: data.payboxPhone.trim(),
       payboxLink: data.payboxLink.trim(),
       nedarimLink: data.nedarimLink.trim(),
-      bankRows,
+      bankName: data.bankName.trim(),
+      bankBranch: data.bankBranch.trim(),
+      accountNumber: data.accountNumber.trim(),
+      accountOwner: data.accountOwner.trim(),
       stripeKey: '',
     },
     theme: {

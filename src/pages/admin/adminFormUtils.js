@@ -25,11 +25,10 @@ export function tenantToForm(config = {}) {
     payboxLink: payments.payboxLink || '',
     nedarimLink: payments.nedarimLink || '',
     stripeKey: payments.stripeKey || '',
-    bankRowsText: Array.isArray(payments.bankRows) ? payments.bankRows.map(([k, v]) => `${k}: ${v}`).join('\n') : '',
-    bankName: Array.isArray(payments.bankRows) ? (payments.bankRows.find(([k]) => k === 'בנק')?.[1] || '') : '',
-    bankBranch: Array.isArray(payments.bankRows) ? (payments.bankRows.find(([k]) => k === 'סניף')?.[1] || '') : '',
-    accountNumber: Array.isArray(payments.bankRows) ? (payments.bankRows.find(([k]) => k === 'חשבון')?.[1] || '') : '',
-    accountOwner: Array.isArray(payments.bankRows) ? (payments.bankRows.find(([k]) => k === 'לפקודת')?.[1] || '') : '',
+    bankName: payments.bankName || (Array.isArray(payments.bankRows) ? (payments.bankRows.find(([k]) => k === 'בנק')?.[1] || '') : ''),
+    bankBranch: payments.bankBranch || (Array.isArray(payments.bankRows) ? (payments.bankRows.find(([k]) => k === 'סניף')?.[1] || '') : ''),
+    accountNumber: payments.accountNumber || (Array.isArray(payments.bankRows) ? (payments.bankRows.find(([k]) => k === 'חשבון')?.[1] || '') : ''),
+    accountOwner: payments.accountOwner || (Array.isArray(payments.bankRows) ? (payments.bankRows.find(([k]) => k === 'לפקודת')?.[1] || '') : ''),
     setupPrice: billing.setupPrice || '',
     renewalPrice: billing.renewalPrice || '',
     setupAmount: billing.setupAmount || '',
@@ -49,14 +48,6 @@ export function tenantToForm(config = {}) {
 }
 
 export function mergeTenantConfig(config, form) {
-  const bankRows = [
-    ['בנק', form.bankName?.trim()],
-    ['סניף', form.bankBranch?.trim()],
-    ['חשבון', form.accountNumber?.trim()],
-    ['לפקודת', form.accountOwner?.trim()],
-  ]
-    .filter(([key, value]) => key && value);
-
   return {
     ...config,
     name: form.name.trim(),
@@ -84,7 +75,10 @@ export function mergeTenantConfig(config, form) {
       payboxLink: form.payboxLink.trim(),
       nedarimLink: form.nedarimLink.trim(),
       stripeKey: form.stripeKey.trim(),
-      bankRows,
+      bankName: form.bankName?.trim() || '',
+      bankBranch: form.bankBranch?.trim() || '',
+      accountNumber: form.accountNumber?.trim() || '',
+      accountOwner: form.accountOwner?.trim() || '',
     },
     billing: {
       ...(config.billing || {}),

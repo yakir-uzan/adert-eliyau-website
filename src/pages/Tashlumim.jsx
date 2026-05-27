@@ -76,7 +76,14 @@ export default function Tashlumim() {
   const payboxLink  = pay.payboxLink || '';
   const nedarimLink = pay.nedarimLink || 'https://www.nedarimplus.co.il/';
   const bitLink     = bitPhone ? `https://www.bitpay.co.il/app/transfer?phone=${bitPhone}` : '';
-  const bankRows    = pay.bankRows || [];
+  const bankRows = pay.bankName || pay.bankBranch || pay.accountNumber || pay.accountOwner
+    ? [
+        ['בנק', pay.bankName],
+        ['סניף', pay.bankBranch],
+        ['חשבון', pay.accountNumber],
+        ['לפקודת', pay.accountOwner],
+      ].filter(([, v]) => v?.trim())
+    : (pay.bankRows || []);
   const standingOrderPdfUrl = pay.standingOrderPdfUrl || '';
 
   const [creditOpen, setCreditOpen] = useState(false);

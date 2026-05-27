@@ -122,7 +122,14 @@ function PurchaseDialog({ bracha, onClose, config }) {
   const bitPhone   = pay.bitPhone || '';
   const payboxLink = pay.payboxLink || '';
   const nedarimLink = pay.nedarimLink || '';
-  const bankRows   = pay.bankRows || [];
+  const bankRows = pay.bankName || pay.bankBranch || pay.accountNumber || pay.accountOwner
+    ? [
+        ['בנק', pay.bankName],
+        ['סניף', pay.bankBranch],
+        ['חשבון', pay.accountNumber],
+        ['לפקודת', pay.accountOwner],
+      ].filter(([, v]) => v?.trim())
+    : (pay.bankRows || []);
   const bitLink    = bitPhone ? `https://www.bitpay.co.il/app/transfer?phone=${bitPhone}` : '';
 
   const { title, description, price, Icon } = bracha;
