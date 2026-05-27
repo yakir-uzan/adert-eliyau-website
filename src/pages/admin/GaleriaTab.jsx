@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from 'react';
-import { db, storage } from '../../firebase';
-import { ref, uploadBytes, getDownloadURL, deleteObject } from 'firebase/storage';
+import { db } from '../../firebase';
+import { uploadToImgBB } from '../../utils/imgbbUpload';
 import {
   doc, collection, query, where, orderBy,
   getDocs, addDoc, updateDoc, serverTimestamp,
@@ -75,16 +75,11 @@ export default function GaleriaTab({ onToast, slug, localMode }) {
         return;
       }
 
-      const filename = `gallery/${slug}/${Date.now()}_${file.name}`;
-      const storageRef = ref(storage, filename);
       setProgress(40);
-      await uploadBytes(storageRef, file);
-      setProgress(70);
-      const url = await getDownloadURL(storageRef);
-      setProgress(90);
+      const url = await uploadToImgBB(file);
+      setProgress(80);
       await addDoc(collection(db, 'gallery'), {
         src: url,
-        storagePath: filename,
         caption: caption || file.name,
         active: true,
         createdAt: serverTimestamp(),
@@ -119,9 +114,6 @@ export default function GaleriaTab({ onToast, slug, localMode }) {
         return;
       }
       await updateDoc(doc(db, 'gallery', img.id), { active: false });
-      if (img.storagePath) {
-        try { await deleteObject(ref(storage, img.storagePath)); } catch { onToast('הרשומה נמחקה, אבל מחיקת הקובץ מהאחסון נכשלה', 'warning'); }
-      }
       onToast('התמונה נמחקה');
       setDeleteItem(null);
       load();

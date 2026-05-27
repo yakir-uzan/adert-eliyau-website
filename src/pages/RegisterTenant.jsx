@@ -1,9 +1,9 @@
 import { useEffect, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { auth, db, storage } from '../firebase';
+import { auth, db } from '../firebase';
 import { doc, getDoc, setDoc } from 'firebase/firestore';
 import { onAuthStateChanged } from 'firebase/auth';
-import { getDownloadURL, ref, uploadBytes } from 'firebase/storage';
+import { uploadToImgBB } from '../utils/imgbbUpload';
 import Box from '@mui/material/Box';
 import Container from '@mui/material/Container';
 import Typography from '@mui/material/Typography';
@@ -91,10 +91,8 @@ export default function RegisterTenant() {
         setToast('התמונה נטענה לתצוגה המקדימה');
         return;
       }
-      const slugBase = data.slug || buildSlugFromName(data.name) || user?.uid || 'tenant';
-      const imageRef = ref(storage, `tenants/${slugBase}/branding/${field}-${Date.now()}-${file.name}`);
-      await uploadBytes(imageRef, file);
-      update(field, await getDownloadURL(imageRef));
+      const url = await uploadToImgBB(file);
+      update(field, url);
       setToast('התמונה הועלתה בהצלחה');
     } catch { setError('לא הצלחנו להעלות את התמונה. נסו שוב.'); }
     setUploads(prev => ({ ...prev, [field]: false }));
