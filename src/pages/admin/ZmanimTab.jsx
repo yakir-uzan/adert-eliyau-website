@@ -160,10 +160,13 @@ export default function ZmanimTab({ config, onToast, slug, localMode }) {
                           placeholder={pageCopy.rowPlaceholder}
                         />
                       </Grid>
-                      <Grid item xs={10} sm={5}>
+                      <Grid item xs={8} sm={4}>
                         <TimeField value={row.time} onChange={value => updateRow(section.id, row.id, { time: value })} />
                       </Grid>
-                      <Grid item xs={2} sm={1}>
+                      <Grid item xs={4} sm={2} sx={{ display: 'flex', gap: 0.5 }}>
+                        <IconButton onClick={() => addRow(section.id)} sx={{ color: 'primary.main' }} title="הוסף שורה אחרי זו">
+                          <AddIcon fontSize="small" />
+                        </IconButton>
                         <IconButton onClick={() => removeRow(section.id, row.id)} disabled={section.rows.length === 1} sx={{ color: 'error.main' }}>
                           <DeleteIcon fontSize="small" />
                         </IconButton>
@@ -172,8 +175,8 @@ export default function ZmanimTab({ config, onToast, slug, localMode }) {
                   </Grid>
                 ))}
               </Grid>
-              <Button startIcon={<AddIcon />} onClick={() => addRow(section.id)} sx={{ mt: 1.5 }}>
-                הוסף שורה
+              <Button startIcon={<AddIcon />} onClick={() => addRow(section.id)} variant="outlined" size="small" sx={{ mt: 1.5, color: 'primary.main', borderColor: 'primary.main' }}>
+                + הוסף תפילה / שיעור
               </Button>
             </Box>
           ))}
