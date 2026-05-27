@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { db } from '../../firebase';
-import { doc, setDoc } from 'firebase/firestore';
+import { doc, updateDoc } from 'firebase/firestore';
 import Box from '@mui/material/Box';
 import Typography from '@mui/material/Typography';
 import Card from '@mui/material/Card';
@@ -81,7 +81,7 @@ export default function SettingsTab({ config, slug, onToast, localMode }) {
         return;
       }
 
-      await setDoc(doc(db, 'tenants', slug), {
+      await updateDoc(doc(db, 'tenants', slug), {
         name: nextConfig.name,
         subtitle: nextConfig.subtitle,
         aboutText: nextConfig.aboutText,
@@ -89,15 +89,18 @@ export default function SettingsTab({ config, slug, onToast, localMode }) {
         whatsapp: nextConfig.whatsapp,
         payments: nextConfig.payments,
         images: nextConfig.images,
-      }, { merge: true });
+      });
 
       onToast('פרטי האתר נשמרו בהצלחה');
     } catch (err) {
-      console.error('SettingsTab save error:', err);
-      if (err?.code === 'permission-denied') {
+      console.error('SettingsTab save error:', err?.code, err?.message, err);
+      const code = err?.code || '';
+      if (code === 'permission-denied' || code === 'PERMISSION_DENIED') {
         onToast('אין הרשאה לשמור — ודאו שאתם מחוברים עם החשבון שיצר את האתר', 'error');
+      } else if (code === 'unavailable' || code === 'deadline-exceeded') {
+        onToast('בעיית רשת — בדקו חיבור ונסו שוב', 'error');
       } else {
-        onToast('שגיאה בשמירת פרטי האתר', 'error');
+        onToast(`שגיאה בשמירה (${code || 'unknown'})`, 'error');
       }
     }
     setSaving(false);
@@ -248,13 +251,13 @@ export default function SettingsTab({ config, slug, onToast, localMode }) {
             <TextField label="תמונת רקע לדפים" value={form.pageHeroBg} onChange={update('pageHeroBg')} fullWidth inputProps={{ dir: 'ltr' }} />
           </Grid>
         </Grid>
-
-        <div className={css.saveRow}>
-          <Button variant="contained" onClick={save} disabled={saving} startIcon={saving ? null : <SaveIcon />} sx={{ px: 4 }}>
-            {saving ? <CircularProgress size={20} sx={{ color: 'inherit' }} /> : 'שמור פרטי אתר'}
-          </Button>
-        </div>
       </Card>
+
+      <Box sx={{ display: 'flex', justifyContent: 'flex-end', mt: 1, mb: 2 }}>
+        <Button variant="contained" onClick={save} disabled={saving} startIcon={saving ? null : <SaveIcon />} sx={{ px: 5, minHeight: 48 }}>
+          {saving ? <CircularProgress size={20} sx={{ color: 'inherit' }} /> : 'שמור פרטי אתר'}
+        </Button>
+      </Box>
     </Box>
   );
 }
