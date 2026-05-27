@@ -12,8 +12,10 @@ import Button from '@mui/material/Button';
 import IconButton from '@mui/material/IconButton';
 import CircularProgress from '@mui/material/CircularProgress';
 import LinearProgress from '@mui/material/LinearProgress';
+import Dialog from '@mui/material/Dialog';
 import DeleteIcon from '@mui/icons-material/Delete';
 import CloudUploadIcon from '@mui/icons-material/CloudUpload';
+import CloseIcon from '@mui/icons-material/Close';
 import { readFileAsDataUrl } from '../../utils/fileUtils';
 import { readLocalGallery, saveLocalGallery } from '../../utils/localTenantAccess';
 import ConfirmActionDialog from '../../components/ConfirmActionDialog';
@@ -25,6 +27,7 @@ export default function GaleriaTab({ onToast, slug, localMode }) {
   const [uploading, setUploading] = useState(false);
   const [uploadStatus, setUploadStatus] = useState({ done: 0, total: 0 });
   const [deleteItem, setDeleteItem] = useState(null);
+  const [lightbox, setLightbox]     = useState(null); // image object or null
   const fileRef = useRef();
 
   const load = async () => {
@@ -185,7 +188,7 @@ export default function GaleriaTab({ onToast, slug, localMode }) {
       )}
       <div className={css.imageGrid}>
         {images.map(img => (
-          <div key={img.id} className={css.imageCard}>
+          <div key={img.id} className={css.imageCard} onClick={() => setLightbox(img)} style={{ cursor: 'zoom-in' }}>
             <img src={img.src} alt={img.caption} />
             <div className={css.imageOverlay}>
               <Typography variant="caption" sx={{ color: 'secondary.main', fontWeight: 600, lineHeight: 1.3 }}>
@@ -195,7 +198,7 @@ export default function GaleriaTab({ onToast, slug, localMode }) {
             <IconButton
               aria-label="מחיקת תמונה"
               size="small"
-              onClick={() => setDeleteItem(img)}
+              onClick={e => { e.stopPropagation(); setDeleteItem(img); }}
               className={css.deleteBtn}
               sx={{ color: 'error.main' }}
             >
@@ -204,6 +207,51 @@ export default function GaleriaTab({ onToast, slug, localMode }) {
           </div>
         ))}
       </div>
+
+      {/* Lightbox */}
+      <Dialog
+        open={!!lightbox}
+        onClose={() => setLightbox(null)}
+        maxWidth={false}
+        PaperProps={{
+          sx: {
+            bgcolor: 'transparent',
+            boxShadow: 'none',
+            m: 1,
+            maxWidth: '95vw',
+            maxHeight: '95vh',
+          },
+        }}
+        slotProps={{ backdrop: { sx: { bgcolor: 'rgba(0,0,0,0.88)' } } }}
+      >
+        <Box sx={{ position: 'relative' }}>
+          <IconButton
+            onClick={() => setLightbox(null)}
+            sx={{
+              position: 'absolute', top: 8, right: 8, zIndex: 1,
+              bgcolor: 'rgba(0,0,0,0.55)', color: '#fff',
+              '&:hover': { bgcolor: 'rgba(0,0,0,0.8)' },
+            }}
+          >
+            <CloseIcon />
+          </IconButton>
+          <img
+            src={lightbox?.src}
+            alt={lightbox?.caption}
+            style={{ display: 'block', maxWidth: '95vw', maxHeight: '90vh', objectFit: 'contain', borderRadius: 8 }}
+          />
+          {lightbox?.caption && (
+            <Typography
+              sx={{
+                textAlign: 'center', color: '#fff', mt: 1, pb: 0.5,
+                fontSize: '0.92rem', textShadow: '0 1px 4px rgba(0,0,0,0.8)',
+              }}
+            >
+              {lightbox.caption}
+            </Typography>
+          )}
+        </Box>
+      </Dialog>
 
       <ConfirmActionDialog
         open={!!deleteItem}
