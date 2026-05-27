@@ -16,6 +16,9 @@ export function buildTenantDocFromForm(data, userId = '', options = {}) {
   const fullName = siteType === DEFAULT_SITE_TYPE ? withSynagoguePrefix(cleanName) : cleanName;
   const nameValue = options.forPreview ? fullName : (fullName || siteTypeConfig.defaultName);
   const adminEmail = data.email.trim().toLowerCase();
+  const googleEmail = (options.googleEmail || '').trim().toLowerCase();
+  const adminEmailsList = adminEmail ? [adminEmail] : [];
+  if (googleEmail && googleEmail !== adminEmail) adminEmailsList.push(googleEmail);
   const heroSlides = data.pageHeroBg.trim()
     ? [data.pageHeroBg.trim(), '/images/hero/building-render.jpg', '/images/hero/interior-01.png']
     : ['/images/hero/building-render.jpg', '/images/hero/interior-01.png', '/images/hero/interior-02.png'];
@@ -89,7 +92,7 @@ export function buildTenantDocFromForm(data, userId = '', options = {}) {
       templateName: siteTypeConfig.templateName,
     },
     admins: userId ? [userId] : [],
-    adminEmails: adminEmail ? [adminEmail] : [],
+    adminEmails: adminEmailsList,
     createdAt: serverTimestamp(),
     createdBy: userId,
   };

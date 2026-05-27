@@ -77,8 +77,13 @@ export default function SettingsTab({ config, slug, onToast, localMode }) {
       }, { merge: true });
 
       onToast('פרטי האתר נשמרו בהצלחה');
-    } catch {
-      onToast('שגיאה בשמירת פרטי האתר', 'error');
+    } catch (err) {
+      console.error('SettingsTab save error:', err);
+      if (err?.code === 'permission-denied') {
+        onToast('אין הרשאה לשמור — ודאו שאתם מחוברים עם החשבון שיצר את האתר', 'error');
+      } else {
+        onToast('שגיאה בשמירת פרטי האתר', 'error');
+      }
     }
     setSaving(false);
   };

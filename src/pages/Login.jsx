@@ -270,27 +270,72 @@ export default function Login() {
               )}
 
               {!loadingSites && sites.length === 0 && (
-                <Alert
-                  severity="info"
+                <Box
                   sx={{
                     textAlign: 'right',
-                    alignItems: 'center',
-                    bgcolor: 'rgba(201,168,76,0.08)',
+                    direction: 'rtl',
+                    p: { xs: 2, sm: 2.5 },
+                    borderRadius: 3,
+                    bgcolor: 'rgba(16,26,37,0.6)',
                     border: `1px solid ${COLORS.borderSoft}`,
-                    color: COLORS.ivory,
-                    '& .MuiAlert-icon': { color: COLORS.gold },
                   }}
                 >
-                  לא מצאנו אתר שמחובר לחשבון הזה. אם כבר יצרתם אתר, ודאו שנכנסתם עם אותו חשבון Google. אם עדיין לא יצרתם אתר, אפשר לפתוח אתר חדש.
-                </Alert>
+                  <Typography
+                    variant="h6"
+                    sx={{ color: COLORS.goldLight, fontWeight: 800, mb: 1, fontSize: { xs: '1rem', sm: '1.1rem' } }}
+                  >
+                    לא נמצא אתר מחובר לחשבון הזה
+                  </Typography>
+                  <Typography variant="body2" sx={{ color: COLORS.muted, lineHeight: 1.9, mb: 2.5 }}>
+                    אם כבר יצרתם אתר — ודאו שנכנסתם עם אותו חשבון Google שבו יצרתם אותו.
+                    <br />
+                    אם עדיין לא יצרתם, אפשר לפתוח עכשיו.
+                  </Typography>
+                  <Button
+                    component={Link}
+                    to="/register"
+                    fullWidth
+                    variant="contained"
+                    startIcon={<AddCircleOutlineIcon />}
+                    sx={{
+                      bgcolor: COLORS.gold,
+                      color: COLORS.bg,
+                      fontWeight: 900,
+                      borderRadius: 3,
+                      textTransform: 'none',
+                      minHeight: 48,
+                      mb: 1.25,
+                      '&:hover': { bgcolor: COLORS.goldLight, transform: 'translateY(-1px)' },
+                      transition: 'all 0.22s ease',
+                    }}
+                  >
+                    פתיחת אתר חדש
+                  </Button>
+                  <Button
+                    onClick={logout}
+                    fullWidth
+                    variant="outlined"
+                    sx={{
+                      borderColor: COLORS.border,
+                      color: COLORS.muted,
+                      borderRadius: 3,
+                      textTransform: 'none',
+                      minHeight: 44,
+                      '&:hover': { borderColor: COLORS.goldLight, color: COLORS.ivory },
+                    }}
+                  >
+                    כניסה עם חשבון Google אחר
+                  </Button>
+                </Box>
               )}
 
-              {!loadingSites && (
-                <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', sm: '1fr 1fr' }, gap: 1.25, mt: 3 }}>
-                  <Button component={Link} to="/register" variant="outlined" startIcon={<AddCircleOutlineIcon />} sx={{ minHeight: 46 }}>
-                    יצירת אתר חדש
-                  </Button>
-                  <Button onClick={logout} variant="text" sx={{ color: COLORS.muted, minHeight: 46 }}>
+              {!loadingSites && sites.length > 1 && (
+                <Box sx={{ display: 'flex', justifyContent: 'center', mt: 3 }}>
+                  <Button
+                    onClick={logout}
+                    variant="text"
+                    sx={{ color: COLORS.muted, textTransform: 'none', '&:hover': { color: COLORS.ivory } }}
+                  >
                     התנתקות
                   </Button>
                 </Box>

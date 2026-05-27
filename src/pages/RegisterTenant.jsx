@@ -129,7 +129,7 @@ export default function RegisterTenant() {
     try {
       const slugClean = cleanSlug(data.slug);
       if (isLocalhost) {
-        const localDoc = buildTenantDocFromForm(data, user?.uid || '');
+        const localDoc = buildTenantDocFromForm(data, user?.uid || '', { googleEmail: user?.email || '' });
         localDoc.trialEndsAt = createTrialEndDate().toISOString();
         markLocalTenantOwnerAccess(slugClean);
         saveLocalTenantDraft(slugClean, localDoc);
@@ -143,7 +143,7 @@ export default function RegisterTenant() {
         if (existing.exists()) { setError(`הכתובת "${slugClean}" כבר תפוסה. בחרו כתובת אחרת.`); setSaving(false); return; }
       } catch (lookupError) { if (!isLocalhost) throw lookupError; }
 
-      const tenantDoc = buildTenantDocFromForm(data, user?.uid || '');
+      const tenantDoc = buildTenantDocFromForm(data, user?.uid || '', { googleEmail: user?.email || '' });
       markLocalTenantOwnerAccess(slugClean);
       try {
         await withTimeout(setDoc(doc(db, 'tenants', slugClean), tenantDoc));
@@ -157,7 +157,7 @@ export default function RegisterTenant() {
     } catch (err) {
       if (isLocalhost) {
         const slugClean = cleanSlug(data.slug);
-        const fallbackDoc = buildTenantDocFromForm(data, user?.uid || '');
+        const fallbackDoc = buildTenantDocFromForm(data, user?.uid || '', { googleEmail: user?.email || '' });
         fallbackDoc.trialEndsAt = createTrialEndDate().toISOString();
         markLocalTenantOwnerAccess(slugClean);
         saveLocalTenantDraft(slugClean, fallbackDoc);

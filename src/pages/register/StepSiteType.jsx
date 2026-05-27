@@ -39,6 +39,7 @@ export default function StepSiteType({ value, update }) {
               }}
             >
               <CardActionArea
+                dir="rtl"
                 onClick={() => update('siteType', id)}
                 sx={{
                   p: { xs: 1.35, sm: 1.6 },
@@ -46,18 +47,18 @@ export default function StepSiteType({ value, update }) {
                   position: 'relative',
                   direction: 'rtl',
                   display: 'flex',
+                  flexDirection: 'row',
                   alignItems: 'center',
-                  justifyContent: 'flex-start',
+                  justifyContent: 'flex-end',
                   gap: 1.2,
                   textAlign: 'right',
                 }}
               >
                 {selected && (
                   <CheckCircleIcon
-                    sx={{ position: 'absolute', top: 8, left: 8, color: COLORS.goldLight, fontSize: 19 }}
+                    sx={{ position: 'absolute', top: 8, right: 8, color: COLORS.goldLight, fontSize: 19 }}
                   />
                 )}
-                <Icon sx={{ color: COLORS.gold, fontSize: { xs: 25, sm: 28 }, flexShrink: 0 }} />
                 <Typography
                   sx={{
                     color: COLORS.ivory,
@@ -71,6 +72,7 @@ export default function StepSiteType({ value, update }) {
                 >
                   {label}
                 </Typography>
+                <Icon sx={{ color: COLORS.gold, fontSize: { xs: 25, sm: 28 }, flexShrink: 0 }} />
               </CardActionArea>
             </Card>
           );
