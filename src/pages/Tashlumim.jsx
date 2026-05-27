@@ -115,7 +115,7 @@ export default function Tashlumim() {
               </Grid>
             )}
 
-            {payboxLink && (
+            {(payboxPhone || payboxLink) && (
               <Grid item xs={12} sm={6} md={4} lg>
                 <Card sx={{ height: '100%' }}>
                   <CardContent sx={{ display: 'flex', flexDirection: 'column', gap: 1.5, height: '100%' }}>
@@ -124,10 +124,12 @@ export default function Tashlumim() {
                     <Typography variant="h5" sx={{ color: 'primary.main' }}>פייבוקס</Typography>
                     <Typography variant="body2" color="text.secondary">תשלום מהיר ובטוח דרך פייבוקס</Typography>
                     {payboxPhone && <PhoneBox label="מספר לפייבוקס:" value={payboxPhone} />}
-                    <Button href={payboxLink} target="_blank" rel="noopener" variant="outlined"
-                      sx={{ mt: 'auto', width: { xs: '100%', sm: 'auto' }, minHeight: 44, borderColor: '#6c3cbf', color: '#6c3cbf', fontWeight: 700, '&:hover': { borderColor: '#6c3cbf', bgcolor: 'rgba(108,60,191,0.08)' } }}>
-                      פתח פייבוקס
-                    </Button>
+                    {payboxLink && (
+                      <Button href={payboxLink} target="_blank" rel="noopener" variant="outlined"
+                        sx={{ mt: 'auto', width: { xs: '100%', sm: 'auto' }, minHeight: 44, borderColor: '#6c3cbf', color: '#6c3cbf', fontWeight: 700, '&:hover': { borderColor: '#6c3cbf', bgcolor: 'rgba(108,60,191,0.08)' } }}>
+                        פתח פייבוקס
+                      </Button>
+                    )}
                   </CardContent>
                 </Card>
               </Grid>

@@ -40,8 +40,8 @@ function TimeField({ value, onChange }) {
       value={value}
       onChange={e => onChange(e.target.value)}
       fullWidth
-      placeholder="לדוגמה: 06:15"
-      inputProps={{ dir: 'ltr', style: { textAlign: 'center', fontSize: '1.1rem', fontWeight: 700 } }}
+      placeholder="06:15 או שחרית 06:30"
+      inputProps={{ dir: 'auto', style: { textAlign: 'right', fontSize: '1.05rem', fontWeight: 700 } }}
     />
   );
 }
