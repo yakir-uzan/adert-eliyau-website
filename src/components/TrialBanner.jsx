@@ -34,9 +34,8 @@ export default function TrialBanner({ slug, basePath, plan }) {
       <Box
         sx={{
           position: 'fixed',
-          top: { xs: 72, sm: 'auto' },
-          bottom: { xs: 'auto', sm: 20 },
-          left: { xs: 14, sm: 20 },
+          bottom: 20,
+          left: 20,
           zIndex: 1400,
         }}
       >
@@ -47,11 +46,13 @@ export default function TrialBanner({ slug, basePath, plan }) {
             sx={{
               bgcolor: plan.isEndingSoon ? 'rgba(56,39,7,0.94)' : 'rgba(8,15,24,0.94)',
               color: 'primary.main',
+              border: '1px solid rgba(201,168,76,0.55)',
               boxShadow: plan.isEndingSoon
                 ? '0 10px 28px rgba(201,168,76,0.28)'
                 : '0 10px 24px rgba(0,0,0,0.3)',
               '&:hover': {
                 bgcolor: plan.isEndingSoon ? 'rgba(64,45,8,0.98)' : 'rgba(10,18,28,0.98)',
+                border: '1px solid rgba(201,168,76,0.85)',
               },
             }}
           >
