@@ -8,7 +8,6 @@ import {
 import Box from '@mui/material/Box';
 import Typography from '@mui/material/Typography';
 import Card from '@mui/material/Card';
-import TextField from '@mui/material/TextField';
 import Button from '@mui/material/Button';
 import IconButton from '@mui/material/IconButton';
 import CircularProgress from '@mui/material/CircularProgress';
@@ -21,22 +20,25 @@ import ConfirmActionDialog from '../../components/ConfirmActionDialog';
 import css from './GaleriaTab.module.css';
 
 export default function GaleriaTab({ onToast, slug, localMode }) {
-  const [images, setImages]     = useState([]);
-  const [caption, setCaption]   = useState('');
-  const [file, setFile]         = useState(null);
+  const [images, setImages]       = useState([]);
+  const [files, setFiles]         = useState([]);   // array of selected files
   const [uploading, setUploading] = useState(false);
-  const [progress, setProgress] = useState(0);
+  const [uploadStatus, setUploadStatus] = useState({ done: 0, total: 0 });
   const [deleteItem, setDeleteItem] = useState(null);
   const fileRef = useRef();
 
   const load = async () => {
     if (localMode) {
-      setImages(readLocalGallery(slug).filter(image => image.active !== false));
+      setImages(readLocalGallery(slug).filter(img => img.active !== false));
       return;
     }
-
     try {
-      const q = query(collection(db, 'gallery'), where('active', '==', true), where('tenantId', '==', slug), orderBy('createdAt', 'asc'));
+      const q = query(
+        collection(db, 'gallery'),
+        where('active', '==', true),
+        where('tenantId', '==', slug),
+        orderBy('createdAt', 'asc'),
+      );
       const s = await getDocs(q);
       setImages(s.docs.map(d => ({ id: d.id, ...d.data() })));
     } catch {
@@ -45,116 +47,164 @@ export default function GaleriaTab({ onToast, slug, localMode }) {
   };
   useEffect(() => { load(); }, [slug, localMode]);
 
-  const upload = async () => {
-    if (!file) { onToast('בחרו קובץ תחילה', 'error'); return; }
-    setUploading(true);
-    setProgress(10);
-    try {
-      if (localMode) {
-        const src = await readFileAsDataUrl(file);
-        const next = [
-          ...readLocalGallery(slug),
-          {
-            id: `local-${Date.now()}`,
-            src,
-            caption: caption || file.name,
-            active: true,
-            createdAt: new Date().toISOString(),
-            tenantId: slug,
-          },
-        ];
-        setProgress(95);
-        saveLocalGallery(slug, next);
-        setProgress(100);
-        onToast('התמונה הועלתה בהצלחה');
-        setFile(null); setCaption('');
-        if (fileRef.current) fileRef.current.value = '';
-        load();
-        setUploading(false);
-        setProgress(0);
-        return;
-      }
+  const handleFileChange = e => {
+    const selected = Array.from(e.target.files || []);
+    setFiles(selected);
+  };
 
-      setProgress(40);
-      const url = await uploadToImgBB(file);
-      setProgress(80);
-      await addDoc(collection(db, 'gallery'), {
-        src: url,
-        caption: caption || file.name,
-        active: true,
-        createdAt: serverTimestamp(),
-        tenantId: slug,
-      });
-      setProgress(100);
-      onToast('התמונה הועלתה בהצלחה');
-      setFile(null); setCaption('');
-      if (fileRef.current) fileRef.current.value = '';
-      load();
-    } catch (err) {
-      console.error('Gallery upload error:', err);
-      if (err?.code === 'storage/unauthorized' || err?.code === 'permission-denied') {
-        onToast('אין הרשאה להעלאה — בדקו את כללי Firebase Storage', 'error');
-      } else if (err?.code?.startsWith('storage/')) {
-        onToast(`שגיאת Storage: ${err.message}`, 'error');
-      } else {
-        onToast(`שגיאה בהעלאה: ${err?.message || err?.code || 'שגיאה לא ידועה'}`, 'error');
+  const upload = async () => {
+    if (!files.length) { onToast('בחרו קבצים תחילה', 'error'); return; }
+    setUploading(true);
+    setUploadStatus({ done: 0, total: files.length });
+
+    let successCount = 0;
+    for (let i = 0; i < files.length; i++) {
+      const file = files[i];
+      try {
+        if (localMode) {
+          const src = await readFileAsDataUrl(file);
+          const localGallery = readLocalGallery(slug);
+          saveLocalGallery(slug, [
+            ...localGallery,
+            { id: `local-${Date.now()}-${i}`, src, caption: file.name, active: true, createdAt: new Date().toISOString(), tenantId: slug },
+          ]);
+        } else {
+          const url = await uploadToImgBB(file);
+          await addDoc(collection(db, 'gallery'), {
+            src: url,
+            caption: file.name.replace(/\.[^.]+$/, ''),
+            active: true,
+            createdAt: serverTimestamp(),
+            tenantId: slug,
+          });
+        }
+        successCount++;
+      } catch (err) {
+        console.error(`Upload error for ${file.name}:`, err);
+        onToast(`שגיאה בהעלאת "${file.name}"`, 'error');
       }
+      setUploadStatus({ done: i + 1, total: files.length });
     }
+
+    if (successCount > 0) {
+      onToast(
+        files.length === 1
+          ? 'התמונה הועלתה בהצלחה'
+          : `${successCount} תמונות הועלו בהצלחה`,
+      );
+    }
+
+    setFiles([]);
+    if (fileRef.current) fileRef.current.value = '';
     setUploading(false);
-    setProgress(0);
+    setUploadStatus({ done: 0, total: 0 });
+    load();
   };
 
   const remove = async img => {
     try {
       if (localMode) {
-        saveLocalGallery(slug, readLocalGallery(slug).map(item => item.id === img.id ? { ...item, active: false } : item));
-        onToast('התמונה נמחקה');
-        setDeleteItem(null);
-        load();
-        return;
+        saveLocalGallery(slug, readLocalGallery(slug).map(item =>
+          item.id === img.id ? { ...item, active: false } : item,
+        ));
+      } else {
+        await updateDoc(doc(db, 'gallery', img.id), { active: false });
       }
-      await updateDoc(doc(db, 'gallery', img.id), { active: false });
       onToast('התמונה נמחקה');
       setDeleteItem(null);
       load();
-    } catch { onToast('שגיאה במחיקה', 'error'); setDeleteItem(null); }
+    } catch {
+      onToast('שגיאה במחיקה', 'error');
+      setDeleteItem(null);
+    }
   };
+
+  const dropzoneLabel = () => {
+    if (files.length === 1) return files[0].name;
+    if (files.length > 1)  return `${files.length} תמונות נבחרו`;
+    return 'לחצו לבחירת תמונות (JPG, PNG, WEBP) — אפשר לבחור כמה בבת אחת';
+  };
+
+  const progress = uploadStatus.total
+    ? Math.round((uploadStatus.done / uploadStatus.total) * 100)
+    : 0;
 
   return (
     <Box>
       <Card sx={{ p: 3, mb: 3 }}>
-        <Typography variant="h6" sx={{ color: 'primary.main', mb: 2 }}>העלאת תמונה חדשה</Typography>
+        <Typography variant="h6" sx={{ color: 'primary.main', mb: 2 }}>העלאת תמונות</Typography>
         <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
-          <div className={css.dropzone} onClick={() => fileRef.current?.click()}>
+
+          <div className={css.dropzone} onClick={() => !uploading && fileRef.current?.click()}>
             <CloudUploadIcon sx={{ fontSize: 44, color: 'primary.main', opacity: 0.7, mb: 1 }} />
-            <Typography color="text.secondary" variant="body2">
-              {file ? file.name : 'לחצו לבחירת קובץ תמונה (JPG, PNG, WEBP)'}
+            <Typography color="text.secondary" variant="body2" sx={{ textAlign: 'center' }}>
+              {dropzoneLabel()}
             </Typography>
-            <input ref={fileRef} type="file" accept="image/*" style={{ display: 'none' }} onChange={e => setFile(e.target.files[0] || null)} />
+            <input
+              ref={fileRef}
+              type="file"
+              accept="image/*"
+              multiple
+              style={{ display: 'none' }}
+              onChange={handleFileChange}
+            />
           </div>
-          <TextField label="כיתוב / תיאור התמונה" value={caption} onChange={e => setCaption(e.target.value)} fullWidth placeholder='לדוגמה: "ארון הקודש"' />
-          {uploading && <LinearProgress variant="determinate" value={progress} sx={{ borderRadius: 1, '& .MuiLinearProgress-bar': { bgcolor: 'primary.main' } }} />}
-          <Button variant="contained" onClick={upload} disabled={uploading || !file} startIcon={uploading ? null : <CloudUploadIcon />} sx={{ alignSelf: 'flex-start', px: 4 }}>
-            {uploading ? <CircularProgress size={22} sx={{ color: 'inherit' }} /> : 'העלה תמונה'}
+
+          {uploading && (
+            <Box>
+              <Typography variant="body2" color="text.secondary" sx={{ mb: 0.5 }}>
+                מעלה תמונה {uploadStatus.done} מתוך {uploadStatus.total}...
+              </Typography>
+              <LinearProgress
+                variant="determinate"
+                value={progress}
+                sx={{ borderRadius: 1, '& .MuiLinearProgress-bar': { bgcolor: 'primary.main' } }}
+              />
+            </Box>
+          )}
+
+          <Button
+            variant="contained"
+            onClick={upload}
+            disabled={uploading || !files.length}
+            startIcon={uploading ? null : <CloudUploadIcon />}
+            sx={{ alignSelf: 'flex-start', px: 4 }}
+          >
+            {uploading
+              ? <CircularProgress size={22} sx={{ color: 'inherit' }} />
+              : files.length > 1 ? `העלה ${files.length} תמונות` : 'העלה תמונה'}
           </Button>
         </Box>
       </Card>
 
       <Typography variant="h6" sx={{ color: 'primary.main', mb: 2 }}>תמונות הגלריה</Typography>
-      {images.length === 0 && <Typography color="text.secondary">אין תמונות עדיין — העלו תמונות ראשונות כדי שיופיעו בגלריה הציבורית</Typography>}
+      {images.length === 0 && (
+        <Typography color="text.secondary">
+          אין תמונות עדיין — העלו תמונות ראשונות כדי שיופיעו בגלריה הציבורית
+        </Typography>
+      )}
       <div className={css.imageGrid}>
         {images.map(img => (
           <div key={img.id} className={css.imageCard}>
             <img src={img.src} alt={img.caption} />
             <div className={css.imageOverlay}>
-              <Typography variant="caption" sx={{ color: 'secondary.main', fontWeight: 600, lineHeight: 1.3 }}>{img.caption}</Typography>
+              <Typography variant="caption" sx={{ color: 'secondary.main', fontWeight: 600, lineHeight: 1.3 }}>
+                {img.caption}
+              </Typography>
             </div>
-            <IconButton aria-label="מחיקת תמונה" size="small" onClick={() => setDeleteItem(img)} className={css.deleteBtn} sx={{ color: 'error.main' }}>
+            <IconButton
+              aria-label="מחיקת תמונה"
+              size="small"
+              onClick={() => setDeleteItem(img)}
+              className={css.deleteBtn}
+              sx={{ color: 'error.main' }}
+            >
               <DeleteIcon fontSize="small" />
             </IconButton>
           </div>
         ))}
       </div>
+
       <ConfirmActionDialog
         open={!!deleteItem}
         title="מחיקת תמונה"
