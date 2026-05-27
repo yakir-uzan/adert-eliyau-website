@@ -96,7 +96,103 @@ export default function Tashlumim() {
           <GoldDivider />
           <Typography textAlign="center" color="text.secondary" sx={{ mb: 4, mt: 2 }}>{pageCopy.subtitle}</Typography>
 
-          <Grid container spacing={3}>
+          {/* ─── Mobile compact rows (xs only) ─── */}
+          <Card sx={{ display: { xs: 'block', md: 'none' }, mb: 3, overflow: 'hidden' }}>
+            {bitPhone && (
+              <Box component="a" href={bitLink} target="_blank" rel="noopener"
+                sx={{ display: 'flex', alignItems: 'center', gap: 2, px: 2, py: 1.6,
+                  borderBottom: '1px solid rgba(201,168,76,0.09)', textDecoration: 'none',
+                  '&:active': { bgcolor: 'rgba(255,255,255,0.04)' } }}>
+                <Box component="img" src="/images/logo-bit.png" alt="ביט"
+                  sx={{ height: 38, width: 38, objectFit: 'contain', borderRadius: 1, flexShrink: 0 }} />
+                <Box sx={{ flex: 1, minWidth: 0 }}>
+                  <Typography fontWeight={700} fontSize="0.97rem" sx={{ color: 'secondary.main' }}>ביט</Typography>
+                  <Typography variant="caption" color="text.secondary" sx={{ direction: 'ltr', display: 'block' }}>{bitPhone}</Typography>
+                </Box>
+                <Button component="span" variant="contained" size="small"
+                  sx={{ minWidth: 68, flexShrink: 0, bgcolor: '#0091FF', '&:hover': { bgcolor: '#007ACC' }, pointerEvents: 'none' }}>
+                  שלם
+                </Button>
+              </Box>
+            )}
+
+            {(payboxPhone || payboxLink) && (() => {
+              const pbLink = payboxLink || (payboxPhone ? `https://payboxapp.page.link/EzAm?p=${payboxPhone}` : '');
+              return (
+                <Box component="a" href={pbLink} target="_blank" rel="noopener"
+                  sx={{ display: 'flex', alignItems: 'center', gap: 2, px: 2, py: 1.6,
+                    borderBottom: '1px solid rgba(201,168,76,0.09)', textDecoration: 'none',
+                    '&:active': { bgcolor: 'rgba(255,255,255,0.04)' } }}>
+                  <Box component="img" src="/images/logo-paybox.jpg" alt="פייבוקס"
+                    sx={{ height: 38, width: 38, objectFit: 'contain', borderRadius: 1, flexShrink: 0 }} />
+                  <Box sx={{ flex: 1, minWidth: 0 }}>
+                    <Typography fontWeight={700} fontSize="0.97rem" sx={{ color: 'secondary.main' }}>פייבוקס</Typography>
+                    {payboxPhone && <Typography variant="caption" color="text.secondary" sx={{ direction: 'ltr', display: 'block' }}>{payboxPhone}</Typography>}
+                  </Box>
+                  <Button component="span" variant="contained" size="small"
+                    sx={{ minWidth: 68, flexShrink: 0, bgcolor: '#6c3cbf', '&:hover': { bgcolor: '#5a32a3' }, pointerEvents: 'none' }}>
+                    שלם
+                  </Button>
+                </Box>
+              );
+            })()}
+
+            {nedarimLink && (
+              <Box component="a" href={nedarimLink} target="_blank" rel="noopener"
+                sx={{ display: 'flex', alignItems: 'center', gap: 2, px: 2, py: 1.6,
+                  borderBottom: '1px solid rgba(201,168,76,0.09)', textDecoration: 'none',
+                  '&:active': { bgcolor: 'rgba(255,255,255,0.04)' } }}>
+                <Box component="img" src="/images/logo-nedarim.png" alt="נדרים פלוס"
+                  sx={{ height: 38, width: 38, objectFit: 'contain', borderRadius: 1, flexShrink: 0 }} />
+                <Box sx={{ flex: 1, minWidth: 0 }}>
+                  <Typography fontWeight={700} fontSize="0.97rem" sx={{ color: 'secondary.main' }}>נדרים פלוס</Typography>
+                  <Typography variant="caption" color="text.secondary">nedarimplus.co.il</Typography>
+                </Box>
+                <Button component="span" variant="contained" size="small"
+                  sx={{ minWidth: 68, flexShrink: 0, bgcolor: '#1a56b0', '&:hover': { bgcolor: '#154490' }, pointerEvents: 'none' }}>
+                  שלם
+                </Button>
+              </Box>
+            )}
+
+            <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, px: 2, py: 1.6,
+              borderBottom: bankRows.length > 0 ? '1px solid rgba(201,168,76,0.09)' : 'none',
+              cursor: 'pointer', '&:active': { bgcolor: 'rgba(255,255,255,0.04)' } }}
+              onClick={() => setCreditOpen(true)}>
+              <CreditCardIcon sx={{ fontSize: 38, color: 'primary.main', flexShrink: 0 }} />
+              <Box sx={{ flex: 1, minWidth: 0 }}>
+                <Typography fontWeight={700} fontSize="0.97rem" sx={{ color: 'secondary.main' }}>כרטיס אשראי</Typography>
+                <Typography variant="caption" color="text.secondary" sx={{ direction: 'ltr', display: 'block' }}>Stripe · SSL</Typography>
+              </Box>
+              <Button component="span" variant="contained" size="small"
+                sx={{ minWidth: 68, flexShrink: 0, pointerEvents: 'none' }}>
+                שלם
+              </Button>
+            </Box>
+
+            {bankRows.length > 0 && (
+              <Box sx={{ px: 2, py: 1.6 }}>
+                <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5, mb: 1 }}>
+                  <AccountBalanceIcon sx={{ color: 'primary.main', fontSize: 22, flexShrink: 0 }} />
+                  <Typography fontWeight={700} fontSize="0.97rem" sx={{ color: 'secondary.main' }}>העברה בנקאית</Typography>
+                </Box>
+                <Table size="small">
+                  <TableBody>
+                    {bankRows.map(([k, v]) => (
+                      <TableRow key={k}>
+                        <TableCell sx={{ color: 'text.secondary', border: 'none', py: 0.4, px: 0, fontSize: '0.8rem' }}>{k}</TableCell>
+                        <TableCell sx={{ color: 'secondary.main', fontWeight: 700, border: 'none', py: 0.4, fontSize: '0.85rem' }}>{v}</TableCell>
+                        <TableCell sx={{ border: 'none', py: 0.4, px: 0.5, width: 40 }}><CopyButton value={v} /></TableCell>
+                      </TableRow>
+                    ))}
+                  </TableBody>
+                </Table>
+              </Box>
+            )}
+          </Card>
+
+          {/* ─── Desktop cards (md+) ─── */}
+          <Grid container spacing={3} sx={{ display: { xs: 'none', md: 'flex' } }}>
             {bitPhone && (
               <Grid item xs={12} sm={6} md={4} lg>
                 <Card sx={{ height: '100%' }}>
