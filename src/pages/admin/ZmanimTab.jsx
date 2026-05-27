@@ -8,8 +8,6 @@ import TextField from '@mui/material/TextField';
 import Button from '@mui/material/Button';
 import Grid from '@mui/material/Grid';
 import IconButton from '@mui/material/IconButton';
-import Menu from '@mui/material/Menu';
-import MenuItem from '@mui/material/MenuItem';
 import CircularProgress from '@mui/material/CircularProgress';
 import SaveIcon from '@mui/icons-material/Save';
 import AddIcon from '@mui/icons-material/Add';
@@ -29,11 +27,6 @@ const withIds = sections => sections.map(section => ({
     time: row.time || '',
   })),
 }));
-const timeOptions = Array.from({ length: 24 * 4 }, (_, index) => {
-  const hour = Math.floor(index / 4);
-  const minute = (index % 4) * 15;
-  return `${String(hour).padStart(2, '0')}:${String(minute).padStart(2, '0')}`;
-});
 
 function legacyToSections(data = {}, defaults = []) {
   if (Array.isArray(data.sections)) return data.sections.length ? withIds(data.sections) : withIds(defaults.length ? defaults : [emptySection()]);
@@ -41,45 +34,15 @@ function legacyToSections(data = {}, defaults = []) {
 }
 
 function TimeField({ value, onChange }) {
-  const [anchor, setAnchor] = useState(null);
-
   return (
-    <>
-      <TextField
-        label="שעה"
-        value={value}
-        onChange={e => onChange(e.target.value)}
-        fullWidth
-        placeholder="לדוגמה: 06:15"
-        inputProps={{ dir: 'ltr', style: { textAlign: 'center', fontSize: '1.1rem', fontWeight: 700 } }}
-        onFocus={e => setAnchor(e.currentTarget)}
-      />
-      <Menu
-        anchorEl={anchor}
-        open={Boolean(anchor)}
-        onClose={() => setAnchor(null)}
-        PaperProps={{
-          className: css.timeMenuPaper,
-          sx: { width: anchor?.offsetWidth || 220, bgcolor: 'background.default' },
-        }}
-      >
-        {timeOptions.map(time => (
-          <MenuItem
-            key={time}
-            onClick={() => { onChange(time); setAnchor(null); }}
-            sx={{
-              direction: 'ltr',
-              justifyContent: 'center',
-              color: value === time ? 'primary.main' : 'text.primary',
-              fontWeight: value === time ? 800 : 600,
-              '&.Mui-selected, &:hover': { bgcolor: 'rgba(201,168,76,0.1)' },
-            }}
-          >
-            {time}
-          </MenuItem>
-        ))}
-      </Menu>
-    </>
+    <TextField
+      label="שעה"
+      value={value}
+      onChange={e => onChange(e.target.value)}
+      fullWidth
+      placeholder="לדוגמה: 06:15"
+      inputProps={{ dir: 'ltr', style: { textAlign: 'center', fontSize: '1.1rem', fontWeight: 700 } }}
+    />
   );
 }
 
