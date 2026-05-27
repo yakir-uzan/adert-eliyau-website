@@ -91,7 +91,7 @@ export default function RegisterTenant() {
         setToast('התמונה נטענה לתצוגה המקדימה');
         return;
       }
-      const url = await uploadToImgBB(file);
+      const { url } = await uploadToImgBB(file);
       update(field, url);
       setToast('התמונה הועלתה בהצלחה');
     } catch { setError('לא הצלחנו להעלות את התמונה. נסו שוב.'); }

@@ -32,5 +32,8 @@ export async function uploadToImgBB(file) {
     throw new Error(json.error?.message || 'ImgBB upload failed');
   }
 
-  return json.data.url; // permanent direct image URL
+  return {
+    url:   json.data.url,                          // full-size
+    thumb: json.data.thumb?.url || json.data.url,  // ~180px thumbnail
+  };
 }

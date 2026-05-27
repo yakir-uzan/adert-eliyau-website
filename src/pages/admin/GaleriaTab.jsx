@@ -72,9 +72,10 @@ export default function GaleriaTab({ onToast, slug, localMode }) {
             { id: `local-${Date.now()}-${i}`, src, caption: file.name, active: true, createdAt: new Date().toISOString(), tenantId: slug },
           ]);
         } else {
-          const url = await uploadToImgBB(file);
+          const { url, thumb } = await uploadToImgBB(file);
           await addDoc(collection(db, 'gallery'), {
             src: url,
+            thumb,
             caption: file.name.replace(/\.[^.]+$/, ''),
             active: true,
             createdAt: serverTimestamp(),
@@ -189,7 +190,7 @@ export default function GaleriaTab({ onToast, slug, localMode }) {
       <div className={css.imageGrid}>
         {images.map(img => (
           <div key={img.id} className={css.imageCard} onClick={() => setLightbox(img)} style={{ cursor: 'zoom-in' }}>
-            <img src={img.src} alt={img.caption} />
+            <img src={img.thumb || img.src} alt={img.caption} loading="lazy" />
             <div className={css.imageOverlay}>
               <Typography variant="caption" sx={{ color: 'secondary.main', fontWeight: 600, lineHeight: 1.3 }}>
                 {img.caption}

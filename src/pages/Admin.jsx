@@ -110,9 +110,14 @@ export default function Admin() {
           sx={{ mb: 1,
             '& .MuiTabs-flexContainer': { justifyContent: { xs: 'flex-start', md: 'center' } },
             '& .MuiTab-root': { minHeight: 48, px: { xs: 1.2, md: 2 }, whiteSpace: 'nowrap' },
+            '& .MuiTabs-scroller': {
+              WebkitOverflowScrolling: 'touch',
+              scrollbarWidth: 'none',
+              '&::-webkit-scrollbar': { display: 'none' },
+            },
           }}
           variant="scrollable"
-          scrollButtons="auto"
+          scrollButtons={false}
         >
           <Tab icon={<PaletteIcon />} iconPosition="start" label={pageCopy.admin.settings} />
           <Tab icon={<AccessTimeIcon />} iconPosition="start" label={pageCopy.admin.schedule} />

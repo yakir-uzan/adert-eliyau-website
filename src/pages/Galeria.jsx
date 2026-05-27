@@ -83,7 +83,7 @@ export default function Galeria() {
                     '&:hover .overlay': { opacity: 1 },
                   }}
                 >
-                  <Box component="img" src={img.src} alt={img.caption} sx={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block', transition: 'transform 0.4s ease' }} />
+                  <Box component="img" src={img.thumb || img.src} alt={img.caption} loading="lazy" sx={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block', transition: 'transform 0.4s ease' }} />
                   <Box className="overlay" sx={{ position: 'absolute', inset: 0, background: 'linear-gradient(to top, rgba(13,27,42,0.8) 0%, transparent 60%)', opacity: 0, transition: 'opacity 0.3s', display: 'flex', alignItems: 'flex-end', p: 1.5 }}>
                     <Typography variant="caption" sx={{ color: 'secondary.main', fontWeight: 700 }}>{img.caption}</Typography>
                   </Box>
