@@ -34,10 +34,15 @@ export default function Navbar() {
   const location = useLocation();
   const scrolled = useScrollTrigger({ disableHysteresis: true, threshold: 60 });
 
-  useEffect(() => onAuthStateChanged(auth, setUser), []);
+  useEffect(() => {
+    if (!auth) return;
+    return onAuthStateChanged(auth, setUser);
+  }, []);
 
-  const handleLogin = () =>
+  const handleLogin = () => {
+    if (!auth) return;
     signInWithPopup(auth, new GoogleAuthProvider()).catch(console.error);
+  };
 
   return (
     <>
