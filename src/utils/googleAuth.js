@@ -9,21 +9,6 @@ import { auth } from '../firebase';
 const provider = new GoogleAuthProvider();
 provider.setCustomParameters({ prompt: 'select_account' });
 
-/**
- * iOS Safari (and iPadOS) has a well-known issue where signInWithPopup breaks
- * when called from inside an async function — the popup is treated as a
- * non-user-gesture context and gets blocked/fails silently.
- * For those devices we always use the redirect flow instead.
- */
-function shouldUseRedirect() {
-  const ua = navigator.userAgent;
-  // iPhone, iPod, or iPad (both classic UA and the modern iPadOS UA that
-  // reports "Macintosh" with maxTouchPoints > 1)
-  return /iPhone|iPod/.test(ua)
-    || /iPad/.test(ua)
-    || (ua.includes('Mac') && navigator.maxTouchPoints > 1);
-}
-
 export function getGoogleAuthErrorMessage(error) {
   switch (error?.code) {
     case 'auth/unauthorized-domain':
@@ -45,12 +30,12 @@ export function getGoogleAuthErrorMessage(error) {
 }
 
 export async function signInWithGoogle() {
-  // iOS / iPadOS: popup is unreliable from inside async handlers → use redirect.
-  // All other platforms: popup first for better UX; redirect as last-resort fallback.
-  if (shouldUseRedirect()) {
-    return signInWithRedirect(auth, provider);
-  }
-
+  // Popup-first on all platforms.
+  // With authDomain=genisite.com the popup handler runs on the same origin as
+  // the app, so iOS Safari's storage-partitioning / ITP restrictions are
+  // irrelevant — postMessage works perfectly same-origin.
+  // Redirect is kept only as a last-resort fallback for browsers that actively
+  // block popups.
   try {
     return await signInWithPopup(auth, provider);
   } catch (error) {
@@ -59,6 +44,8 @@ export async function signInWithGoogle() {
       || error?.code === 'auth/operation-not-supported-in-this-environment'
     ) {
       // Last-resort fallback: if the browser blocks the popup, use redirect.
+      // With authDomain=genisite.com this also runs same-origin, so
+      // sessionStorage is accessible and the redirect completes cleanly.
       await signInWithRedirect(auth, provider);
       return null;
     }
