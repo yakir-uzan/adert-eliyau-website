@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { db } from '../firebase';
-import { collection, query, where, orderBy, getDocs } from 'firebase/firestore';
+import { collection, query, where, getDocs } from 'firebase/firestore';
 import { useTenant } from '../config/TenantContext';
 import { LOCAL_TENANT_UPDATED_EVENT, isLocalDevHost, readLocalGallery } from '../utils/localTenantAccess';
 import Box from '@mui/material/Box';
@@ -32,10 +32,16 @@ export default function Galeria() {
       }
     }
 
-    const q = query(collection(db, 'gallery'), where('active', '==', true), where('tenantId', '==', slug), orderBy('createdAt', 'asc'));
+    const q = query(collection(db, 'gallery'), where('active', '==', true), where('tenantId', '==', slug));
     getDocs(q).then(s => {
-      if (s.docs.length > 0) setImages(s.docs.map(d => ({ ...d.data() })));
-    }).catch(() => {});
+      setImages(s.docs.map(d => ({ ...d.data() })).sort((a, b) => {
+        const ta = a.createdAt?.toMillis?.() ?? 0;
+        const tb = b.createdAt?.toMillis?.() ?? 0;
+        return ta - tb;
+      }));
+    }).catch(err => {
+      console.error('Gallery load error:', err?.code, err?.message);
+    });
   }, [slug]);
 
   useEffect(() => {
