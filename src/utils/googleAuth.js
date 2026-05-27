@@ -9,6 +9,21 @@ import { auth } from '../firebase';
 const provider = new GoogleAuthProvider();
 provider.setCustomParameters({ prompt: 'select_account' });
 
+/**
+ * iOS Safari (and iPadOS) has a well-known issue where signInWithPopup breaks
+ * when called from inside an async function — the popup is treated as a
+ * non-user-gesture context and gets blocked/fails silently.
+ * For those devices we always use the redirect flow instead.
+ */
+function shouldUseRedirect() {
+  const ua = navigator.userAgent;
+  // iPhone, iPod, or iPad (both classic UA and the modern iPadOS UA that
+  // reports "Macintosh" with maxTouchPoints > 1)
+  return /iPhone|iPod/.test(ua)
+    || /iPad/.test(ua)
+    || (ua.includes('Mac') && navigator.maxTouchPoints > 1);
+}
+
 export function getGoogleAuthErrorMessage(error) {
   switch (error?.code) {
     case 'auth/unauthorized-domain':
@@ -30,8 +45,12 @@ export function getGoogleAuthErrorMessage(error) {
 }
 
 export async function signInWithGoogle() {
-  // Always use popup — redirect causes cross-domain auth issues on custom domains.
-  // Popup works reliably from a user gesture on all modern browsers (desktop + mobile).
+  // iOS / iPadOS: popup is unreliable from inside async handlers → use redirect.
+  // All other platforms: popup first for better UX; redirect as last-resort fallback.
+  if (shouldUseRedirect()) {
+    return signInWithRedirect(auth, provider);
+  }
+
   try {
     return await signInWithPopup(auth, provider);
   } catch (error) {

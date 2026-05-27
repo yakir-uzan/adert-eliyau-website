@@ -75,6 +75,7 @@ export default function Login() {
   const navigate = useNavigate();
   const [user, setUser] = useState(null);
   const [authLoading, setAuthLoading] = useState(true);
+  const [checkingRedirect, setCheckingRedirect] = useState(true);
   const [loadingSites, setLoadingSites] = useState(false);
   const [sites, setSites] = useState([]);
   const [error, setError] = useState('');
@@ -85,9 +86,11 @@ export default function Login() {
   }), []);
 
   useEffect(() => {
-    readGoogleRedirectResult().catch(err => {
-      if (err?.code) setError(getGoogleAuthErrorMessage(err));
-    });
+    readGoogleRedirectResult()
+      .catch(err => {
+        if (err?.code) setError(getGoogleAuthErrorMessage(err));
+      })
+      .finally(() => setCheckingRedirect(false));
   }, []);
 
   useEffect(() => {
@@ -165,7 +168,15 @@ export default function Login() {
             <AdminPanelSettingsIcon sx={{ fontSize: 36 }} />
           </Box>
 
-          {!user && (
+          {/* Loading while checking auth state or redirect result */}
+          {(authLoading || checkingRedirect) && !user && (
+            <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 1.5, py: 3 }}>
+              <CircularProgress size={28} sx={{ color: COLORS.gold }} />
+              <Typography sx={{ color: COLORS.muted }}>בודק הרשאות...</Typography>
+            </Box>
+          )}
+
+          {!user && !authLoading && !checkingRedirect && (
             <>
               <Typography variant="h5" sx={{ color: COLORS.goldLight, fontWeight: 800, mb: 1 }}>
                 התחברות לניהול האתר
@@ -175,7 +186,6 @@ export default function Login() {
               </Typography>
               <Button
                 onClick={login}
-                disabled={authLoading}
                 size="large"
                 variant="contained"
                 sx={{
