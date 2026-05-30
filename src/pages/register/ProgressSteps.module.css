@@ -96,23 +96,19 @@
 }
 
 .connectorCompleted::before {
-  background: linear-gradient(90deg, rgba(201,168,76,0.22), rgba(232,213,163,0.98), rgba(201,168,76,0.22));
-  box-shadow: 0 0 12px rgba(201,168,76,0.26);
+  background: linear-gradient(90deg, rgba(37,99,235,0.15), rgba(37,99,235,0.6), rgba(37,99,235,0.15));
 }
 
 .connectorCompleted::after {
-  background-color: rgba(232,213,163,0.85);
-  box-shadow: 0 0 10px rgba(201,168,76,0.35);
+  background-color: rgba(37,99,235,0.7);
 }
 
 .connectorIncomplete::before {
-  background: linear-gradient(90deg, rgba(201,168,76,0.08), rgba(201,168,76,0.58), rgba(201,168,76,0.08));
-  box-shadow: 0 0 8px rgba(201,168,76,0.12);
+  background: linear-gradient(90deg, rgba(37,99,235,0.06), rgba(37,99,235,0.2), rgba(37,99,235,0.06));
 }
 
 .connectorIncomplete::after {
-  background-color: rgba(201,168,76,0.36);
-  box-shadow: none;
+  background-color: rgba(37,99,235,0.2);
 }
 
 @media (min-width: 900px) {

@@ -30,17 +30,6 @@ export default function StepContact({ data, update }) {
             placeholder="לדוגמה: שדרות גת 124"
           />
         </CompactField>
-        <CompactField xs={12} sm={12} md={12}>
-          <TextField
-            label="קישור לגוגל מאפס"
-            value={data.mapEmbedUrl}
-            onChange={e => update('mapEmbedUrl', e.target.value)}
-            fullWidth
-            sx={inputSx}
-            inputProps={{ dir: 'ltr' }}
-            placeholder="https://maps.google.com/..."
-          />
-        </CompactField>
         <CompactField>
           <TextField label="טלפון" value={data.phone} onChange={e => update('phone', e.target.value)} fullWidth sx={inputSx} inputProps={{ dir: 'ltr' }} placeholder="050-1234567" />
         </CompactField>
@@ -76,7 +65,7 @@ export default function StepContact({ data, update }) {
         </CompactField>
         <CompactField>
           <TextField
-            label="מספר וואטסאפ של הגבאי"
+            label="מספר וואטסאפ"
             value={data.gabaiPhone}
             onChange={e => update('gabaiPhone', e.target.value)}
             fullWidth

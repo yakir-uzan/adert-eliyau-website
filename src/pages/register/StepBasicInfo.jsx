@@ -1,14 +1,39 @@
+import { useState, useEffect, useRef } from 'react';
 import Box from '@mui/material/Box';
 import TextField from '@mui/material/TextField';
 import InputAdornment from '@mui/material/InputAdornment';
 import Tooltip from '@mui/material/Tooltip';
+import Typography from '@mui/material/Typography';
 import InfoOutlinedIcon from '@mui/icons-material/InfoOutlined';
 import { PLATFORM_COLORS as COLORS } from '../../utils/constants';
 import { registerInputSx as inputSx } from '../../utils/inputStyles';
-import { stripSynagoguePrefix, buildSlugFromName, normalizeSlugInput } from '../../utils/slugUtils';
-import { SectionTitle, FieldGrid, CompactField, ImageField } from './registerComponents';
+import { buildSlugFromName, normalizeSlugInput, cleanSlug, withTimeout } from '../../utils/slugUtils';
+import { SectionTitle, FieldGrid, CompactField } from './registerComponents';
+import { db } from '../../firebase';
+import { doc, getDoc } from 'firebase/firestore';
 
-export default function StepBasicInfo({ data, update, baseUrl, uploads, onUpload }) {
+export default function StepBasicInfo({ data, update, baseUrl }) {
+  const [slugStatus, setSlugStatus] = useState(null); // null | 'checking' | 'taken' | 'available'
+  const timerRef = useRef(null);
+
+  useEffect(() => {
+    const slug = cleanSlug(data.slug);
+    if (!slug) { setSlugStatus(null); return; }
+
+    setSlugStatus('checking');
+    clearTimeout(timerRef.current);
+    timerRef.current = setTimeout(async () => {
+      try {
+        const snap = await withTimeout(getDoc(doc(db, 'tenants', slug)), 5000);
+        setSlugStatus(snap.exists() ? 'taken' : 'available');
+      } catch {
+        setSlugStatus(null);
+      }
+    }, 600);
+
+    return () => clearTimeout(timerRef.current);
+  }, [data.slug]);
+
   return (
     <Box>
       <SectionTitle>פרטי בסיס</SectionTitle>
@@ -16,16 +41,15 @@ export default function StepBasicInfo({ data, update, baseUrl, uploads, onUpload
       <FieldGrid>
         <CompactField>
           <TextField
-            label="שם בית הכנסת *"
-            value={stripSynagoguePrefix(data.name)}
+            label="שם העסק *"
+            value={data.name}
             onChange={e => {
-              const rawName = e.target.value;
-              update('name', rawName ? `בית כנסת ${rawName}` : '');
+              update('name', e.target.value);
               if (!data.slugManual) update('slug', buildSlugFromName(e.target.value));
             }}
             fullWidth
             sx={inputSx}
-            placeholder="לדוגמה: נר תמיד"
+            placeholder="לדוגמה: שם העסק שלכם"
             inputProps={{ dir: 'rtl', style: { textAlign: 'right' } }}
           />
         </CompactField>
@@ -36,7 +60,7 @@ export default function StepBasicInfo({ data, update, baseUrl, uploads, onUpload
             onChange={e => update('subtitle', e.target.value)}
             fullWidth
             sx={inputSx}
-            placeholder='לדוגמה: קהילה, תפילה וחסד'
+            placeholder='לדוגמה: המקום הטוב ביותר בעיר'
           />
         </CompactField>
         <CompactField xs={12} sm={12} md={12}>
@@ -52,47 +76,34 @@ export default function StepBasicInfo({ data, update, baseUrl, uploads, onUpload
             }}
             fullWidth
             sx={inputSx}
-            placeholder={`${baseUrl}/your-synagogue`}
+            placeholder={`${baseUrl}/your-business`}
             inputProps={{ dir: 'ltr', style: { fontFamily: 'monospace' } }}
             InputProps={{
               startAdornment: (
                 <InputAdornment position="start">
-                  <Tooltip title="אם תרצה, הכתובת נוצרת לבד לפי שם בית הכנסת.">
-                    <InfoOutlinedIcon sx={{ color: COLORS.gold, fontSize: 20, cursor: 'help' }} />
+                  <Tooltip title="הכתובת נוצרת אוטומטית לפי שם העסק.">
+                    <InfoOutlinedIcon sx={{ color: COLORS.primary, fontSize: 20, cursor: 'help' }} />
                   </Tooltip>
                 </InputAdornment>
               ),
             }}
           />
+          {slugStatus === 'taken' && (
+            <Typography sx={{ color: '#E53E3E', fontSize: '0.82rem', fontWeight: 600, mt: 0.5, direction: 'rtl', textAlign: 'left' }}>
+              הכתובת הזו תפוסה, ניתן לערוך אותה למעלה
+            </Typography>
+          )}
         </CompactField>
         <CompactField xs={12} sm={12} md={12}>
           <TextField
-            label="כמה מילים על בית הכנסת"
+            label="כמה מילים על העסק"
             value={data.aboutText}
             onChange={e => update('aboutText', e.target.value)}
             fullWidth
             multiline
             rows={3}
             sx={inputSx}
-            placeholder="ספרו בקצרה על הקהילה, האווירה והייחוד של המקום"
-          />
-        </CompactField>
-        <CompactField xs={12} sm={12} md={6}>
-          <ImageField
-            label="לוגו"
-            value={data.logo}
-            onChange={value => update('logo', value)}
-            onUpload={file => onUpload('logo', file)}
-            uploading={uploads.logo}
-          />
-        </CompactField>
-        <CompactField xs={12} sm={12} md={6}>
-          <ImageField
-            label="תמונת רקע לדפים"
-            value={data.pageHeroBg}
-            onChange={value => update('pageHeroBg', value)}
-            onUpload={file => onUpload('pageHeroBg', file)}
-            uploading={uploads.pageHeroBg}
+            placeholder="ספרו בקצרה על העסק, השירותים והייחוד שלכם"
           />
         </CompactField>
       </FieldGrid>

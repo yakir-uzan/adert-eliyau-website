@@ -1,9 +1,9 @@
-import MosqueIcon from '@mui/icons-material/Mosque';
+import StorefrontIcon from '@mui/icons-material/Storefront';
 import ContactPhoneIcon from '@mui/icons-material/ContactPhone';
 import bankBranchesData from '../../data/bankBranches.json';
 
 export const STEPS = [
-  { label: 'פרטים', icon: <MosqueIcon /> },
+  { label: 'פרטים', icon: <StorefrontIcon /> },
   { label: 'יצירת קשר', icon: <ContactPhoneIcon /> },
 ];
 

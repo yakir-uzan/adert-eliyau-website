@@ -20,10 +20,10 @@ export default function ProgressSteps({ steps, activeStep }) {
                 <Box
                   className={css.stepCircle}
                   sx={{
-                    bgcolor: completed || active ? COLORS.gold : 'rgba(201,168,76,0.1)',
-                    border: `1px solid ${completed || active ? COLORS.goldLight : 'rgba(201,168,76,0.12)'}`,
-                    color: completed || active ? COLORS.bg : COLORS.muted,
-                    boxShadow: active ? '0 0 0 6px rgba(201,168,76,0.08)' : 'none',
+                    bgcolor: completed || active ? COLORS.primary : 'rgba(37,99,235,0.08)',
+                    border: `1px solid ${completed || active ? COLORS.primary : COLORS.border}`,
+                    color: completed || active ? '#FFFFFF' : COLORS.muted,
+                    boxShadow: active ? '0 0 0 6px rgba(37,99,235,0.08)' : 'none',
                   }}
                 >
                   {completed ? <CheckIcon sx={{ fontSize: 17 }} /> : (
@@ -34,7 +34,7 @@ export default function ProgressSteps({ steps, activeStep }) {
 
               <Typography
                 className={css.stepLabel}
-                sx={{ color: completed || active ? COLORS.ivory : 'rgba(183,173,160,0.62)' }}
+                sx={{ color: completed || active ? COLORS.text : COLORS.muted }}
               >
                 {item.label}
               </Typography>

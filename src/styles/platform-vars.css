@@ -1,10 +1,13 @@
 :root {
-  --p-bg: #07111B;
-  --p-gold: #C9A84C;
-  --p-gold-light: #E8D5A3;
-  --p-ivory: #F5F0E8;
-  --p-muted: #B7ADA0;
-  --p-border: rgba(201,168,76,0.24);
-  --p-border-soft: rgba(201,168,76,0.1);
-  --p-panel: rgba(16,26,37,0.8);
+  --p-bg: #FFFFFF;
+  --p-bg-alt: #F8FAFC;
+  --p-primary: #2563EB;
+  --p-primary-light: #60A5FA;
+  --p-text: #1E293B;
+  --p-text-secondary: #64748B;
+  --p-muted: #94A3B8;
+  --p-border: #E2E8F0;
+  --p-border-soft: #F1F5F9;
+  --p-panel: #FFFFFF;
+  --p-shadow: rgba(15,23,42,0.08);
 }

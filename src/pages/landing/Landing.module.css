@@ -3,112 +3,51 @@
   to   { opacity: 1; transform: translateY(0); }
 }
 
-@keyframes deviceFade {
-  from { opacity: 0; transform: translateX(28px) scale(0.97); }
-  to   { opacity: 1; transform: translateX(0) scale(1); }
+@keyframes arrowNudge {
+  0%, 100% { transform: translateX(0); }
+  50%      { transform: translateX(-6px); }
 }
 
-@keyframes gradientFlow {
-  0%   { background-position: 0% center; }
-  100% { background-position: 200% center; }
-}
-
-@keyframes dotPulse {
+@keyframes blink {
   0%, 100% { opacity: 1; }
-  50%      { opacity: 0.4; }
-}
-
-/* ── Navbar ── */
-.navbar {
-  backdrop-filter: blur(16px);
-  background-color: rgba(7,17,27,0.55);
-}
-
-.logoLink {
-  text-decoration: none;
-  display: flex;
-  align-items: center;
-  gap: 6px;
-}
-
-.logoText {
-  font-family: Georgia, "Times New Roman", serif;
-  font-size: 1.65rem;
-  line-height: 1;
-  font-weight: 400;
-  letter-spacing: 0.01em;
-  color: var(--p-gold-light);
-  text-shadow: 0 0 24px rgba(201,168,76,0.2);
-}
-
-.logoDot {
-  width: 7px;
-  height: 7px;
-  border-radius: 50%;
-  background-color: var(--p-gold);
-  box-shadow: 0 0 8px rgba(201,168,76,0.6);
-  flex-shrink: 0;
-}
-
-.navCta {
-  transition: all 0.22s ease;
-}
-
-.navCta:hover {
-  transform: translateY(-1px);
-}
-
-/* ── Hero ── */
-.heroContent {
-  animation: heroFade 900ms ease both;
-  direction: rtl !important;
-  text-align: right !important;
+  50%      { opacity: 0; }
 }
 
 .heroHeading {
   direction: rtl !important;
-  text-align: right !important;
-  unicode-bidi: isolate;
+  min-height: 2.4em;
 }
 
-.heroTitleCluster {
-  display: flex;
-  flex-direction: column;
-  align-items: stretch;
-  width: fit-content;
-  max-width: 100%;
-  margin-right: auto;
-  margin-left: auto;
+.cursor {
+  animation: blink 0.7s step-end infinite;
+  font-weight: 300;
+  margin-right: 2px;
 }
 
-.heroLine {
-  display: block;
-  width: 100%;
-  direction: rtl !important;
-  text-align: right !important;
+.heroSubContent {
+  opacity: 0;
+  transform: translateY(22px);
+  transition: opacity 1200ms ease, transform 1200ms ease;
 }
 
-.deviceWrap {
-  animation: deviceFade 1100ms ease both;
+.heroSubContentVisible {
+  opacity: 1;
+  transform: translateY(0);
 }
 
-.gradientText {
-  animation: gradientFlow 5s linear infinite;
+@keyframes scrollBounce {
+  0%, 100% { transform: translateY(0); opacity: 0.6; }
+  50%      { transform: translateY(8px); opacity: 1; }
 }
 
-.badgeDot {
-  width: 8px;
-  height: 8px;
-  border-radius: 50%;
-  background-color: #34d399;
-  box-shadow: 0 0 6px rgba(52,211,153,0.5);
-  animation: dotPulse 2s ease-in-out infinite;
-  flex-shrink: 0;
+.scrollIndicator {
+  animation: heroFade 800ms ease both;
+  animation-delay: 1.5s;
+  opacity: 0;
 }
 
-@keyframes arrowNudge {
-  0%, 100% { transform: translateX(0); }
-  50%      { transform: translateX(-6px); }
+.scrollArrow {
+  animation: scrollBounce 2s ease-in-out infinite;
 }
 
 .heroCta {
@@ -117,32 +56,4 @@
 
 .heroCta svg {
   animation: arrowNudge 1.5s ease-in-out infinite;
-}
-
-/* ── Background ── */
-.bgImage {
-  position: absolute;
-  inset: 0;
-  background-image: url('/images/gallery/interior-03.png');
-  background-size: cover;
-  background-position: center;
-  opacity: 0.1;
-  mix-blend-mode: screen;
-  filter: grayscale(10%) brightness(0.48);
-  transform: scale(1.04);
-}
-
-.bgOverlay {
-  position: absolute;
-  inset: 0;
-  background:
-    linear-gradient(90deg, rgba(6,16,26,0.98) 0%, rgba(6,16,26,0.9) 36%, rgba(6,16,26,0.54) 67%, rgba(6,16,26,0.78) 100%),
-    radial-gradient(circle at 26% 80%, rgba(201,168,76,0.1), transparent 20%);
-}
-
-.deviceGlow {
-  position: absolute;
-  inset: 0;
-  background: radial-gradient(circle at 58% 55%, rgba(201,168,76,0.18), transparent 36%);
-  filter: blur(18px);
 }

@@ -1,22 +1,10 @@
-.bgImage {
-  position: absolute;
-  inset: 0;
-  background-image: url('/images/gallery/interior-03.png');
-  background-size: cover;
-  background-position: center;
-  opacity: 0.06;
-  filter: grayscale(10%) brightness(0.5);
-  transform: scale(1.04);
-}
-
 .contactIconWrap {
-  width: 52px;
-  height: 52px;
+  width: 48px;
+  height: 48px;
   border-radius: 12px;
   display: flex;
   align-items: center;
   justify-content: center;
-  background-color: rgba(201,168,76,0.08);
-  border: 1px solid var(--p-border-soft);
+  background-color: rgba(37,99,235,0.06);
   margin-bottom: 16px;
 }

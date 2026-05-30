@@ -3,58 +3,58 @@ import Box from '@mui/material/Box';
 import Button from '@mui/material/Button';
 import Container from '@mui/material/Container';
 import Typography from '@mui/material/Typography';
-import AccessTimeIcon from '@mui/icons-material/AccessTime';
-import CampaignIcon from '@mui/icons-material/Campaign';
-import PaymentIcon from '@mui/icons-material/Payment';
-import CollectionsIcon from '@mui/icons-material/Collections';
+import WebIcon from '@mui/icons-material/Web';
+import SpeedIcon from '@mui/icons-material/Speed';
 import PhoneIphoneIcon from '@mui/icons-material/PhoneIphone';
 import DashboardCustomizeIcon from '@mui/icons-material/DashboardCustomize';
-import CelebrationIcon from '@mui/icons-material/Celebration';
+import PaletteIcon from '@mui/icons-material/Palette';
 import SecurityIcon from '@mui/icons-material/Security';
+import CollectionsIcon from '@mui/icons-material/Collections';
+import PaymentIcon from '@mui/icons-material/Payment';
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import { PLATFORM_COLORS as COLORS } from '../utils/constants';
 import PlatformLayout, { PlatformPageHeader } from '../components/PlatformLayout';
 
 const FEATURES = [
   {
-    icon: <AccessTimeIcon sx={{ fontSize: 32 }} />,
-    title: 'זמני תפילה',
-    desc: 'הצגת תפילות ושיעורים בצורה ברורה ומעודכנת. עדכון קל ומהיר דרך הממשק.',
+    icon: <WebIcon sx={{ fontSize: 28 }} />,
+    title: 'אתר מקצועי',
+    desc: 'עיצוב מודרני ומותאם אישית שמייצג את העסק שלכם בצורה הטובה ביותר.',
   },
   {
-    icon: <CampaignIcon sx={{ fontSize: 32 }} />,
-    title: 'הודעות ועדכונים',
-    desc: 'פרסום הודעות לקהילה — שיעורים, אירועים, הודעות לשבת ועוד. הכל במקום אחד.',
+    icon: <SpeedIcon sx={{ fontSize: 28 }} />,
+    title: 'הקמה מהירה',
+    desc: 'בחרו תבנית, מלאו פרטים, ותוך דקות יש לכם אתר עם כתובת ייחודית.',
   },
   {
-    icon: <PaymentIcon sx={{ fontSize: 32 }} />,
-    title: 'תשלומים ותרומות',
-    desc: 'קבלת תרומות ותשלומים אונליין בצורה מאובטחת. תמיכה בכרטיסי אשראי והעברות.',
+    icon: <PaymentIcon sx={{ fontSize: 28 }} />,
+    title: 'תשלומים אונליין',
+    desc: 'קבלת תשלומים בצורה מאובטחת. תמיכה בכרטיסי אשראי, ביט והעברות.',
   },
   {
-    icon: <CollectionsIcon sx={{ fontSize: 32 }} />,
+    icon: <CollectionsIcon sx={{ fontSize: 28 }} />,
     title: 'גלריית תמונות',
-    desc: 'הצגת תמונות מבית הכנסת, מאירועים ומפעילויות הקהילה בגלריה מרשימה.',
+    desc: 'הציגו תמונות מהעסק, מוצרים ואירועים בגלריה מעוצבת ומרשימה.',
   },
   {
-    icon: <PhoneIphoneIcon sx={{ fontSize: 32 }} />,
+    icon: <PhoneIphoneIcon sx={{ fontSize: 28 }} />,
     title: 'מותאם לנייד',
-    desc: 'האתר נראה מושלם בכל מכשיר — סמארטפון, טאבלט ומחשב. ללא צורך באפליקציה.',
+    desc: 'האתר נראה מושלם בכל מכשיר - סמארטפון, טאבלט ומחשב.',
   },
   {
-    icon: <DashboardCustomizeIcon sx={{ fontSize: 32 }} />,
+    icon: <DashboardCustomizeIcon sx={{ fontSize: 28 }} />,
     title: 'ממשק ניהול',
-    desc: 'ממשק ניהול אינטואיטיבי שמאפשר לגבאים לעדכן את כל התוכן בקלות וללא ידע טכני.',
+    desc: 'ממשק ניהול אינטואיטיבי שמאפשר לעדכן את כל התוכן בקלות.',
   },
   {
-    icon: <CelebrationIcon sx={{ fontSize: 32 }} />,
-    title: 'ברכות ואירועים',
-    desc: 'מערכת ברכות לאירועים שמחים — בר מצווה, חתונות, ימי הולדת ועוד.',
+    icon: <PaletteIcon sx={{ fontSize: 28 }} />,
+    title: 'התאמה אישית',
+    desc: 'צבעים, תמונות, עמודים וסקשנים - הכל בשליטה מלאה שלכם.',
   },
   {
-    icon: <SecurityIcon sx={{ fontSize: 32 }} />,
+    icon: <SecurityIcon sx={{ fontSize: 28 }} />,
     title: 'אבטחה ופרטיות',
-    desc: 'המידע מאוחסן בצורה מאובטחת עם גיבויים אוטומטיים. פרטיות המתפללים מובטחת.',
+    desc: 'המידע מאוחסן בצורה מאובטחת עם גיבויים אוטומטיים בענן.',
   },
 ];
 
@@ -63,11 +63,10 @@ export default function Features() {
     <PlatformLayout>
       <Container maxWidth="lg" sx={{ pb: { xs: 2, md: 4 } }}>
         <PlatformPageHeader
-          title="כל מה שבית כנסת צריך"
-          subtitle="פיצ׳רים שנבנו במיוחד לצרכים של בתי כנסת וקהילות"
+          title="כל מה שהעסק שלכם צריך"
+          subtitle="פיצ׳רים שנבנו כדי לעזור לכם ליצור נוכחות דיגיטלית מקצועית"
         />
 
-        {/* Features Grid */}
         <Box
           sx={{
             display: 'grid',
@@ -81,44 +80,42 @@ export default function Features() {
               key={f.title}
               sx={{
                 p: 3.5,
-                borderRadius: 4,
+                borderRadius: 3,
                 bgcolor: COLORS.panel,
-                border: `1px solid ${COLORS.borderSoft}`,
-                transition: 'border-color 0.3s, transform 0.3s',
+                border: `1px solid ${COLORS.border}`,
+                transition: 'all 0.25s ease',
                 '&:hover': {
-                  borderColor: COLORS.border,
+                  boxShadow: '0 8px 24px rgba(15,23,42,0.06)',
                   transform: 'translateY(-4px)',
                 },
               }}
             >
               <Box
                 sx={{
-                  width: 56,
-                  height: 56,
-                  borderRadius: 3,
-                  bgcolor: 'rgba(201,168,76,0.08)',
+                  width: 48, height: 48,
+                  borderRadius: 2.5,
+                  bgcolor: 'rgba(37,99,235,0.06)',
                   display: 'flex',
                   alignItems: 'center',
                   justifyContent: 'center',
-                  color: COLORS.gold,
+                  color: COLORS.primary,
                   mb: 2.5,
                 }}
               >
                 {f.icon}
               </Box>
-              <Typography sx={{ fontWeight: 700, fontSize: '1.1rem', color: COLORS.ivory, mb: 1 }}>
+              <Typography sx={{ fontWeight: 700, fontSize: '1.05rem', color: COLORS.text, mb: 1 }}>
                 {f.title}
               </Typography>
-              <Typography variant="body2" sx={{ color: COLORS.muted, lineHeight: 1.85 }}>
+              <Typography variant="body2" sx={{ color: COLORS.textSecondary, lineHeight: 1.85 }}>
                 {f.desc}
               </Typography>
             </Box>
           ))}
         </Box>
 
-        {/* CTA */}
         <Box sx={{ textAlign: 'center' }}>
-          <Typography sx={{ color: COLORS.muted, fontSize: '1.1rem', mb: 3 }}>
+          <Typography sx={{ color: COLORS.textSecondary, fontSize: '1.1rem', mb: 3 }}>
             רוצים לראות את כל זה באתר שלכם?
           </Typography>
           <Button
@@ -127,17 +124,16 @@ export default function Features() {
             size="large"
             endIcon={<ArrowBackIcon />}
             sx={{
-              bgcolor: COLORS.gold,
-              color: COLORS.bg,
+              bgcolor: COLORS.primary,
+              color: '#FFFFFF',
               fontWeight: 700,
               fontSize: '1.1rem',
               px: 5,
               py: 1.6,
               borderRadius: 3,
-              boxShadow: '0 12px 36px rgba(201,168,76,0.28)',
+              boxShadow: '0 8px 24px rgba(37,99,235,0.25)',
               '&:hover': {
-                bgcolor: COLORS.goldLight,
-                boxShadow: '0 16px 44px rgba(201,168,76,0.38)',
+                bgcolor: COLORS.primaryDark,
                 transform: 'translateY(-2px)',
               },
               transition: 'all 0.25s ease',

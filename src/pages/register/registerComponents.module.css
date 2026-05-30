@@ -24,8 +24,9 @@
 }
 
 .sectionTitleText {
-  color: #C9A84C;
-  font-family: "Secular One", serif;
+  color: #1E293B;
+  font-family: "Inter", "Assistant", sans-serif;
+  font-weight: 700;
   margin-bottom: 4.8px;
   text-align: right;
   direction: rtl;
@@ -33,7 +34,7 @@
 }
 
 .sectionDescription {
-  color: #B7ADA0;
+  color: #64748B;
   font-size: 0.95rem;
   text-align: right;
   direction: rtl;
@@ -88,7 +89,7 @@
 }
 
 .branchCity {
-  color: #B7ADA0;
+  color: #64748B;
   direction: rtl;
   text-align: right;
 }

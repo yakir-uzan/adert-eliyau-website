@@ -20,7 +20,6 @@ import { buildTenantDocFromForm } from '../utils/tenantFormUtils';
 import { primaryButtonSx, secondaryButtonSx } from '../utils/buttonStyles';
 import { createTrialEndDate, TRIAL_DAYS } from '../utils/tenantPlan';
 import { markLocalTenantOwnerAccess, saveLocalTenantDraft } from '../utils/localTenantAccess';
-import PlatformGoldDivider from '../components/PlatformGoldDivider';
 import { STEPS, LIVE_PREVIEW_SLUG, LIVE_PREVIEW_MESSAGE_TYPE } from './register/registerConstants';
 import ProgressSteps from './register/ProgressSteps';
 import LiveSitePreview from './register/LiveSitePreview';
@@ -40,7 +39,7 @@ const INITIAL_DATA = {
 
 export default function RegisterTenant() {
   const navigate = useNavigate();
-  const baseUrl = import.meta.env.VITE_PUBLIC_SITE_URL || 'https://beit-knesset.com';
+  const baseUrl = import.meta.env.VITE_PUBLIC_SITE_URL || 'https://genisite.com';
   const previewBaseUrl = typeof window !== 'undefined' ? window.location.origin : baseUrl;
   const [step, setStep] = useState(0);
   const [saving, setSaving] = useState(false);
@@ -81,9 +80,9 @@ export default function RegisterTenant() {
     setUploads(prev => ({ ...prev, [field]: false }));
   };
 
-  const previewSlug = cleanSlug(data.slug || buildSlugFromName(data.name) || 'your-synagogue');
+  const previewSlug = cleanSlug(data.slug || buildSlugFromName(data.name) || 'your-business');
   const previewUrl = `${previewBaseUrl}/${LIVE_PREVIEW_SLUG}`;
-  const publicPreviewUrl = `${baseUrl}/${previewSlug || 'your-synagogue'}`;
+  const publicPreviewUrl = `${baseUrl}/${previewSlug || 'your-business'}`;
 
   const pushPreviewUpdate = () => {
     if (typeof window === 'undefined') return;
@@ -108,7 +107,7 @@ export default function RegisterTenant() {
         localDoc.trialEndsAt = createTrialEndDate().toISOString();
         markLocalTenantOwnerAccess(slugClean);
         saveLocalTenantDraft(slugClean, localDoc);
-        setToast('בית הכנסת נשמר במצב תצוגה מקומית');
+        setToast('האתר נשמר במצב תצוגה מקומית');
         setSaving(false);
         navigate(`/${slugClean}/admin`);
         return;
@@ -123,9 +122,9 @@ export default function RegisterTenant() {
       try {
         await withTimeout(setDoc(doc(db, 'tenants', slugClean), tenantDoc));
         if (isLocalhost) saveLocalTenantDraft(slugClean, tenantDoc);
-        setToast(`בית הכנסת נוצר בהצלחה. הופעל ניסיון ל-${TRIAL_DAYS} ימים`);
+        setToast(`האתר נוצר בהצלחה. הופעל ניסיון ל-${TRIAL_DAYS} ימים`);
       } catch (writeError) {
-        if (isLocalhost) { saveLocalTenantDraft(slugClean, tenantDoc); setToast('בית הכנסת נשמר במצב תצוגה מקומית'); }
+        if (isLocalhost) { saveLocalTenantDraft(slugClean, tenantDoc); setToast('האתר נשמר במצב תצוגה מקומית'); }
         else throw writeError;
       }
       setTimeout(() => navigate(`/${slugClean}/admin`), 1500);
@@ -136,9 +135,9 @@ export default function RegisterTenant() {
         fallbackDoc.trialEndsAt = createTrialEndDate().toISOString();
         markLocalTenantOwnerAccess(slugClean);
         saveLocalTenantDraft(slugClean, fallbackDoc);
-        setToast('בית הכנסת נשמר במצב תצוגה מקומית');
+        setToast('האתר נשמר במצב תצוגה מקומית');
         setTimeout(() => navigate(`/${slugClean}/admin`), 1200);
-      } else { setError(`שגיאה ביצירת בית הכנסת. ${err.message || ''}`); }
+      } else { setError(`שגיאה ביצירת האתר. ${err.message || ''}`); }
     }
     setSaving(false);
   };
@@ -146,13 +145,13 @@ export default function RegisterTenant() {
   if (authLoading) {
     return (
       <Box sx={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', bgcolor: COLORS.bg }}>
-        <CircularProgress sx={{ color: COLORS.gold }} />
+        <CircularProgress sx={{ color: COLORS.primary }} />
       </Box>
     );
   }
 
   const stepContent = [
-    <StepBasicInfo key="basic" data={data} update={update} baseUrl={baseUrl} uploads={uploads} onUpload={uploadImage} />,
+    <StepBasicInfo key="basic" data={data} update={update} baseUrl={baseUrl} />,
     <StepContact key="contact" data={data} update={update} />,
   ];
 
@@ -166,13 +165,12 @@ export default function RegisterTenant() {
 
       <Container maxWidth="xl" sx={{ position: 'relative' }}>
         <Box sx={{ textAlign: 'center', mb: { xs: 2.5, md: 3 } }}>
-          <Typography variant="caption" sx={{ color: COLORS.goldLight, letterSpacing: '0.22em', display: { xs: 'none', sm: 'block' }, mb: 0.8 }}>
-            פתיחת אתר
+          <Typography variant="h3" sx={{ fontFamily: '"Inter", "Assistant", sans-serif', fontWeight: 800, color: COLORS.text, mb: 0.5, fontSize: { xs: '1.6rem', sm: '2rem', md: '2.6rem' }, letterSpacing: '-0.02em' }}>
+            צרו אתר לעסק שלכם
           </Typography>
-          <Typography variant="h3" sx={{ fontFamily: '"Secular One", serif', color: COLORS.gold, mb: 0.5, fontSize: { xs: '1.6rem', sm: '2rem', md: '2.6rem' } }}>
-            צור אתר בקלות לבית הכנסת שלך
+          <Typography sx={{ color: COLORS.textSecondary, fontSize: '1rem' }}>
+            מלאו את הפרטים ותוך דקות האתר מוכן
           </Typography>
-          <PlatformGoldDivider width={140} sideWidth={26} sideOffset={36} sx={{ mx: 'auto', my: 1.75 }} />
         </Box>
 
         <Box
@@ -185,20 +183,20 @@ export default function RegisterTenant() {
           <Box
             sx={{
               direction: 'rtl', width: '100%', minWidth: 0, flex: { lg: '0 1 760px' }, maxWidth: 760,
-              textAlign: 'right', position: 'relative', height: { xs: 'auto', lg: 650 },
-              pb: { xs: 0, lg: 0 }, overflowX: 'hidden',
+              textAlign: 'right', position: 'relative', display: 'flex', flexDirection: 'column',
+              minHeight: { lg: 520 }, overflowX: 'hidden',
               transform: { lg: 'translateX(-18px)', xl: 'translateX(-24px)' },
             }}
           >
             <ProgressSteps steps={STEPS} activeStep={step} />
 
-            <Box sx={{ py: 1, direction: 'rtl', textAlign: 'right', height: { xs: 'auto', lg: 'calc(100% - 128px)' }, overflowY: { xs: 'visible', lg: 'auto' }, overflowX: 'hidden', pr: 0.5 }}>
+            <Box sx={{ py: 1, direction: 'rtl', textAlign: 'right', overflowX: 'hidden', pr: 0.5 }}>
               {stepContent[step]}
             </Box>
 
             {error && <Alert severity="error" sx={{ mt: 2, mb: 1 }}>{error}</Alert>}
 
-            <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: 2, flexWrap: 'wrap', pt: 2.5, borderTop: '1px solid rgba(201,168,76,0.14)', flexDirection: 'row-reverse', direction: 'rtl', position: { xs: 'static', lg: 'absolute' }, right: 0, left: 0, bottom: { xs: 0, lg: 60 }, bgcolor: 'transparent' }}>
+            <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: 2, flexWrap: 'wrap', pt: 2.5, mt: 'auto', borderTop: `1px solid ${COLORS.border}`, flexDirection: 'row-reverse', direction: 'rtl' }}>
               <Button onClick={handleBack} disabled={step === 0} sx={{ ...secondaryButtonSx, visibility: step === 0 ? 'hidden' : 'visible' }}>
                 <Box sx={{ display: 'inline-flex', alignItems: 'center', gap: 1.1, direction: 'rtl' }}>
                   <span>הקודם</span>
@@ -219,7 +217,7 @@ export default function RegisterTenant() {
                 <Button onClick={handleSubmit} disabled={saving} variant="contained" sx={primaryButtonSx}>
                   <Box sx={{ display: 'inline-flex', alignItems: 'center', gap: 1.1, direction: 'ltr' }}>
                     <span>{saving ? 'יוצר...' : 'צור את האתר'}</span>
-                    {saving ? <CircularProgress size={20} sx={{ color: COLORS.bg, flexShrink: 0 }} /> : <CheckCircleIcon sx={{ fontSize: 19, flexShrink: 0 }} />}
+                    {saving ? <CircularProgress size={20} sx={{ color: '#FFFFFF', flexShrink: 0 }} /> : <CheckCircleIcon sx={{ fontSize: 19, flexShrink: 0 }} />}
                   </Box>
                 </Button>
               )}

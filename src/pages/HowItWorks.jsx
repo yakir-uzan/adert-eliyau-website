@@ -15,19 +15,19 @@ const STEPS = [
     num: '01',
     icon: <TouchAppIcon sx={{ fontSize: 36 }} />,
     title: 'הרשמה מהירה',
-    desc: 'מלאו את שם בית הכנסת והפרטים הבסיסיים. תוך פחות מדקה תקבלו אתר מוכן עם כתובת ייחודית.',
+    desc: 'בחרו תבנית מתאימה לסוג העסק, מלאו את הפרטים הבסיסיים, ותוך פחות מדקה תקבלו אתר מוכן.',
   },
   {
     num: '02',
     icon: <EditIcon sx={{ fontSize: 36 }} />,
     title: 'התאמה אישית',
-    desc: 'הוסיפו זמני תפילה, הודעות, תמונות לגלריה, פרטי תשלום ועוד. הכל דרך ממשק ניהול פשוט ונוח.',
+    desc: 'הוסיפו תוכן, תמונות, עמודים ופרטי קשר. הכל דרך ממשק ניהול פשוט וללא ידע טכני.',
   },
   {
     num: '03',
     icon: <RocketLaunchIcon sx={{ fontSize: 36 }} />,
     title: 'האתר באוויר!',
-    desc: 'שתפו את הקישור עם המתפללים. האתר מותאם לנייד, מהיר ומעודכן בזמן אמת.',
+    desc: 'שתפו את הקישור עם הלקוחות. האתר מותאם לנייד, מהיר ומעודכן בזמן אמת.',
   },
 ];
 
@@ -37,10 +37,9 @@ export default function HowItWorks() {
       <Container maxWidth="lg" sx={{ pb: { xs: 2, md: 4 } }}>
         <PlatformPageHeader
           title="איך זה עובד?"
-          subtitle="שלושה צעדים פשוטים ויש לכם אתר מקצועי לבית הכנסת"
+          subtitle="שלושה צעדים פשוטים ויש לכם אתר מקצועי לעסק"
         />
 
-        {/* Steps */}
         <Box
           sx={{
             display: 'grid',
@@ -55,23 +54,23 @@ export default function HowItWorks() {
               sx={{
                 position: 'relative',
                 p: 4,
-                borderRadius: 4,
+                borderRadius: 3,
                 bgcolor: COLORS.panel,
-                border: `1px solid ${COLORS.borderSoft}`,
+                border: `1px solid ${COLORS.border}`,
                 textAlign: 'center',
-                transition: 'border-color 0.3s, transform 0.3s',
+                transition: 'all 0.25s ease',
                 '&:hover': {
-                  borderColor: COLORS.border,
+                  boxShadow: '0 8px 24px rgba(15,23,42,0.06)',
                   transform: 'translateY(-4px)',
                 },
               }}
             >
               <Typography
                 sx={{
-                  fontFamily: '"Secular One", sans-serif',
-                  fontSize: '3.5rem',
+                  fontFamily: '"Inter", sans-serif',
+                  fontSize: '3rem',
                   fontWeight: 800,
-                  color: 'rgba(201,168,76,0.08)',
+                  color: 'rgba(37,99,235,0.07)',
                   position: 'absolute',
                   top: 12,
                   left: 20,
@@ -80,11 +79,25 @@ export default function HowItWorks() {
               >
                 {step.num}
               </Typography>
-              <Box sx={{ color: COLORS.gold, mb: 2.5 }}>{step.icon}</Box>
-              <Typography sx={{ fontWeight: 700, fontSize: '1.3rem', color: COLORS.ivory, mb: 1.5 }}>
+              <Box
+                sx={{
+                  width: 56, height: 56,
+                  borderRadius: 3,
+                  bgcolor: 'rgba(37,99,235,0.06)',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  color: COLORS.primary,
+                  mx: 'auto',
+                  mb: 2.5,
+                }}
+              >
+                {step.icon}
+              </Box>
+              <Typography sx={{ fontWeight: 700, fontSize: '1.2rem', color: COLORS.text, mb: 1.5 }}>
                 {step.title}
               </Typography>
-              <Typography sx={{ color: COLORS.muted, lineHeight: 1.9, fontSize: '0.95rem' }}>
+              <Typography sx={{ color: COLORS.textSecondary, lineHeight: 1.8, fontSize: '0.95rem' }}>
                 {step.desc}
               </Typography>
               {i < STEPS.length - 1 && (
@@ -93,10 +106,10 @@ export default function HowItWorks() {
                     display: { xs: 'none', md: 'block' },
                     position: 'absolute',
                     top: '50%',
-                    left: -28,
+                    left: -20,
                     transform: 'translateY(-50%)',
-                    color: 'rgba(201,168,76,0.3)',
-                    fontSize: '1.5rem',
+                    color: COLORS.muted,
+                    fontSize: '1.3rem',
                   }}
                 >
                   &#8592;
@@ -106,7 +119,6 @@ export default function HowItWorks() {
           ))}
         </Box>
 
-        {/* CTA */}
         <Box sx={{ textAlign: 'center' }}>
           <Button
             component={Link}
@@ -114,17 +126,16 @@ export default function HowItWorks() {
             size="large"
             endIcon={<ArrowBackIcon />}
             sx={{
-              bgcolor: COLORS.gold,
-              color: COLORS.bg,
+              bgcolor: COLORS.primary,
+              color: '#FFFFFF',
               fontWeight: 700,
               fontSize: '1.1rem',
               px: 5,
               py: 1.6,
               borderRadius: 3,
-              boxShadow: '0 12px 36px rgba(201,168,76,0.28)',
+              boxShadow: '0 8px 24px rgba(37,99,235,0.25)',
               '&:hover': {
-                bgcolor: COLORS.goldLight,
-                boxShadow: '0 16px 44px rgba(201,168,76,0.38)',
+                bgcolor: COLORS.primaryDark,
                 transform: 'translateY(-2px)',
               },
               transition: 'all 0.25s ease',

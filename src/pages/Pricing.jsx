@@ -9,10 +9,10 @@ import { PLATFORM_COLORS as COLORS } from '../utils/constants';
 import PlatformLayout, { PlatformPageHeader } from '../components/PlatformLayout';
 
 const INCLUDED = [
-  'אתר מלא לבית הכנסת עם כתובת ייחודית',
-  'ממשק ניהול לגבאים ללא ידע טכני',
-  'זמני תפילה, הודעות, גלריה וברכות',
-  'אפשרויות תרומה ותשלום אונליין',
+  'אתר מלא לעסק עם כתובת ייחודית',
+  'ממשק ניהול ללא ידע טכני',
+  'עמודים מותאמים לסוג העסק שלכם',
+  'אפשרויות תשלום אונליין',
   'התאמה מלאה לנייד ולמחשב',
   'עדכוני תוכן בזמן אמת',
 ];
@@ -23,7 +23,7 @@ export default function Pricing() {
       <Container maxWidth="lg" sx={{ pb: { xs: 2, md: 4 } }}>
         <PlatformPageHeader
           title="מחירים"
-          subtitle="מתחילים בתקופת ניסיון, בודקים שהכל מתאים לקהילה, ורק אז מפעילים את האתר להמשך שימוש."
+          subtitle="מתחילים בתקופת ניסיון, בודקים שהכל מתאים, ורק אז ממשיכים."
         />
 
         <Box
@@ -36,11 +36,11 @@ export default function Pricing() {
         >
           <Box
             sx={{
-              p: { xs: 3.2, md: 5 },
+              p: { xs: 3.5, md: 5 },
               borderRadius: 4,
-              bgcolor: 'rgba(16,26,37,0.86)',
-              border: `1px solid ${COLORS.border}`,
-              boxShadow: '0 28px 70px rgba(0,0,0,0.28)',
+              bgcolor: COLORS.panel,
+              border: `2px solid ${COLORS.primary}`,
+              boxShadow: '0 8px 32px rgba(37,99,235,0.1)',
               position: 'relative',
               overflow: 'hidden',
             }}
@@ -53,25 +53,25 @@ export default function Pricing() {
                 width: 220,
                 height: 220,
                 borderRadius: '50%',
-                background: 'radial-gradient(circle, rgba(201,168,76,0.18), transparent 68%)',
+                background: 'radial-gradient(circle, rgba(37,99,235,0.06), transparent 68%)',
               }}
             />
 
-            <Typography sx={{ color: COLORS.goldLight, fontWeight: 700, fontSize: '1.15rem', mb: 1 }}>
-              תוכנית מלאה לבית כנסת
+            <Typography sx={{ color: COLORS.primary, fontWeight: 700, fontSize: '1.1rem', mb: 1 }}>
+              תוכנית מלאה לעסק
             </Typography>
-            <Typography sx={{ color: COLORS.ivory, fontFamily: '"Secular One", sans-serif', fontSize: { xs: '2.4rem', md: '3.4rem' }, lineHeight: 1.08, mb: 1.5 }}>
+            <Typography sx={{ color: COLORS.text, fontFamily: '"Inter", "Assistant", sans-serif', fontWeight: 800, fontSize: { xs: '2.2rem', md: '3rem' }, lineHeight: 1.08, mb: 1.5, letterSpacing: '-0.02em' }}>
               30 ימי ניסיון
             </Typography>
-            <Typography sx={{ color: COLORS.muted, lineHeight: 1.9, mb: 3.5 }}>
-              תקופת ניסיון מלאה לפני הפעלה בתשלום. לאחר מכן ממשיכים לפי המחירים הקבועים של האתר.
+            <Typography sx={{ color: COLORS.textSecondary, lineHeight: 1.9, mb: 3.5 }}>
+              תקופת ניסיון מלאה לפני הפעלה בתשלום. לאחר מכן ממשיכים לפי המחירים הקבועים.
             </Typography>
 
             <Box sx={{ display: 'grid', gap: 1.5, mb: 4 }}>
               {INCLUDED.map((item) => (
                 <Box key={item} sx={{ display: 'flex', alignItems: 'center', gap: 1.3 }}>
-                  <CheckCircleIcon sx={{ color: COLORS.gold, fontSize: 21, flexShrink: 0 }} />
-                  <Typography sx={{ color: COLORS.ivory, lineHeight: 1.6 }}>{item}</Typography>
+                  <CheckCircleIcon sx={{ color: COLORS.secondary, fontSize: 20, flexShrink: 0 }} />
+                  <Typography sx={{ color: COLORS.text, lineHeight: 1.6 }}>{item}</Typography>
                 </Box>
               ))}
             </Box>
@@ -82,15 +82,15 @@ export default function Pricing() {
               size="large"
               endIcon={<ArrowBackIcon />}
               sx={{
-                bgcolor: COLORS.gold,
-                color: COLORS.bg,
-                fontWeight: 800,
+                bgcolor: COLORS.primary,
+                color: '#FFFFFF',
+                fontWeight: 700,
                 fontSize: '1.05rem',
                 px: 4.5,
                 py: 1.55,
                 borderRadius: 3,
-                boxShadow: '0 16px 42px rgba(201,168,76,0.26)',
-                '&:hover': { bgcolor: COLORS.goldLight, transform: 'translateY(-2px)' },
+                boxShadow: '0 8px 24px rgba(37,99,235,0.25)',
+                '&:hover': { bgcolor: COLORS.primaryDark, transform: 'translateY(-2px)' },
                 transition: 'all 0.24s ease',
               }}
             >
@@ -100,29 +100,29 @@ export default function Pricing() {
 
           <Box sx={{ display: 'grid', gap: 3 }}>
             {[
-              { label: 'הקמה חד-פעמית', price: '₪490–₪990', note: 'תשלום הקמה עבור פתיחת האתר, התאמת ההגדרות והעמדת האתר לשימוש.' },
-              { label: 'חידוש שנתי', price: '₪180–₪360', note: 'תשלום שנתי לשמירת האתר פעיל, זמין ומוכן לעדכונים שוטפים.' },
+              { label: 'הקמה חד-פעמית', price: '₪490-₪990', note: 'תשלום הקמה עבור פתיחת האתר, התאמת ההגדרות והעמדת האתר לשימוש.' },
+              { label: 'חידוש שנתי', price: '₪180-₪360', note: 'תשלום שנתי לשמירת האתר פעיל, זמין ומוכן לעדכונים שוטפים.' },
             ].map((item) => (
               <Box
                 key={item.label}
                 sx={{
-                  p: { xs: 3.2, md: 4 },
+                  p: { xs: 3.5, md: 4 },
                   borderRadius: 3,
-                  bgcolor: 'rgba(245,240,232,0.035)',
-                  border: `1px solid ${COLORS.borderSoft}`,
+                  bgcolor: COLORS.bgAlt,
+                  border: `1px solid ${COLORS.border}`,
                   minHeight: 190,
                   display: 'flex',
                   flexDirection: 'column',
                   justifyContent: 'center',
                 }}
               >
-                <Typography sx={{ color: COLORS.muted, fontWeight: 700, mb: 1 }}>
+                <Typography sx={{ color: COLORS.textSecondary, fontWeight: 700, mb: 1 }}>
                   {item.label}
                 </Typography>
-                <Typography sx={{ color: COLORS.goldLight, fontFamily: '"Secular One", sans-serif', fontSize: { xs: '2.4rem', md: '3.2rem' }, lineHeight: 1, mb: 1.5 }}>
+                <Typography sx={{ color: COLORS.primary, fontFamily: '"Inter", "Assistant", sans-serif', fontWeight: 800, fontSize: { xs: '2.2rem', md: '2.8rem' }, lineHeight: 1, mb: 1.5, letterSpacing: '-0.02em' }}>
                   {item.price}
                 </Typography>
-                <Typography sx={{ color: COLORS.muted, lineHeight: 1.85 }}>
+                <Typography sx={{ color: COLORS.textSecondary, lineHeight: 1.85 }}>
                   {item.note}
                 </Typography>
               </Box>

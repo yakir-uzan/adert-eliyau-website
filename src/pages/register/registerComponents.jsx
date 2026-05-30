@@ -64,7 +64,7 @@ export function ImageField({ label, value, onChange, onUpload, uploading, helper
               <IconButton
                 type="button"
                 onClick={() => fileInputRef.current?.click()}
-                sx={{ color: COLORS.goldLight }}
+                sx={{ color: COLORS.primary }}
               >
                 {uploading ? <CircularProgress size={18} sx={{ color: 'inherit' }} /> : <AddPhotoAlternateOutlinedIcon />}
               </IconButton>
