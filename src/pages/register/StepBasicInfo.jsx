@@ -25,7 +25,7 @@ export default function StepBasicInfo({ data, update, baseUrl, uploads, onUpload
             }}
             fullWidth
             sx={inputSx}
-            placeholder="לדוגמה: אדרת אליהו"
+            placeholder="לדוגמה: נר תמיד"
             inputProps={{ dir: 'rtl', style: { textAlign: 'right' } }}
           />
         </CompactField>
